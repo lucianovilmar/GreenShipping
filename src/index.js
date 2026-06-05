@@ -96,6 +96,7 @@ app.get('/api/portos', async (req, res) => {
         (p.sigla && p.sigla.toLowerCase().includes(searchTerm)) ||
         (p.codigo && p.codigo.toLowerCase().includes(searchTerm)) ||
         (p.country && p.country.toLowerCase().includes(searchTerm)) ||
+        (p.city && p.city.toLowerCase().includes(searchTerm)) ||
         (p.id && p.id.toString().includes(searchTerm))
       );
     }
@@ -115,6 +116,7 @@ app.get('/api/portos', async (req, res) => {
         (p.sigla && p.sigla.toLowerCase().includes(q.toLowerCase())) || 
         (p.codigo && p.codigo.toLowerCase().includes(q.toLowerCase())) || 
         (p.country && p.country.toLowerCase().includes(q.toLowerCase())) || 
+        (p.city && p.city.toLowerCase().includes(q.toLowerCase())) || 
         (p.id && p.id.toString().includes(q))
       ) : fallback;
       return res.json(envelope(true, list.slice(0, q ? 20 : 50), [], ['fallback']));
