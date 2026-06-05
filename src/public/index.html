@@ -852,8 +852,8 @@
     // Initialize Autocompletes
     new PortoAutocomplete('origem-search', 'origem-list', 'origem', '/api/seaports');
     new PortoAutocomplete('destino-search', 'destino-list', 'destino', '/api/seaports');
-    new PortoAutocomplete('origem-aereo-search', 'origem-aereo-list', 'origem-aereo', '/api/aeroportos');
-    new PortoAutocomplete('destino-aereo-search', 'destino-aereo-list', 'destino-aereo', '/api/aeroportos');
+    new PortoAutocomplete('origem-aereo-search', 'origem-aereo-list', 'origem-aereo', '/api/airports');
+    new PortoAutocomplete('destino-aereo-search', 'destino-aereo-list', 'destino-aereo', '/api/airports');
     new PortoAutocomplete('companhia-search', 'companhia-list', 'companhiaTransporte', '/api/shipping-lines');
     new PortoAutocomplete('navio-search', 'navio-list', 'navio', '/api/navios');
     new PortoAutocomplete('armazem-search', 'armazem-list', 'armazem', '/api/armazens');
@@ -2981,7 +2981,7 @@ const fallbackValoresPadrao = {
       const modal = document.getElementById('modalDestinos');
       const titulo = document.getElementById('modalTitulo');
       const lista = document.getElementById('destinosList');
-      const endpoint = tipo === 'maritimo' ? '/api/seaports' : '/api/aeroportos';
+      const endpoint = tipo === 'maritimo' ? '/api/seaports' : '/api/airports';
       titulo.textContent = tipo === 'maritimo' ? '🚢 Portos Disponíveis' : '✈️ Aeroportos Disponíveis';
       lista.innerHTML = '<div class="modal-loading"><div class="spinner"></div><p>Carregando...</p></div>';
       modal.classList.add('active');

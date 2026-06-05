@@ -126,7 +126,7 @@ app.get('/api/seaports', async (req, res) => {
   }
 });
 
-app.get('/api/aeroportos', async (req, res) => {
+app.get('/api/airports', async (req, res) => {
   const { q } = req.query;
   logger.info('Buscando aeroportos da API', { search: q });
 
@@ -135,14 +135,23 @@ app.get('/api/aeroportos', async (req, res) => {
     const endpoint = '/airports';
     
     const response = await apiClient.get(endpoint);
-    let aeroportos = response.data?.data || [];
+    let aeroportos = response.data;
+    if (aeroportos && aeroportos.data) {
+      aeroportos = aeroportos.data;
+    }
+    if (!Array.isArray(aeroportos)) {
+      aeroportos = [];
+    }
 
     // Filtra por termo de busca se fornecido
     if (q && q.trim()) {
       const searchTerm = q.toLowerCase();
       aeroportos = aeroportos.filter(a => 
         (a.name && a.name.toLowerCase().includes(searchTerm)) ||
+        (a.sigla && a.sigla.toLowerCase().includes(searchTerm)) ||
         (a.codigo && a.codigo.toLowerCase().includes(searchTerm)) ||
+        (a.country && a.country.toLowerCase().includes(searchTerm)) ||
+        (a.city && a.city.toLowerCase().includes(searchTerm)) ||
         (a.id && a.id.toString().includes(searchTerm))
       );
     }
@@ -157,7 +166,14 @@ app.get('/api/aeroportos', async (req, res) => {
     // Tentar fallback local
     try {
       const fallback = require('./config/aeroportos-fallback.json');
-      const list = (q && q.trim()) ? fallback.filter(a => (a.name && a.name.toLowerCase().includes(q.toLowerCase())) || (a.codigo && a.codigo.toLowerCase().includes(q.toLowerCase())) || (a.id && a.id.toString().includes(q))) : fallback;
+      const list = (q && q.trim()) ? fallback.filter(a => 
+        (a.name && a.name.toLowerCase().includes(q.toLowerCase())) || 
+        (a.sigla && a.sigla.toLowerCase().includes(q.toLowerCase())) || 
+        (a.codigo && a.codigo.toLowerCase().includes(q.toLowerCase())) || 
+        (a.country && a.country.toLowerCase().includes(q.toLowerCase())) || 
+        (a.city && a.city.toLowerCase().includes(q.toLowerCase())) || 
+        (a.id && a.id.toString().includes(q))
+      ) : fallback;
       return res.json(envelope(true, list.slice(0, q ? 20 : 50), [], ['fallback']));
     } catch (e2) {
       return res.status(500).json(envelope(false, {}, [String(error.message)]));
