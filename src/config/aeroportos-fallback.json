@@ -1,0 +1,7 @@
+[
+  { "id": "GRU", "name": "São Paulo - Guarulhos", "codigo": "GRU" },
+  { "id": "CGH", "name": "São Paulo - Congonhas", "codigo": "CGH" },
+  { "id": "GIG", "name": "Rio de Janeiro - Galeão", "codigo": "GIG" },
+  { "id": "BSB", "name": "Brasília - Juscelino Kubitschek", "codigo": "BSB" },
+  { "id": "SDU", "name": "Rio de Janeiro - Santos Dumont", "codigo": "SDU" }
+]

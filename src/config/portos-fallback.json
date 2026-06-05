@@ -1,0 +1,7 @@
+[
+  { "id": "1", "name": "Porto de Santos", "codigo": "SSZ" },
+  { "id": "2", "name": "Porto de Itajaí", "codigo": "ITJ" },
+  { "id": "3", "name": "Porto do Rio de Janeiro", "codigo": "RIO" },
+  { "id": "4", "name": "Porto de Paranaguá", "codigo": "PRG" },
+  { "id": "5", "name": "Porto de Salvador", "codigo": "SSA" }
+]

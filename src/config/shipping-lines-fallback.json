@@ -1,0 +1,8 @@
+[
+  { "id": "MAE", "name": "Maersk", "codigo": "MAE" },
+  { "id": "MSC", "name": "MSC", "codigo": "MSC" },
+  { "id": "CMA", "name": "CMA CGM", "codigo": "CMA" },
+  { "id": "EVRY", "name": "Evergreen", "codigo": "EVRY" },
+  { "id": "COS", "name": "Cosco", "codigo": "COS" },
+  { "id": "ONE", "name": "Ocean Network Express", "codigo": "ONE" }
+]

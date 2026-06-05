@@ -1,0 +1,32 @@
+{
+  "name": "integration-middleware",
+  "version": "1.0.0",
+  "description": "Sistema de integração entre banco de dados e API externa",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "integration",
+    "middleware",
+    "api",
+    "database",
+    "sync"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.0",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "mssql": "^10.0.0",
+    "pdf2json": "^4.0.3",
+    "pdfjs-dist": "^5.7.284",
+    "winston": "^3.11.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}

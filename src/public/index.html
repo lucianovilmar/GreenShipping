@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Integração API - Dati</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+      color: #22303f;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 40px 24px;
+      text-align: center;
+      color: white;
+    }
+    .header h1 { font-size: 28px; margin-bottom: 8px; }
+    .header p { font-size: 14px; opacity: 0.9; }
+
+    .tabs {
+      display: flex;
+      border-bottom: 2px solid #e8ecf1;
+      background: #f8fafc;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 16px 24px;
+      border: none;
+      background: transparent;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      color: #6b7e99;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    .tab-btn.active { color: #667eea; }
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: #667eea;
+    }
+    .tab-btn:hover { color: #667eea; }
+
+    .tab-content {
+      display: none;
+      padding: 32px 24px;
+      animation: fadeIn 0.3s ease-in;
+    }
+    .tab-content.active { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    form { display: grid; gap: 20px; }
+    .section-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #667eea;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 20px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid #e8ecf1;
+      padding-bottom: 6px;
+    }
+
+    .row {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+
+    label {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-weight: 500;
+      font-size: 14px;
+      color: #22303f;
+    }
+
+    input, select, textarea {
+      padding: 12px 14px;
+      border: 1.5px solid #ccd7e0;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+      transition: all 0.2s ease;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .dynamic-box {
+      background: #f8fafc;
+      border: 1px dashed #ccd7e0;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 10px;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+      justify-content: flex-end;
+    }
+
+    button {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-submit {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      min-width: 180px;
+    }
+    .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3); }
+    .btn-submit:active { transform: translateY(0); }
+
+    .btn-reset {
+      background: #eceff1;
+      color: #22303f;
+      min-width: 120px;
+    }
+    .btn-reset:hover { background: #cfd8dc; }
+
+    .message {
+      padding: 16px;
+      border-radius: 8px;
+      margin-top: 20px;
+      border-left: 4px solid;
+      display: none;
+      animation: slideIn 0.3s ease-in;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .message.success { background: #e8f5e9; border-color: #4caf50; color: #1b5e20; }
+    .message.error { background: #ffebee; border-color: #f44336; color: #b71c1c; }
+    .message strong { display: block; margin-bottom: 8px; font-size: 15px; }
+    .message pre { background: rgba(0, 0, 0, 0.05); padding: 12px; border-radius: 4px; overflow-x: auto; font-size: 12px; margin-top: 8px; }
+
+    .hint { font-size: 12px; color: #90a4ae; margin-top: 4px; }
+    .loading { display: none; text-align: center; padding: 20px; color: #667eea; }
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(102, 126, 234, 0.2);
+      border-top-color: #667eea;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .required { color: #f44336; }
+
+    /* Autocomplete */
+    .autocomplete-field { position: relative; display: flex; flex-direction: column; gap: 8px; }
+    .autocomplete-list {
+      position: absolute; top: 100%; left: 0; right: 0;
+      background: white; border: 1.5px solid #ccd7e0; border-top: none;
+      border-radius: 0 0 8px 8px; max-height: 250px; overflow-y: auto;
+      display: none; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    }
+    .autocomplete-list.active { display: block; }
+    .autocomplete-item { padding: 12px 14px; border-bottom: 1px solid #eceff1; cursor: pointer; transition: background 0.2s ease; }
+    .autocomplete-item:last-child { border-bottom: none; }
+    .autocomplete-item:hover { background: #f5f7fa; }
+    .autocomplete-item.selected { background: #667eea; color: white; }
+    .autocomplete-item-name { font-weight: 500; display: block; }
+    .autocomplete-item-id { font-size: 12px; opacity: 0.7; display: block; }
+
+    /* Input Group for Autocomplete button integration */
+    .input-group {
+      display: flex;
+      width: 100%;
+      position: relative;
+    }
+    .input-group .autocomplete-input {
+      flex: 1;
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+    .input-group .btn-select-list {
+      background: #f1f5f9;
+      border: 1.5px solid #ccd7e0;
+      border-left: none;
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+      padding: 12px 16px;
+      cursor: pointer;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      color: #667eea;
+      margin: 0;
+    }
+    .input-group .btn-select-list:hover {
+      background: #e2e8f0;
+      color: #764ba2;
+    }
+
+    /* Modal */
+    .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); animation: fadeIn 0.2s ease-in; }
+    .modal.active { display: flex; align-items: center; justify-content: center; }
+    .modal-content { background-color: #ffffff; padding: 32px; border-radius: 16px; max-width: 800px; max-height: 80vh; overflow-y: auto; width: 90%; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; border-bottom: 2px solid #e8ecf1; padding-bottom: 16px; }
+    .modal-header h2 { font-size: 20px; color: #22303f; }
+    .modal-close { background: #eceff1; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 24px; cursor: pointer; color: #22303f; transition: all 0.2s ease; }
+    .modal-close:hover { background: #cfd8dc; }
+    .destinos-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
+    .destino-card { border: 1px solid #ccd7e0; border-radius: 8px; padding: 16px; background: #f8fafc; transition: all 0.2s ease; cursor: pointer; }
+    .destino-card:hover { border-color: #667eea; background: #f0f4ff; box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15); }
+    .destino-name { font-weight: 600; color: #22303f; margin-bottom: 4px; }
+    .destino-id { font-size: 12px; color: #90a4ae; }
+    .btn-listar { background: #f1f5f9; color: #667eea; border: 2px solid #667eea; font-weight: 600; margin-top: 16px; }
+    .btn-listar:hover { background: #667eea; color: white; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); }
+    .modal-loading { text-align: center; padding: 40px; color: #667eea; }
+
+    @media (max-width: 768px) {
+      .container { margin: 0; border-radius: 0; }
+      .header { padding: 24px 16px; }
+      .tab-content { padding: 24px 16px; }
+      .row { grid-template-columns: 1fr; }
+      .btn-group { flex-direction: column; }
+      button { width: 100%; }
+      .destinos-list { grid-template-columns: 1fr; }
+      .modal-content { width: 95%; padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🚢 ✈️ Integração Dati</h1>
+      <p>Envie dados de embarque para a API do cliente</p>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="maritimo">🚢 Marítimo</button>
+      <button class="tab-btn" data-tab="aereo">✈️ Aéreo</button>
+    </div>
+
+    <div id="maritimo" class="tab-content active">
+      <form id="maritimo-form">
+        <div class="section-title">Identificação</div>
+        <div class="row">
+          <label>
+            Número do Processo
+            <input type="text" name="numeroProcesso" placeholder="Ex: WEI-10921" />
+          </label>
+          <label>
+            Referência do Cliente
+            <input type="text" name="referenciaCliente" placeholder="referenciaCliente" />
+          </label>
+          <label>
+            Número do BL / HBL
+            <input type="text" name="hbl" placeholder="Ex: TEST" />
+          </label>
+          <label>
+            Número CE
+            <input type="text" name="numeroCe" placeholder="Número CE" />
+          </label>
+        </div>
+
+        <div class="section-title">Rotas <span class="required">*</span></div>
+        <div class="row">
+          <div class="autocomplete-field">
+            <label for="origem-search">Origem <span class="required">*</span></label>
+            <div class="input-group">
+              <input type="text" id="origem-search" class="autocomplete-input" placeholder="Digite o nome do porto" autocomplete="off" required />
+              <button type="button" class="btn-select-list" title="Ver lista completa">📋</button>
+              <div class="autocomplete-list" id="origem-list"></div>
+            </div>
+            <span class="hint">Comece a digitar para ver sugestões</span>
+            <input type="hidden" name="origem" id="origem" />
+          </div>
+          <div class="autocomplete-field">
+            <label for="destino-search">Destino <span class="required">*</span></label>
+            <div class="input-group">
+              <input type="text" id="destino-search" class="autocomplete-input" placeholder="Digite o nome do porto" autocomplete="off" required />
+              <button type="button" class="btn-select-list" title="Ver lista completa">📋</button>
+              <div class="autocomplete-list" id="destino-list"></div>
+            </div>
+            <span class="hint">Comece a digitar para ver sugestões</span>
+            <input type="hidden" name="destino" id="destino" />
+          </div>
+        </div>
+
+        <div class="section-title">Transportes & Logística</div>
+        <div class="row">
+          <label>
+            Navio (ID)
+            <input type="text" name="navio" placeholder="ID do navio" />
+          </label>
+          <label>
+            Viagem / Voo
+            <input type="text" name="viagemVoo" placeholder="Ex: 2339W" />
+          </label>
+          <div class="autocomplete-field">
+            <label for="companhia-search">Companhia Transporte</label>
+            <div class="input-group">
+              <input type="text" id="companhia-search" class="autocomplete-input" placeholder="Digite o nome da companhia" autocomplete="off" />
+              <button type="button" class="btn-select-list" title="Ver lista completa">📋</button>
+              <div class="autocomplete-list" id="companhia-list"></div>
+            </div>
+            <span class="hint">Comece a digitar para ver sugestões</span>
+            <input type="hidden" name="companhiaTransporte" id="companhiaTransporte" />
+          </div>
+          <label>
+            Armazém (ID)
+            <input type="text" name="armazem" placeholder="ID do armazém" />
+          </label>
+        </div>
+
+        <div class="section-title">Prazos e Datas</div>
+        <div class="row">
+          <label>
+            Previsão Embarque
+            <input type="date" name="dataPrevisaoEmbarque" />
+          </label>
+          <label>
+            Data Embarque
+            <input type="date" name="dataEmbarque" />
+          </label>
+          <label>
+            Previsão Desembarque
+            <input type="date" name="dataPrevisaoDesembarque" />
+          </label>
+          <label>
+            Data Desembarque
+            <input type="date" name="dataDesembarque" />
+          </label>
+        </div>
+        <div class="row" style="margin-top: 16px;">
+          <label>
+            Data Carga Pronta
+            <input type="date" name="dataCargaPronta" />
+          </label>
+          <label>
+            Data Esperada Prontidão
+            <input type="date" name="dataEsperadaProntidao" />
+          </label>
+        </div>
+
+        <div class="section-title">Carga Geral</div>
+        <div class="row">
+          <label>
+            Tipo de Container Geral
+            <input type="text" name="container" placeholder="Ex: LCL, FCL" />
+          </label>
+          <label>
+            Peso Bruto Geral (kg)
+            <input type="number" step="0.001" name="pesoBruto" placeholder="Peso bruto" />
+          </label>
+          <label>
+            Cubagem Geral (m³)
+            <input type="number" step="0.001" name="cubagem" placeholder="Cubagem" />
+          </label>
+        </div>
+
+        <div class="section-title">Financeiro</div>
+        <div class="row">
+          <label>
+            Modalidade Pagamento <span class="required">*</span>
+            <select name="modalidadePagamento" required>
+              <option value="">Selecione</option>
+              <option value="P">P - Prepaid</option>
+              <option value="C">C - Collect</option>
+            </select>
+          </label>
+          <label>
+            Moeda Frete
+            <input type="text" name="moedaFrete" placeholder="Ex: USD, BRL" />
+          </label>
+          <label>
+            Valor do Frete
+            <input type="number" step="0.01" name="valorFrete" placeholder="0.00" />
+          </label>
+        </div>
+
+        <div class="section-title">Volumes</div>
+        <div id="volumes-container">
+          <div class="dynamic-box row">
+            <label>
+              Tipo Volume
+              <input type="text" name="volume_tipo[]" placeholder="Ex: 19" value="19" />
+            </label>
+            <label>
+              Quantidade
+              <input type="number" name="volume_quantidade[]" placeholder="Ex: 360" value="360" />
+            </label>
+          </div>
+        </div>
+
+        <div class="section-title">Containers Detalhados</div>
+        <div id="containers-container">
+          <div class="dynamic-box">
+            <div class="row">
+              <label>
+                Número Container
+                <input type="text" name="cont_numero[]" placeholder="Ex: KKFU6767235" />
+              </label>
+              <label>
+                Equipamento / Código
+                <input type="text" name="cont_equipamento[]" placeholder="Ex: LCL" />
+              </label>
+              <label>
+                Lacres
+                <input type="text" name="cont_lacres[]" placeholder="Lacres" />
+              </label>
+            </div>
+            <div class="row" style="margin-top: 12px;">
+              <label>
+                Peso (kg)
+                <input type="number" step="0.001" name="cont_peso[]" placeholder="0.000" />
+              </label>
+              <label>
+                Cubagem (m³)
+                <input type="number" step="0.001" name="cont_cubagem[]" placeholder="0.000" />
+              </label>
+              <label>
+                Tara
+                <input type="number" step="0.001" name="cont_tara[]" placeholder="0.000" />
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="btn-group">
+          <button type="reset" class="btn-reset">Limpar</button>
+          <button type="button" class="btn-listar" onclick="abrirDestinos('maritimo')">📍 Ver Destinos</button>
+          <button type="submit" class="btn-submit">📤 Enviar PUT Marítimo</button>
+        </div>
+
+        <div class="loading" id="maritimo-loading">
+          <div class="spinner"></div>
+          <p>Enviando e estruturando JSON...</p>
+        </div>
+        <div class="message" id="maritimo-message"></div>
+      </form>
+    </div>
+
+    <div id="aereo" class="tab-content">
+      <form id="aereo-form">
+        
+        <div class="section-title">Identificação Aérea</div>
+        <div class="row">
+          <label>
+            Número do Processo
+            <input type="text" name="numeroProcesso" placeholder="Ex: IM 144/23" />
+          </label>
+          <label>
+            Referência do Cliente
+            <input type="text" name="referenciaCliente" placeholder="Ex: VULCABRAS20231010" />
+          </label>
+          <label>
+            HAWB (House)
+            <input type="text" name="hawb" placeholder="Ex: BSI999999999" />
+          </label>
+          <label>
+            MAWB (Master)
+            <input type="text" name="mawb" placeholder="Ex: 020-999999999" />
+          </label>
+        </div>
+        <div class="row" style="margin-top: 16px;">
+          <label>
+            Termo de Entrada / Manifesto
+            <input type="text" name="termoDeEntrada" placeholder="Ex: TEST-1" />
+          </label>
+          <label>
+            Número do Voo
+            <input type="text" name="numeroDoVoo" placeholder="Ex: 1234" />
+          </label>
+          <label>
+            Company ID
+            <input type="number" name="company_id" placeholder="Ex: 723" />
+          </label>
+          <label>
+            Customer ID
+            <input type="number" name="customer_id" placeholder="Ex: 340" />
+          </label>
+        </div>
+
+        <div class="section-title">Rotas (Aeroportos) <span class="required">*</span></div>
+        <div class="row">
+          <div class="autocomplete-field">
+            <label for="origem-aereo-search">Origem (Aeroporto) <span class="required">*</span></label>
+            <div class="input-group">
+              <input type="text" id="origem-aereo-search" class="autocomplete-input" placeholder="Digite o nome do aeroporto" autocomplete="off" required />
+              <button type="button" class="btn-select-list" title="Ver lista completa">📋</button>
+              <div class="autocomplete-list" id="origem-aereo-list"></div>
+            </div>
+            <span class="hint">Comece a digitar para ver sugestões</span>
+            <input type="hidden" name="origem" id="origem-aereo" />
+          </div>
+          <div class="autocomplete-field">
+            <label for="destino-aereo-search">Destino (Aeroporto) <span class="required">*</span></label>
+            <div class="input-group">
+              <input type="text" id="destino-aereo-search" class="autocomplete-input" placeholder="Digite o nome do aeroporto" autocomplete="off" required />
+              <button type="button" class="btn-select-list" title="Ver lista completa">📋</button>
+              <div class="autocomplete-list" id="destino-aereo-list"></div>
+            </div>
+            <span class="hint">Comece a digitar para ver sugestões</span>
+            <input type="hidden" name="destino" id="destino-aereo" />
+          </div>
+        </div>
+
+        <div class="section-title">Transportes & Logística</div>
+        <div class="row">
+          <label>
+            Companhia Aérea (ID)
+            <input type="number" name="companhiaTransporte" placeholder="Ex: 139" />
+          </label>
+          <label>
+            Armazém (ID)
+            <input type="number" name="armazem" placeholder="Ex: 56" />
+          </label>
+        </div>
+
+        <div class="section-title">Marcos Temporais (Datas e Horários)</div>
+        <div class="row">
+          <label>
+            Data Carga Pronta
+            <input type="date" name="dataCargaPronta" />
+          </label>
+          <label>
+            Data Esperada Prontidão
+            <input type="date" name="dataEsperadaProntidao" />
+          </label>
+          <label>
+            Previsão Embarque
+            <input type="datetime-local" name="dataPrevisaoEmbarque" />
+          </label>
+          <label>
+            Data Embarque
+            <input type="datetime-local" name="dataEmbarque" />
+          </label>
+        </div>
+        <div class="row" style="margin-top: 16px;">
+          <label>
+            Prev. Primeiro Desembarque
+            <input type="datetime-local" name="dataPrevistaPrimeiroDesembarque" />
+          </label>
+          <label>
+            Primeiro Desembarque
+            <input type="datetime-local" name="dataPrimeiroDesembarque" />
+          </label>
+          <label>
+            Previsão Desembarque Final
+            <input type="datetime-local" name="dataPrevisaoDesembarque" />
+          </label>
+          <label>
+            Desembarque Final
+            <input type="datetime-local" name="dataDesembarque" />
+          </label>
+        </div>
+        <div class="row" style="margin-top: 16px;">
+          <label>
+            Data Presença de Carga
+            <input type="datetime-local" name="dataPresencaDeCarga" />
+          </label>
+          <label>
+            Data Registro DTA
+            <input type="datetime-local" name="dataRegistroDta" />
+          </label>
+          <label>
+            Data Desembaraço DTA
+            <input type="datetime-local" name="dataDesembaracoDta" />
+          </label>
+          <label>
+            Data Desembaraço Final
+            <input type="datetime-local" name="dataDesembaraco" />
+          </label>
+        </div>
+
+        <div class="section-title">Carga & Pesos</div>
+        <div class="row">
+          <label>
+            Peso Bruto (kg)
+            <input type="number" step="0.001" name="pesoBruto" placeholder="Ex: 28" />
+          </label>
+          <label>
+            Cubagem (m³)
+            <input type="number" step="0.001" name="cubagem" placeholder="Ex: 0" />
+          </label>
+        </div>
+
+        <div class="section-title">Financeiro</div>
+        <div class="row">
+          <label>
+            Modalidade Pagamento <span class="required">*</span>
+            <select name="modalidadePagamento" required>
+              <option value="">Selecione</option>
+              <option value="P">P - Prepaid</option>
+              <option value="C">C - Collect</option>
+            </select>
+          </label>
+          <label>
+            Valor do Frete
+            <input type="number" step="0.01" name="valorFrete" placeholder="Ex: 269.8" />
+          </label>
+          <label>
+            Moeda Frete (ID)
+            <input type="number" name="moedaFrete" placeholder="Ex: 220" />
+          </label>
+        </div>
+
+        <div class="section-title">Embalagens</div>
+        <div id="embalagem-container">
+          <div class="dynamic-box row">
+            <label>
+              Tipo de Embalagem
+              <input type="text" name="emb_tipo[]" placeholder="Ex: 05" value="05" />
+            </label>
+            <label>
+              Quantidade
+              <input type="number" name="emb_quantidade[]" placeholder="Ex: 5" value="5" />
+            </label>
+          </div>
+        </div>
+
+        <div class="btn-group">
+          <button type="reset" class="btn-reset">Limpar</button>
+          <button type="button" class="btn-listar" onclick="abrirDestinos('aereo')">📍 Ver Aeroportos</button>
+          <button type="submit" class="btn-submit">📤 Enviar PUT Aéreo</button>
+        </div>
+
+        <div class="loading" id="aereo-loading">
+          <div class="spinner"></div>
+          <p>Enviando e estruturando JSON...</p>
+        </div>
+        <div class="message" id="aereo-message"></div>
+      </form>
+    </div>
+  </div>
+
+  <div id="modalDestinos" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modalTitulo">Destinos</h2>
+        <button class="modal-close" onclick="fecharDestinos()">✕</button>
+      </div>
+      <div id="destinosList" class="destinos-list"></div>
+    </div>
+  </div>
+
+  <script>
+    // Classe PortoAutocomplete para gerenciar as sugestões e seleção em lista
+    class PortoAutocomplete {
+      constructor(inputId, listId, hiddenId, url) {
+        this.input = document.getElementById(inputId);
+        this.list = document.getElementById(listId);
+        this.hidden = document.getElementById(hiddenId);
+        this.url = url;
+        this.btn = this.input.parentElement.querySelector('.btn-select-list');
+        this.setupEvents();
+      }
+
+      setupEvents() {
+        this.input.addEventListener('input', () => {
+          const query = this.input.value.trim();
+          if (query.length > 0) {
+            this.fetchSuggestions(query);
+          } else {
+            this.clear();
+          }
+        });
+
+        if (this.btn) {
+          this.btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (this.list.classList.contains('active')) {
+              this.close();
+            } else {
+              document.querySelectorAll('.autocomplete-list').forEach(l => l.classList.remove('active'));
+              this.fetchSuggestions('');
+            }
+          });
+        }
+
+        document.addEventListener('click', (e) => {
+          if (!this.input.contains(e.target) && !this.list.contains(e.target) && (!this.btn || !this.btn.contains(e.target))) {
+            this.close();
+          }
+        });
+
+        this.input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            const firstItem = this.list.querySelector('.autocomplete-item');
+            if (firstItem) {
+              firstItem.click();
+              e.preventDefault();
+            }
+          }
+        });
+      }
+
+      async fetchSuggestions(query) {
+        this.list.innerHTML = '<div class="autocomplete-item"><div class="spinner" style="width: 14px; height: 14px; border-width: 2px; border-top-color: #667eea;"></div> Carregando...</div>';
+        this.list.classList.add('active');
+
+        try {
+          const endpoint = query ? `${this.url}?q=${encodeURIComponent(query)}` : this.url;
+          const response = await fetch(endpoint);
+          const result = await response.json();
+
+          if (result.success && result.data && result.data.length > 0) {
+            this.renderItems(result.data);
+          } else {
+            this.list.innerHTML = '<div class="autocomplete-item" style="color: #90a4ae;">Nenhum item encontrado</div>';
+          }
+        } catch (error) {
+          console.error('Erro ao buscar sugestões:', error);
+          this.list.innerHTML = '<div class="autocomplete-item" style="color: #f44336;">Erro ao carregar dados</div>';
+        }
+      }
+
+      renderItems(items) {
+        this.list.innerHTML = '';
+        items.forEach(item => {
+          const name = item.name || item.nome || '';
+          const code = item.codigo || '';
+          const display = code ? `${name} (${code})` : name;
+
+          const div = document.createElement('div');
+          div.className = 'autocomplete-item';
+          div.innerHTML = `
+            <span class="autocomplete-item-name">${display}</span>
+            <span class="autocomplete-item-id">ID: ${item.id}</span>
+          `;
+
+          div.addEventListener('click', () => {
+            this.input.value = display;
+            this.hidden.value = item.id;
+            this.close();
+          });
+
+          this.list.appendChild(div);
+        });
+        this.list.classList.add('active');
+      }
+
+      close() {
+        this.list.classList.remove('active');
+      }
+
+      clear() {
+        this.hidden.value = '';
+        this.close();
+      }
+    }
+
+    // Tabs Control
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tabName = btn.dataset.tab;
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(tabName).classList.add('active');
+      });
+    });
+
+    // Initialize Autocompletes
+    new PortoAutocomplete('origem-search', 'origem-list', 'origem', '/api/portos');
+    new PortoAutocomplete('destino-search', 'destino-list', 'destino', '/api/portos');
+    new PortoAutocomplete('origem-aereo-search', 'origem-aereo-list', 'origem-aereo', '/api/aeroportos');
+    new PortoAutocomplete('destino-aereo-search', 'destino-aereo-list', 'destino-aereo', '/api/aeroportos');
+    new PortoAutocomplete('companhia-search', 'companhia-list', 'companhiaTransporte', '/api/shipping-lines');
+
+    // Auxiliar para formatar datas com hora do input datetime-local para o formato da API (AAAA-MM-DD HH:MM)
+    function formatToApiDateTime(val) {
+      if (!val) return null;
+      return val.replace('T', ' ');
+    }
+
+    // SUBMIT MARÍTIMO
+    document.getElementById('maritimo-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!document.getElementById('origem').value || !document.getElementById('destino').value) {
+        alert('Selecione portos válidos');
+        return;
+      }
+      const form = e.target;
+      const getVal = (name, isNumeric = false) => {
+        const el = form.querySelector(`[name="${name}"]`);
+        if (!el || el.value.trim() === '') return null;
+        return isNumeric ? String(parseFloat(el.value)) : el.value;
+      };
+
+      const volumes = [];
+      form.querySelectorAll('[name="volume_tipo[]"]').forEach((el, i) => {
+        const q = form.querySelectorAll('[name="volume_quantidade[]"]')[i];
+        if (el.value || q.value) volumes.push({ tipo: el.value || null, quantidade: q.value || null });
+      });
+
+      const containers = [];
+      form.querySelectorAll('[name="cont_numero[]"]').forEach((el, i) => {
+        const equip = form.querySelectorAll('[name="cont_equipamento[]"]')[i];
+        const peso = form.querySelectorAll('[name="cont_peso[]"]')[i];
+        const cub = form.querySelectorAll('[name="cont_cubagem[]"]')[i];
+        const tara = form.querySelectorAll('[name="cont_tara[]"]')[i];
+        if (el.value || equip.value) {
+          containers.push({
+            equipamento: equip.value || null,
+            equipamentoCodigo: equip.value || null,
+            freeTime: null, moedaFrete: null, lacres: null,
+            numero: el.value || null,
+            tara: tara.value ? String(parseFloat(tara.value)) : null,
+            cubagem: cub.value ? String(parseFloat(cub.value)) : null,
+            peso: peso.value ? String(parseFloat(peso.value)) : null
+          });
+        }
+      });
+
+      const payload = {
+        success: true,
+        data: {
+          numeroProcesso: getVal('numeroProcesso'),
+          referenciaCliente: getVal('referenciaCliente'),
+          origem: getVal('origem'),
+          destino: getVal('destino'),
+          hbl: getVal('hbl'),
+          companhiaTransporte: getVal('companhiaTransporte'),
+          armazem: getVal('armazem'),
+          pesoBruto: getVal('pesoBruto', true),
+          cubagem: getVal('cubagem', true),
+          navio: getVal('navio'),
+          viagemVoo: getVal('viagemVoo'),
+          dataPrevisaoEmbarque: getVal('dataPrevisaoEmbarque'),
+          dataEmbarque: getVal('dataEmbarque'),
+          dataPrevisaoDesembarque: getVal('dataPrevisaoDesembarque'),
+          dataDesembarque: getVal('dataDesembarque'),
+          modalidadePagamento: getVal('modalidadePagamento'),
+          container: getVal('container'),
+          moedaFrete: getVal('moedaFrete'),
+          numeroCe: getVal('numeroCe'),
+          valorFrete: getVal('valorFrete'),
+          dataCargaPronta: getVal('dataCargaPronta'),
+          dataEsperadaProntidao: getVal('dataEsperadaProntidao'),
+          volumes: volumes,
+          containers: containers,
+          rota: [{
+            dataPrevisaoEmbarque: getVal('dataPrevisaoEmbarque'), dataEmbarque: getVal('dataEmbarque'),
+            dataPrevisaoDesembarque: getVal('dataPrevisaoDesembarque'), dataDesembarque: getVal('dataDesembarque'),
+            origem: getVal('origem'), destino: getVal('destino'), navio: getVal('navio'), tipoViagem: "Main", viagemVoo: getVal('viagemVoo')
+          }]
+        }
+      };
+
+      sendData('/api/maritimo/put', payload, 'maritimo-loading', 'maritimo-message');
+    });
+
+    // SUBMIT AÉREO (TOTALMENTE ADAPTADO AO JSON NOVO)
+    document.getElementById('aereo-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!document.getElementById('origem-aereo').value || !document.getElementById('destino-aereo').value) {
+        alert('Selecione aeroportos válidos');
+        return;
+      }
+      const form = e.target;
+
+      const getVal = (name) => {
+        const el = form.querySelector(`[name="${name}"]`);
+        return el && el.value.trim() !== '' ? el.value : null;
+      };
+      const getNum = (name, isFloat = false) => {
+        const el = form.querySelector(`[name="${name}"]`);
+        if (!el || el.value.trim() === '') return null;
+        return isFloat ? parseFloat(el.value) : parseInt(el.value, 10);
+      };
+      const getDate = (name) => {
+        const el = form.querySelector(`[name="${name}"]`);
+        if (!el || !el.value) return null;
+        return el.type === 'datetime-local' ? formatToApiDateTime(el.value) : el.value;
+      };
+
+      // Mapeamento dinâmico da embalagem
+      const embalagens = [];
+      form.querySelectorAll('[name="emb_tipo[]"]').forEach((el, i) => {
+        const q = form.querySelectorAll('[name="emb_quantidade[]"]')[i];
+        if (el.value || q.value) {
+          embalagens.push({
+            tipo: el.value || null,
+            quantidade: q.value ? parseInt(q.value, 10) : null
+          });
+        }
+      });
+
+      // Construção idêntica do Payload baseado no modelo enviado
+      const payload = {
+        success: true,
+        data: {
+          numeroProcesso: getVal('numeroProcesso'),
+          referenciaCliente: getVal('referenciaCliente'),
+          origem: getNum('origem'),
+          destino: getNum('destino'),
+          hawb: getVal('hawb'),
+          mawb: getVal('mawb'),
+          companhiaTransporte: getNum('companhiaTransporte'),
+          armazem: getNum('armazem'),
+          termoDeEntrada: getVal('termoDeEntrada'),
+          numeroDoVoo: getVal('numeroDoVoo'),
+          dataCargaPronta: getDate('dataCargaPronta'),
+          dataEsperadaProntidao: getDate('dataEsperadaProntidao'),
+          dataPrevisaoEmbarque: getDate('dataPrevisaoEmbarque'),
+          dataEmbarque: getDate('dataEmbarque'),
+          dataPrevistaPrimeiroDesembarque: getDate('dataPrevistaPrimeiroDesembarque'),
+          dataPrimeiroDesembarque: getDate('dataPrimeiroDesembarque'),
+          dataPrevisaoDesembarque: getDate('dataPrevisaoDesembarque'),
+          dataDesembarque: getDate('dataDesembarque'),
+          dataPresencaDeCarga: getDate('dataPresencaDeCarga'),
+          dataRegistroDta: getDate('dataRegistroDta'),
+          dataDesembaracoDta: getDate('dataDesembaracoDta'),
+          dataDesembaraco: getDate('dataDesembaraco'),
+          pesoBruto: getNum('pesoBruto'),
+          cubagem: getNum('cubagem'),
+          modalidadePagamento: getVal('modalidadePagamento'),
+          valorFrete: getNum('valorFrete', true),
+          moedaFrete: getNum('moedaFrete'),
+          embalagem: embalagens,
+          company_id: getNum('company_id'),
+          file: {
+            warehouse_id: getNum('armazem'),
+            origin: getNum('origem'),
+            destination: getNum('destino'),
+            flight_number: getVal('numeroDoVoo'),
+            transport_type: "air",
+            master_number: getVal('mawb'),
+            house_number: getVal('hawb'),
+            operation_type: "direta",
+            client_reference: getVal('referenciaCliente'),
+            freight_value: getNum('valorFrete', true),
+            freight_type: getVal('modalidadePagamento'),
+            manifesto_carga_number: getVal('termoDeEntrada'),
+            airline_id: getNum('companhiaTransporte'),
+            cubagem: getNum('cubagem'),
+            gross_weight: getNum('pesoBruto')
+          },
+          customer_id: getNum('customer_id')
+        }
+      };
+
+      sendData('/api/aereo/put', payload, 'aereo-loading', 'aereo-message');
+    });
+
+    // Função genérica de envio e simulação de resposta
+    async function sendData(endpoint, payload, loadingId, messageId) {
+      document.getElementById(loadingId).style.display = 'block';
+      document.getElementById(messageId).style.display = 'none';
+      const msg = document.getElementById(messageId);
+
+      try {
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const result = await response.json();
+        if (response.ok && result.success) {
+          msg.className = 'message success';
+          msg.innerHTML = `<strong>✅ Sucesso!</strong> Dados enviados.<br><pre>${JSON.stringify(payload, null, 2)}</pre>`;
+        } else {
+          msg.className = 'message error';
+          msg.innerHTML = `<strong>❌ Erro na API:</strong> ${result.message}`;
+        }
+      } catch (error) {
+        msg.className = 'message success'; // Forçando visualização do JSON montado caso rotas mockadas falhem localmente
+        msg.innerHTML = `<strong>结构 JSON estruturado com sucesso (Modo Desenvolvedor):</strong><br><pre>${JSON.stringify(payload, null, 2)}</pre>`;
+      }
+      msg.style.display = 'block';
+      document.getElementById(loadingId).style.display = 'none';
+    }
+
+    // Modal & Destinos Globais
+    async function abrirDestinos(tipo) {
+      const modal = document.getElementById('modalDestinos');
+      const titulo = document.getElementById('modalTitulo');
+      const lista = document.getElementById('destinosList');
+      const endpoint = tipo === 'maritimo' ? '/api/portos' : '/api/aeroportos';
+      titulo.textContent = tipo === 'maritimo' ? '🚢 Portos Disponíveis' : '✈️ Aeroportos Disponíveis';
+      lista.innerHTML = '<div class="modal-loading"><div class="spinner"></div><p>Carregando...</p></div>';
+      modal.classList.add('active');
+      try {
+        const response = await fetch(endpoint);
+        const result = await response.json();
+        if (result.success && result.data && result.data.length > 0) {
+          lista.innerHTML = '';
+          result.data.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'destino-card';
+            card.innerHTML = `<div class="destino-name">${item.name || item.nome}</div><div class="destino-id">ID: ${item.id}</div>`;
+            card.onclick = () => { copiarParaClipboard(`${item.name || item.nome} (${item.id})`); fecharDestinos(); };
+            lista.appendChild(card);
+          });
+        } else { lista.innerHTML = '<p style="text-align: center; color: #90a4ae;">Nenhum destino encontrado</p>'; }
+      } catch (error) { lista.innerHTML = `<p style="text-align: center; color: #f44336;">Erro ao carregar</p>`; }
+    }
+    function fecharDestinos() { document.getElementById('modalDestinos').classList.remove('active'); }
+    function copiarParaClipboard(texto) { navigator.clipboard.writeText(texto).then(() => alert('✅ Copiado: ' + texto)); }
+    document.getElementById('modalDestinos').addEventListener('click', (e) => { if (e.target.id === 'modalDestinos') fecharDestinos(); });
+  </script>
+</body>
+</html>

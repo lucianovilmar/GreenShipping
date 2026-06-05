@@ -1,0 +1,31 @@
+{
+  "database": {
+    "tables": [
+      {
+        "name": "NOME_DA_TABELA",
+        "description": "Descrição da tabela",
+        "columns": [
+          {
+            "name": "id",
+            "type": "INT",
+            "description": "Identificador único",
+            "nullable": false,
+            "isPrimaryKey": true
+          }
+        ]
+      }
+    ]
+  },
+  "apiMapping": {
+    "description": "Mapeamento entre colunas do banco e campos da API",
+    "mappings": [
+      {
+        "tableName": "NOME_DA_TABELA",
+        "databaseColumn": "nome_coluna",
+        "apiField": "nomeDocampo",
+        "dataType": "string",
+        "transformation": "descrição da transformação se houver"
+      }
+    ]
+  }
+}
