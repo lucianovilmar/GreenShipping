@@ -227,6 +227,57 @@ app.get('/api/shipping-lines', async (req, res) => {
   }
 });
 
+app.get('/api/airlines', async (req, res) => {
+  const { q } = req.query;
+  logger.info('Buscando companhias aéreas da API', { search: q });
+
+  try {
+    const { apiClient } = require('./config/api');
+    const endpoint = '/airlines';
+    
+    const response = await apiClient.get(endpoint);
+    let airlines = response.data;
+    if (airlines && airlines.data) {
+      airlines = airlines.data;
+    }
+    if (!Array.isArray(airlines)) {
+      airlines = [];
+    }
+
+    // Filtra por termo de busca se fornecido
+    if (q && q.trim()) {
+      const searchTerm = q.toLowerCase();
+      airlines = airlines.filter(c => 
+        (c.name && c.name.toLowerCase().includes(searchTerm)) ||
+        (c.code && c.code.toLowerCase().includes(searchTerm)) ||
+        (c.country_name && c.country_name.toLowerCase().includes(searchTerm)) ||
+        (c.id && c.id.toString().includes(searchTerm))
+      );
+    }
+
+    // Se não há busca, retorna até 50 resultados; se há busca, retorna até 20
+    const limit = q ? 20 : 50;
+    airlines = airlines.slice(0, limit);
+
+    return res.json(envelope(true, airlines, [], []));
+  } catch (error) {
+    logger.error('Erro ao buscar companhias aéreas', { message: error.message });
+    // Tentar fallback local
+    try {
+      const fallback = require('./config/airlines-fallback.json');
+      const list = (q && q.trim()) ? fallback.filter(c => 
+        (c.name && c.name.toLowerCase().includes(q.toLowerCase())) || 
+        (c.code && c.code.toLowerCase().includes(q.toLowerCase())) || 
+        (c.country_name && c.country_name.toLowerCase().includes(q.toLowerCase())) || 
+        (c.id && c.id.toString().includes(q))
+      ) : fallback;
+      return res.json(envelope(true, list.slice(0, q ? 20 : 50), [], ['fallback']));
+    } catch (e2) {
+      return res.status(500).json(envelope(false, {}, [String(error.message)]));
+    }
+  }
+});
+
 app.get('/api/navios', async (req, res) => {
   const { q } = req.query;
   logger.info('Buscando navios da API', { search: q });

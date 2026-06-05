@@ -567,10 +567,16 @@
 
         <div class="section-title">Transportes & Logística</div>
         <div class="row">
-          <label>
-            Companhia Aérea (ID)
-            <input type="number" name="companhiaTransporte" placeholder="Ex: 139" />
-          </label>
+          <div class="autocomplete-field">
+            <label for="companhia-aereo-search">Companhia Aérea (ID)</label>
+            <div class="input-group">
+              <input type="text" id="companhia-aereo-search" class="autocomplete-input" placeholder="Digite o nome da companhia" autocomplete="off" />
+              <button type="button" class="btn-select-list" title="Ver lista completa">📋</button>
+              <div class="autocomplete-list" id="companhia-aereo-list"></div>
+            </div>
+            <span class="hint">Comece a digitar para ver sugestões</span>
+            <input type="hidden" name="companhiaTransporte" id="companhiaTransporte-aereo" />
+          </div>
           <div class="autocomplete-field">
             <label for="armazem-aereo-search">Armazém</label>
             <div class="input-group">
@@ -806,8 +812,12 @@
             }
             display = location ? `${name} (${location})` : name;
           } else {
-            const code = item.sigla || item.codigo || item.owner_code || '';
-            display = code ? `${name} (${code})` : name;
+            const code = item.sigla || item.codigo || item.owner_code || item.code || '';
+            const extra = item.country_name || '';
+            let details = [];
+            if (code) details.push(code);
+            if (extra) details.push(extra);
+            display = details.length > 0 ? `${name} (${details.join(' - ')})` : name;
           }
 
           const div = document.createElement('div');
@@ -855,6 +865,7 @@
     new PortoAutocomplete('origem-aereo-search', 'origem-aereo-list', 'origem-aereo', '/api/airports');
     new PortoAutocomplete('destino-aereo-search', 'destino-aereo-list', 'destino-aereo', '/api/airports');
     new PortoAutocomplete('companhia-search', 'companhia-list', 'companhiaTransporte', '/api/shipping-lines');
+    new PortoAutocomplete('companhia-aereo-search', 'companhia-aereo-list', 'companhiaTransporte-aereo', '/api/airlines');
     new PortoAutocomplete('navio-search', 'navio-list', 'navio', '/api/navios');
     new PortoAutocomplete('armazem-search', 'armazem-list', 'armazem', '/api/armazens');
     new PortoAutocomplete('armazem-aereo-search', 'armazem-aereo-list', 'armazem-aereo', '/api/armazens');

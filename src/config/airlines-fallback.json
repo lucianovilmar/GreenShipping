@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "code": null,
+    "name": "LINEA AEREA NACIONAL - CHILE S.A. LAN - C",
+    "country_name": "Chile"
+  },
+  {
+    "id": 2,
+    "code": null,
+    "name": "LATAM AIRLINES",
+    "country_name": "Brasil"
+  },
+  {
+    "id": 3,
+    "code": "047",
+    "name": "TAP - AIR PORTUGAL",
+    "country_name": "Portugal"
+  }
+]
