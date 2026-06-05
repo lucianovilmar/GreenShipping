@@ -263,6 +263,38 @@
       .destinos-list { grid-template-columns: 1fr; }
       .modal-content { width: 95%; padding: 20px; }
     }
+
+    /* Dynamic Items Styles */
+    .btn-add-item {
+      background: #f0fdf4;
+      color: #16a34a;
+      border: 1.5px solid #16a34a;
+      font-weight: 600;
+      margin-top: 12px;
+      padding: 10px 20px;
+    }
+    .btn-add-item:hover {
+      background: #16a34a;
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(22, 163, 74, 0.2);
+    }
+    .btn-remove-item {
+      background: #fef2f2;
+      color: #dc2626;
+      border: 1.5px solid #dc2626;
+      font-weight: 600;
+      font-size: 13px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      width: auto;
+    }
+    .btn-remove-item:hover {
+      background: #dc2626;
+      color: white;
+    }
   </style>
 </head>
 <body>
@@ -415,56 +447,32 @@
           </label>
         </div>
 
-        <div class="section-title">Volumes</div>
-        <div id="volumes-container">
-          <div class="dynamic-box row">
-            <label>
-              Tipo Volume
-              <input type="text" name="volume_tipo[]" placeholder="Ex: 19" value="19" />
-            </label>
-            <label>
-              Quantidade
-              <input type="number" name="volume_quantidade[]" placeholder="Ex: 360" value="360" />
-            </label>
-          </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+          <div class="section-title" style="margin: 0; border: none; padding: 0;">Volumes</div>
+          <button type="button" class="btn-add-item" onclick="adicionarVolume()">+ Adicionar Volume</button>
+        </div>
+        <div id="volumes-container" style="display: flex; flex-direction: column; gap: 12px;">
+          <!-- Gerado dinamicamente -->
         </div>
 
-        <div class="section-title">Containers Detalhados</div>
-        <div id="containers-container">
-          <div class="dynamic-box">
-            <div class="row">
-              <label>
-                Número Container
-                <input type="text" name="cont_numero[]" placeholder="Ex: KKFU6767235" />
-              </label>
-              <label>
-                Equipamento / Código
-                <input type="text" name="cont_equipamento[]" placeholder="Ex: LCL" />
-              </label>
-              <label>
-                Lacres
-                <input type="text" name="cont_lacres[]" placeholder="Lacres" />
-              </label>
-            </div>
-            <div class="row" style="margin-top: 12px;">
-              <label>
-                Peso (kg)
-                <input type="number" step="0.001" name="cont_peso[]" placeholder="0.000" />
-              </label>
-              <label>
-                Cubagem (m³)
-                <input type="number" step="0.001" name="cont_cubagem[]" placeholder="0.000" />
-              </label>
-              <label>
-                Tara
-                <input type="number" step="0.001" name="cont_tara[]" placeholder="0.000" />
-              </label>
-            </div>
-          </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+          <div class="section-title" style="margin: 0; border: none; padding: 0;">Containers Detalhados</div>
+          <button type="button" class="btn-add-item" onclick="adicionarContainer()">+ Adicionar Container</button>
+        </div>
+        <div id="containers-container" style="display: flex; flex-direction: column; gap: 16px;">
+          <!-- Gerado dinamicamente -->
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+          <div class="section-title" style="margin: 0; border: none; padding: 0;">Rota Detalhada</div>
+          <button type="button" class="btn-add-item" onclick="adicionarRota()">+ Adicionar Trecho</button>
+        </div>
+        <div id="rotas-container" style="display: flex; flex-direction: column; gap: 16px;">
+          <!-- Gerado dinamicamente -->
         </div>
 
         <div class="btn-group">
-          <button type="reset" class="btn-reset">Limpar</button>
+          <button type="reset" class="btn-reset" onclick="limparFormularioMaritimo()">Limpar</button>
           <button type="button" class="btn-listar" onclick="abrirDestinos('maritimo')">📍 Ver Destinos</button>
           <button type="submit" class="btn-submit">📤 Enviar PUT Marítimo</button>
         </div>
@@ -805,6 +813,158 @@
     new PortoAutocomplete('destino-aereo-search', 'destino-aereo-list', 'destino-aereo', '/api/aeroportos');
     new PortoAutocomplete('companhia-search', 'companhia-list', 'companhiaTransporte', '/api/shipping-lines');
 
+    // Funções auxiliares para manipulação dinâmica de itens (Volumes, Containers, Rota)
+    let rotaCount = 0;
+
+    function adicionarVolume(tipo = '', quant = '') {
+      const container = document.getElementById('volumes-container');
+      const div = document.createElement('div');
+      div.className = 'dynamic-box row volume-item';
+      div.style.alignItems = 'flex-end';
+      div.innerHTML = `
+        <label style="flex: 1;">
+          Tipo Volume
+          <input type="text" name="volume_tipo[]" placeholder="Ex: 19" value="${tipo}" />
+        </label>
+        <label style="flex: 1;">
+          Quantidade
+          <input type="number" name="volume_quantidade[]" placeholder="Ex: 360" value="${quant}" />
+        </label>
+        <button type="button" class="btn-remove-item" onclick="this.parentElement.remove()" style="height: 45px; display: flex; align-items: center; justify-content: center; margin-bottom: 2px;">✕</button>
+      `;
+      container.appendChild(div);
+    }
+
+    function adicionarContainer(numero = '', equip = '', lacres = '', peso = '', cubagem = '', tara = '') {
+      const container = document.getElementById('containers-container');
+      const div = document.createElement('div');
+      div.className = 'dynamic-box container-item';
+      div.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px dashed #ccd7e0; padding-bottom: 8px;">
+          <span style="font-weight: 600; color: #764ba2;">Container</span>
+          <button type="button" class="btn-remove-item" onclick="this.parentElement.parentElement.remove()">✕ Remover</button>
+        </div>
+        <div class="row">
+          <label>
+            Número Container
+            <input type="text" name="cont_numero[]" placeholder="Ex: KKFU6767235" value="${numero}" />
+          </label>
+          <label>
+            Equipamento / Código
+            <input type="text" name="cont_equipamento[]" placeholder="Ex: LCL" value="${equip}" />
+          </label>
+          <label>
+            Lacres
+            <input type="text" name="cont_lacres[]" placeholder="Lacres" value="${lacres}" />
+          </label>
+        </div>
+        <div class="row" style="margin-top: 12px;">
+          <label>
+            Peso (kg)
+            <input type="number" step="0.001" name="cont_peso[]" placeholder="0.000" value="${peso}" />
+          </label>
+          <label>
+            Cubagem (m³)
+            <input type="number" step="0.001" name="cont_cubagem[]" placeholder="0.000" value="${cubagem}" />
+          </label>
+          <label>
+            Tara
+            <input type="number" step="0.001" name="cont_tara[]" placeholder="0.000" value="${tara}" />
+          </label>
+        </div>
+      `;
+      container.appendChild(div);
+    }
+
+    function adicionarRota(origemId = '', origemNome = '', destinoId = '', destinoNome = '', navio = '', viagem = '', tipoViagem = 'Main', dataPrevisaoEmb = '', dataEmb = '', dataPrevisaoDes = '', dataDes = '') {
+      const container = document.getElementById('rotas-container');
+      const index = rotaCount++;
+      const div = document.createElement('div');
+      div.className = 'dynamic-box route-item';
+      div.dataset.index = index;
+      div.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px dashed #ccd7e0; padding-bottom: 8px;">
+          <span style="font-weight: 600; color: #667eea;">Trecho de Rota #${index + 1}</span>
+          <button type="button" class="btn-remove-item" onclick="this.parentElement.parentElement.remove()">✕ Remover</button>
+        </div>
+        <div class="row">
+          <div class="autocomplete-field">
+            <label for="rota-origem-search-${index}">Origem <span class="required">*</span></label>
+            <div class="input-group">
+              <input type="text" id="rota-origem-search-${index}" class="autocomplete-input" placeholder="Porto de origem" autocomplete="off" value="${origemNome}" required />
+              <button type="button" class="btn-select-list" title="Ver lista completa">📋</button>
+              <div class="autocomplete-list" id="rota-origem-list-${index}"></div>
+            </div>
+            <input type="hidden" name="rota_origem[]" id="rota-origem-${index}" value="${origemId}" />
+          </div>
+          <div class="autocomplete-field">
+            <label for="rota-destino-search-${index}">Destino <span class="required">*</span></label>
+            <div class="input-group">
+              <input type="text" id="rota-destino-search-${index}" class="autocomplete-input" placeholder="Porto de destino" autocomplete="off" value="${destinoNome}" required />
+              <button type="button" class="btn-select-list" title="Ver lista completa">📋</button>
+              <div class="autocomplete-list" id="rota-destino-list-${index}"></div>
+            </div>
+            <input type="hidden" name="rota_destino[]" id="rota-destino-${index}" value="${destinoId}" />
+          </div>
+        </div>
+        <div class="row" style="margin-top: 12px;">
+          <label>
+            Navio (ID)
+            <input type="text" name="rota_navio[]" placeholder="ID do navio" value="${navio}" />
+          </label>
+          <label>
+            Viagem / Voo
+            <input type="text" name="rota_viagemVoo[]" placeholder="Ex: 2339W" value="${viagem}" />
+          </label>
+          <label>
+            Tipo Viagem
+            <select name="rota_tipoViagem[]">
+              <option value="Main" ${tipoViagem === 'Main' ? 'selected' : ''}>Main</option>
+              <option value="Other" ${tipoViagem === 'Other' ? 'selected' : ''}>Other</option>
+            </select>
+          </label>
+        </div>
+        <div class="row" style="margin-top: 12px;">
+          <label>
+            Previsão Embarque
+            <input type="date" name="rota_dataPrevisaoEmbarque[]" value="${dataPrevisaoEmb}" />
+          </label>
+          <label>
+            Data Embarque
+            <input type="date" name="rota_dataEmbarque[]" value="${dataEmb}" />
+          </label>
+          <label>
+            Previsão Desembarque
+            <input type="date" name="rota_dataPrevisaoDesembarque[]" value="${dataPrevisaoDes}" />
+          </label>
+          <label>
+            Data Desembarque
+            <input type="date" name="rota_dataDesembarque[]" value="${dataDes}" />
+          </label>
+        </div>
+      `;
+      container.appendChild(div);
+
+      new PortoAutocomplete(`rota-origem-search-${index}`, `rota-origem-list-${index}`, `rota-origem-${index}`, '/api/portos');
+      new PortoAutocomplete(`rota-destino-search-${index}`, `rota-destino-list-${index}`, `rota-destino-${index}`, '/api/portos');
+    }
+
+    function limparFormularioMaritimo() {
+      document.getElementById('volumes-container').innerHTML = '';
+      document.getElementById('containers-container').innerHTML = '';
+      document.getElementById('rotas-container').innerHTML = '';
+      adicionarVolume('19', '360');
+      adicionarContainer('KKFU6767235', 'LCL', '', '15498.500', '0.000', '4350.000');
+      adicionarRota('2107', 'Porto 2107', '1645', 'Porto 1645', '11992', '2338W', 'Main', '', '', '', '');
+      adicionarRota('1645', 'Porto 1645', '5', 'Porto 5', '', '2339W', 'Other', '', '', '', '');
+    }
+
+    // Inicialização dos campos dinâmicos ao carregar a página com valores demo
+    adicionarVolume('19', '360');
+    adicionarContainer('KKFU6767235', 'LCL', '', '15498.500', '0.000', '4350.000');
+    adicionarRota('2107', 'Porto 2107', '1645', 'Porto 1645', '11992', '2338W', 'Main', '', '', '', '');
+    adicionarRota('1645', 'Porto 1645', '5', 'Porto 5', '', '2339W', 'Other', '', '', '', '');
+
     // Auxiliar para formatar datas com hora do input datetime-local para o formato da API (AAAA-MM-DD HH:MM)
     function formatToApiDateTime(val) {
       if (!val) return null;
@@ -834,6 +994,7 @@
       const containers = [];
       form.querySelectorAll('[name="cont_numero[]"]').forEach((el, i) => {
         const equip = form.querySelectorAll('[name="cont_equipamento[]"]')[i];
+        const lacres = form.querySelectorAll('[name="cont_lacres[]"]')[i];
         const peso = form.querySelectorAll('[name="cont_peso[]"]')[i];
         const cub = form.querySelectorAll('[name="cont_cubagem[]"]')[i];
         const tara = form.querySelectorAll('[name="cont_tara[]"]')[i];
@@ -841,11 +1002,39 @@
           containers.push({
             equipamento: equip.value || null,
             equipamentoCodigo: equip.value || null,
-            freeTime: null, moedaFrete: null, lacres: null,
+            freeTime: null,
+            moedaFrete: "",
+            lacres: lacres.value || null,
             numero: el.value || null,
             tara: tara.value ? String(parseFloat(tara.value)) : null,
             cubagem: cub.value ? String(parseFloat(cub.value)) : null,
             peso: peso.value ? String(parseFloat(peso.value)) : null
+          });
+        }
+      });
+
+      const rota = [];
+      form.querySelectorAll('[name="rota_origem[]"]').forEach((el, i) => {
+        const dest = form.querySelectorAll('[name="rota_destino[]"]')[i];
+        const navio = form.querySelectorAll('[name="rota_navio[]"]')[i];
+        const viagem = form.querySelectorAll('[name="rota_viagemVoo[]"]')[i];
+        const tipoViagem = form.querySelectorAll('[name="rota_tipoViagem[]"]')[i];
+        const prevEmb = form.querySelectorAll('[name="rota_dataPrevisaoEmbarque[]"]')[i];
+        const emb = form.querySelectorAll('[name="rota_dataEmbarque[]"]')[i];
+        const prevDes = form.querySelectorAll('[name="rota_dataPrevisaoDesembarque[]"]')[i];
+        const des = form.querySelectorAll('[name="rota_dataDesembarque[]"]')[i];
+        
+        if (el.value || dest.value) {
+          rota.push({
+            origem: el.value || null,
+            destino: dest.value || null,
+            navio: navio.value || null,
+            viagemVoo: viagem.value || null,
+            tipoViagem: tipoViagem.value || "Main",
+            dataPrevisaoEmbarque: prevEmb.value || "",
+            dataEmbarque: emb.value || "",
+            dataPrevisaoDesembarque: prevDes.value || "",
+            dataDesembarque: des.value || null
           });
         }
       });
@@ -877,11 +1066,7 @@
           dataEsperadaProntidao: getVal('dataEsperadaProntidao'),
           volumes: volumes,
           containers: containers,
-          rota: [{
-            dataPrevisaoEmbarque: getVal('dataPrevisaoEmbarque'), dataEmbarque: getVal('dataEmbarque'),
-            dataPrevisaoDesembarque: getVal('dataPrevisaoDesembarque'), dataDesembarque: getVal('dataDesembarque'),
-            origem: getVal('origem'), destino: getVal('destino'), navio: getVal('navio'), tipoViagem: "Main", viagemVoo: getVal('viagemVoo')
-          }]
+          rota: rota
         }
       };
 
