@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "name": "ITAPOÁ TERMINAIS PORTUÁRIOS S/A",
+    "recinto": 9981403,
+    "urf_despacho": "927700"
+  },
+  {
+    "id": 3,
+    "name": "NAG - NEWLANDS ARMAZENS GERAIS",
+    "recinto": null,
+    "urf_despacho": null
+  },
+  {
+    "id": 5,
+    "name": "CONCESSIONÁRIA DO AEROPORTO INTERNACIONAL DE GUARULHOS S/A",
+    "recinto": 8911101,
+    "urf_despacho": "817600"
+  },
+  {
+    "id": 6,
+    "name": "MARIMEX DESPACHOS TRANSPORTES E SERVIÇOS LTDA",
+    "recinto": 8931342,
+    "urf_despacho": "817800"
+  }
+]

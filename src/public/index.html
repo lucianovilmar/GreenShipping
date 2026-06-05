@@ -334,7 +334,7 @@
         <div class="section-title">Rotas <span class="required">*</span></div>
         <div class="row">
           <div class="autocomplete-field">
-            <label for="origem-search">Origem <span class="required">*</span></label>
+            <label for="origem-search"><span>Origem <span class="required">*</span></span></label>
             <div class="input-group">
               <input type="text" id="origem-search" class="autocomplete-input" placeholder="Digite o nome do porto" autocomplete="off" required />
               <button type="button" class="btn-select-list" title="Ver lista completa">📋</button>
@@ -344,7 +344,7 @@
             <input type="hidden" name="origem" id="origem" />
           </div>
           <div class="autocomplete-field">
-            <label for="destino-search">Destino <span class="required">*</span></label>
+            <label for="destino-search"><span>Destino <span class="required">*</span></span></label>
             <div class="input-group">
               <input type="text" id="destino-search" class="autocomplete-input" placeholder="Digite o nome do porto" autocomplete="off" required />
               <button type="button" class="btn-select-list" title="Ver lista completa">📋</button>
@@ -357,10 +357,16 @@
 
         <div class="section-title">Transportes & Logística</div>
         <div class="row">
-          <label>
-            Navio (ID)
-            <input type="text" name="navio" placeholder="ID do navio" />
-          </label>
+          <div class="autocomplete-field">
+            <label for="navio-search">Navio</label>
+            <div class="input-group">
+              <input type="text" id="navio-search" class="autocomplete-input" placeholder="Digite o nome do navio" autocomplete="off" />
+              <button type="button" class="btn-select-list" title="Ver lista completa">📋</button>
+              <div class="autocomplete-list" id="navio-list"></div>
+            </div>
+            <span class="hint">Comece a digitar para ver sugestões</span>
+            <input type="hidden" name="navio" id="navio" />
+          </div>
           <label>
             Viagem / Voo
             <input type="text" name="viagemVoo" placeholder="Ex: 2339W" />
@@ -375,10 +381,16 @@
             <span class="hint">Comece a digitar para ver sugestões</span>
             <input type="hidden" name="companhiaTransporte" id="companhiaTransporte" />
           </div>
-          <label>
-            Armazém (ID)
-            <input type="text" name="armazem" placeholder="ID do armazém" />
-          </label>
+          <div class="autocomplete-field">
+            <label for="armazem-search">Armazém</label>
+            <div class="input-group">
+              <input type="text" id="armazem-search" class="autocomplete-input" placeholder="Digite o nome do armazém" autocomplete="off" />
+              <button type="button" class="btn-select-list" title="Ver lista completa">📋</button>
+              <div class="autocomplete-list" id="armazem-list"></div>
+            </div>
+            <span class="hint">Comece a digitar para ver sugestões</span>
+            <input type="hidden" name="armazem" id="armazem" />
+          </div>
         </div>
 
         <div class="section-title">Prazos e Datas</div>
@@ -432,7 +444,7 @@
         <div class="section-title">Financeiro</div>
         <div class="row">
           <label>
-            Modalidade Pagamento <span class="required">*</span>
+            <span>Modalidade Pagamento <span class="required">*</span></span>
             <select name="modalidadePagamento" required>
               <option value="">Carregando...</option>
             </select>
@@ -531,7 +543,7 @@
         <div class="section-title">Rotas (Aeroportos) <span class="required">*</span></div>
         <div class="row">
           <div class="autocomplete-field">
-            <label for="origem-aereo-search">Origem (Aeroporto) <span class="required">*</span></label>
+            <label for="origem-aereo-search"><span>Origem (Aeroporto) <span class="required">*</span></span></label>
             <div class="input-group">
               <input type="text" id="origem-aereo-search" class="autocomplete-input" placeholder="Digite o nome do aeroporto" autocomplete="off" required />
               <button type="button" class="btn-select-list" title="Ver lista completa">📋</button>
@@ -541,7 +553,7 @@
             <input type="hidden" name="origem" id="origem-aereo" />
           </div>
           <div class="autocomplete-field">
-            <label for="destino-aereo-search">Destino (Aeroporto) <span class="required">*</span></label>
+            <label for="destino-aereo-search"><span>Destino (Aeroporto) <span class="required">*</span></span></label>
             <div class="input-group">
               <input type="text" id="destino-aereo-search" class="autocomplete-input" placeholder="Digite o nome do aeroporto" autocomplete="off" required />
               <button type="button" class="btn-select-list" title="Ver lista completa">📋</button>
@@ -558,10 +570,16 @@
             Companhia Aérea (ID)
             <input type="number" name="companhiaTransporte" placeholder="Ex: 139" />
           </label>
-          <label>
-            Armazém (ID)
-            <input type="number" name="armazem" placeholder="Ex: 56" />
-          </label>
+          <div class="autocomplete-field">
+            <label for="armazem-aereo-search">Armazém</label>
+            <div class="input-group">
+              <input type="text" id="armazem-aereo-search" class="autocomplete-input" placeholder="Digite o nome do armazém" autocomplete="off" />
+              <button type="button" class="btn-select-list" title="Ver lista completa">📋</button>
+              <div class="autocomplete-list" id="armazem-aereo-list"></div>
+            </div>
+            <span class="hint">Comece a digitar para ver sugestões</span>
+            <input type="hidden" name="armazem" id="armazem-aereo" />
+          </div>
         </div>
 
         <div class="section-title">Marcos Temporais (Datas e Horários)</div>
@@ -635,7 +653,7 @@
         <div class="section-title">Financeiro</div>
         <div class="row">
           <label>
-            Modalidade Pagamento <span class="required">*</span>
+            <span>Modalidade Pagamento <span class="required">*</span></span>
             <select name="modalidadePagamento" required>
               <option value="">Carregando...</option>
             </select>
@@ -808,6 +826,9 @@
     new PortoAutocomplete('origem-aereo-search', 'origem-aereo-list', 'origem-aereo', '/api/aeroportos');
     new PortoAutocomplete('destino-aereo-search', 'destino-aereo-list', 'destino-aereo', '/api/aeroportos');
     new PortoAutocomplete('companhia-search', 'companhia-list', 'companhiaTransporte', '/api/shipping-lines');
+    new PortoAutocomplete('navio-search', 'navio-list', 'navio', '/api/navios');
+    new PortoAutocomplete('armazem-search', 'armazem-list', 'armazem', '/api/armazens');
+    new PortoAutocomplete('armazem-aereo-search', 'armazem-aereo-list', 'armazem-aereo', '/api/armazens');
 
     // Variável global para armazenar as listagens de valores padrão do backend
     let valoresPadrao = null;
@@ -921,7 +942,7 @@
       container.appendChild(div);
     }
 
-    function adicionarRota(origemId = '', origemNome = '', destinoId = '', destinoNome = '', navio = '', viagem = '', tipoViagem = 'Main', dataPrevisaoEmb = '', dataEmb = '', dataPrevisaoDes = '', dataDes = '') {
+    function adicionarRota(origemId = '', origemNome = '', destinoId = '', destinoNome = '', navioId = '', navioNome = '', viagem = '', tipoViagem = 'Main', dataPrevisaoEmb = '', dataEmb = '', dataPrevisaoDes = '', dataDes = '') {
       const container = document.getElementById('rotas-container');
       const index = rotaCount++;
       const div = document.createElement('div');
@@ -934,7 +955,7 @@
         </div>
         <div class="row">
           <div class="autocomplete-field">
-            <label for="rota-origem-search-${index}">Origem <span class="required">*</span></label>
+            <label for="rota-origem-search-${index}"><span>Origem <span class="required">*</span></span></label>
             <div class="input-group">
               <input type="text" id="rota-origem-search-${index}" class="autocomplete-input" placeholder="Porto de origem" autocomplete="off" value="${origemNome}" required />
               <button type="button" class="btn-select-list" title="Ver lista completa">📋</button>
@@ -943,7 +964,7 @@
             <input type="hidden" name="rota_origem[]" id="rota-origem-${index}" value="${origemId}" />
           </div>
           <div class="autocomplete-field">
-            <label for="rota-destino-search-${index}">Destino <span class="required">*</span></label>
+            <label for="rota-destino-search-${index}"><span>Destino <span class="required">*</span></span></label>
             <div class="input-group">
               <input type="text" id="rota-destino-search-${index}" class="autocomplete-input" placeholder="Porto de destino" autocomplete="off" value="${destinoNome}" required />
               <button type="button" class="btn-select-list" title="Ver lista completa">📋</button>
@@ -953,10 +974,15 @@
           </div>
         </div>
         <div class="row" style="margin-top: 12px;">
-          <label>
-            Navio (ID)
-            <input type="text" name="rota_navio[]" placeholder="ID do navio" value="${navio}" />
-          </label>
+          <div class="autocomplete-field">
+            <label for="rota-navio-search-${index}">Navio</label>
+            <div class="input-group">
+              <input type="text" id="rota-navio-search-${index}" class="autocomplete-input" placeholder="Digite o nome do navio" autocomplete="off" value="${navioNome}" />
+              <button type="button" class="btn-select-list" title="Ver lista completa">📋</button>
+              <div class="autocomplete-list" id="rota-navio-list-${index}"></div>
+            </div>
+            <input type="hidden" name="rota_navio[]" id="rota-navio-${index}" value="${navioId}" />
+          </div>
           <label>
             Viagem / Voo
             <input type="text" name="rota_viagemVoo[]" placeholder="Ex: 2339W" value="${viagem}" />
@@ -992,6 +1018,7 @@
 
       new PortoAutocomplete(`rota-origem-search-${index}`, `rota-origem-list-${index}`, `rota-origem-${index}`, '/api/portos');
       new PortoAutocomplete(`rota-destino-search-${index}`, `rota-destino-list-${index}`, `rota-destino-${index}`, '/api/portos');
+      new PortoAutocomplete(`rota-navio-search-${index}`, `rota-navio-list-${index}`, `rota-navio-${index}`, '/api/navios');
     }
 
     function popularSelectsFixos() {
@@ -1051,7 +1078,7 @@
       
       adicionarVolume('', '');
       adicionarContainer('', '', '', '', '', '');
-      adicionarRota('', '', '', '', '', '', 'Main', '', '', '', '');
+      adicionarRota('', '', '', '', '', '', '', 'Main', '', '', '', '');
       
       adicionarEmbalagem('', '');
     }

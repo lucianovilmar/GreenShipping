@@ -188,6 +188,96 @@ app.get('/api/shipping-lines', async (req, res) => {
   }
 });
 
+app.get('/api/navios', async (req, res) => {
+  const { q } = req.query;
+  logger.info('Buscando navios da API', { search: q });
+
+  try {
+    const { apiClient } = require('./config/api');
+    const endpoint = '/vessel';
+    
+    const response = await apiClient.get(endpoint);
+    let vessels = response.data;
+    if (vessels && vessels.data) {
+      vessels = vessels.data;
+    }
+    if (!Array.isArray(vessels)) {
+      vessels = [];
+    }
+
+    // Filtra por termo de busca se fornecido
+    if (q && q.trim()) {
+      const searchTerm = q.toLowerCase();
+      vessels = vessels.filter(v => 
+        (v.name && v.name.toLowerCase().includes(searchTerm)) ||
+        (v.code && v.code.toLowerCase().includes(searchTerm)) ||
+        (v.id && v.id.toString().includes(searchTerm))
+      );
+    }
+
+    // Se não há busca, retorna até 50 resultados; se há busca, retorna até 20
+    const limit = q ? 20 : 50;
+    vessels = vessels.slice(0, limit);
+
+    return res.json(envelope(true, vessels, [], []));
+  } catch (error) {
+    logger.error('Erro ao buscar navios da API', { message: error.message });
+    // Tentar fallback local
+    try {
+      const fallback = require('./config/navios-fallback.json');
+      const list = (q && q.trim()) ? fallback.filter(v => (v.name && v.name.toLowerCase().includes(q.toLowerCase())) || (v.code && v.code.toLowerCase().includes(q.toLowerCase())) || (v.id && v.id.toString().includes(q))) : fallback;
+      return res.json(envelope(true, list.slice(0, q ? 20 : 50), [], ['fallback']));
+    } catch (e2) {
+      return res.status(500).json(envelope(false, {}, [String(error.message)]));
+    }
+  }
+});
+
+app.get('/api/armazens', async (req, res) => {
+  const { q } = req.query;
+  logger.info('Buscando armazens da API', { search: q });
+
+  try {
+    const { apiClient } = require('./config/api');
+    const endpoint = '/warehouses';
+    
+    const response = await apiClient.get(endpoint);
+    let warehouses = response.data;
+    if (warehouses && warehouses.data) {
+      warehouses = warehouses.data;
+    }
+    if (!Array.isArray(warehouses)) {
+      warehouses = [];
+    }
+
+    // Filtra por termo de busca se fornecido
+    if (q && q.trim()) {
+      const searchTerm = q.toLowerCase();
+      warehouses = warehouses.filter(w => 
+        (w.name && w.name.toLowerCase().includes(searchTerm)) ||
+        (w.recinto && w.recinto.toString().includes(searchTerm)) ||
+        (w.id && w.id.toString().includes(searchTerm))
+      );
+    }
+
+    // Se não há busca, retorna até 50 resultados; se há busca, retorna até 20
+    const limit = q ? 20 : 50;
+    warehouses = warehouses.slice(0, limit);
+
+    return res.json(envelope(true, warehouses, [], []));
+  } catch (error) {
+    logger.error('Erro ao buscar armazens da API', { message: error.message });
+    // Tentar fallback local
+    try {
+      const fallback = require('./config/armazens-fallback.json');
+      const list = (q && q.trim()) ? fallback.filter(w => (w.name && w.name.toLowerCase().includes(q.toLowerCase())) || (w.recinto && w.recinto.toString().includes(q)) || (w.id && w.id.toString().includes(q))) : fallback;
+      return res.json(envelope(true, list.slice(0, q ? 20 : 50), [], ['fallback']));
+    } catch (e2) {
+      return res.status(500).json(envelope(false, {}, [String(error.message)]));
+    }
+  }
+});
+
 app.get('/api/valores-padrao', (req, res) => {
   try {
     const data = require('./config/tabelas-valores.json');
