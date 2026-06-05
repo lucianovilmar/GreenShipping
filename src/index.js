@@ -214,4 +214,8 @@ function startServer(attemptPort = port, maxAttempts = 5, attempt = 1) {
   });
 }
 
-startServer();
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  startServer();
+}
+
+module.exports = app;
