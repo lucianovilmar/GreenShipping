@@ -487,7 +487,8 @@
 
         <div class="btn-group">
           <button type="reset" class="btn-reset" onclick="limparFormularioMaritimo()">Limpar</button>
-          <button type="button" class="btn-listar" onclick="abrirDestinos('maritimo')">📍 Ver Destinos</button>
+
+          <button type="button" class="btn-submit" onclick="visualizarJsonMaritimo()" style="background: #f59e0b; color: white;">🔍 Testar Envio (JSON)</button>
           <button type="submit" class="btn-submit">📤 Enviar PUT Marítimo</button>
         </div>
 
@@ -680,7 +681,7 @@
 
         <div class="btn-group">
           <button type="reset" class="btn-reset">Limpar</button>
-          <button type="button" class="btn-listar" onclick="abrirDestinos('aereo')">📍 Ver Aeroportos</button>
+
           <button type="submit" class="btn-submit">📤 Enviar PUT Aéreo</button>
         </div>
 
@@ -700,6 +701,20 @@
         <button class="modal-close" onclick="fecharDestinos()">✕</button>
       </div>
       <div id="destinosList" class="destinos-list"></div>
+    </div>
+  </div>
+
+  <div id="modalJson" class="modal">
+    <div class="modal-content" style="max-width: 700px;">
+      <div class="modal-header">
+        <h2>Visualização do JSON Marítimo</h2>
+        <button class="modal-close" onclick="fecharModalJson()">✕</button>
+      </div>
+      <p style="margin-bottom: 16px; font-size: 14px; color: #64748b;">Esse é o JSON exato que será enviado no corpo da requisição PUT:</p>
+      <pre id="jsonPreviewArea" style="background: #f8fafc; border: 1.5px solid #ccd7e0; padding: 16px; border-radius: 8px; overflow-x: auto; max-height: 50vh; font-family: monospace; font-size: 13px; text-align: left;"></pre>
+      <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+        <button type="button" class="btn-submit" onclick="enviarPutMaritimoConfirmado()" style="min-width: 150px;">📤 Confirmar Envio</button>
+      </div>
     </div>
   </div>
 
@@ -2663,14 +2678,11 @@ const fallbackValoresPadrao = {
       return val.replace('T', ' ');
     }
 
-    // SUBMIT MARÍTIMO
-    document.getElementById('maritimo-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      if (!document.getElementById('origem').value || !document.getElementById('destino').value) {
-        alert('Selecione portos válidos');
-        return;
-      }
-      const form = e.target;
+    // SERIALIZAÇÃO E PREVIEW DO JSON MARÍTIMO
+    let currentPayloadMaritimo = null;
+
+    function gerarJsonMaritimo() {
+      const form = document.getElementById('maritimo-form');
       const getVal = (name, isNumeric = false) => {
         const el = form.querySelector(`[name="${name}"]`);
         if (!el || el.value.trim() === '') return null;
@@ -2680,7 +2692,12 @@ const fallbackValoresPadrao = {
       const volumes = [];
       form.querySelectorAll('[name="volume_tipo[]"]').forEach((el, i) => {
         const q = form.querySelectorAll('[name="volume_quantidade[]"]')[i];
-        if (el.value || q.value) volumes.push({ tipo: el.value || null, quantidade: q.value || null });
+        if (el.value || q.value) {
+          volumes.push({
+            tipo: el.value || null,
+            quantidade: q.value || null
+          });
+        }
       });
 
       const containers = [];
@@ -2690,17 +2707,32 @@ const fallbackValoresPadrao = {
         const peso = form.querySelectorAll('[name="cont_peso[]"]')[i];
         const cub = form.querySelectorAll('[name="cont_cubagem[]"]')[i];
         const tara = form.querySelectorAll('[name="cont_tara[]"]')[i];
-        if (el.value || equip.value) {
+        
+        if (el.value || (equip && equip.value)) {
+          const selectedOption = equip.options[equip.selectedIndex];
+          const optionText = selectedOption ? selectedOption.text : '';
+          
+          let equipCodigo = null;
+          let equipNome = null;
+          if (optionText && optionText.includes(' - ')) {
+            const parts = optionText.split(' - ');
+            equipCodigo = parts[0].trim();
+            equipNome = parts[1].trim();
+          } else if (optionText && optionText !== 'Selecione') {
+            equipCodigo = optionText.trim();
+            equipNome = optionText.trim();
+          }
+
           containers.push({
-            equipamento: equip.value || null,
-            equipamentoCodigo: equip.value || null,
+            equipamento: equipNome,
+            equipamentoCodigo: equipCodigo,
             freeTime: null,
-            moedaFrete: "",
-            lacres: lacres.value || null,
+            moedaFrete: getVal('moedaFrete') || "",
             numero: el.value || null,
-            tara: tara.value ? String(parseFloat(tara.value)) : null,
-            cubagem: cub.value ? String(parseFloat(cub.value)) : null,
-            peso: peso.value ? String(parseFloat(peso.value)) : null
+            lacres: lacres.value || null,
+            tara: tara.value ? Number(tara.value).toFixed(3) : null,
+            cubagem: cub.value ? Number(cub.value).toFixed(3) : null,
+            peso: peso.value ? Number(peso.value).toFixed(3) : null
           });
         }
       });
@@ -2718,20 +2750,20 @@ const fallbackValoresPadrao = {
         
         if (el.value || dest.value) {
           rota.push({
-            origem: el.value || null,
-            destino: dest.value || null,
-            navio: navio.value || null,
-            viagemVoo: viagem.value || null,
-            tipoViagem: tipoViagem.value || "Main",
             dataPrevisaoEmbarque: prevEmb.value || "",
             dataEmbarque: emb.value || "",
             dataPrevisaoDesembarque: prevDes.value || "",
-            dataDesembarque: des.value || null
+            dataDesembarque: des.value || "",
+            origem: el.value || null,
+            destino: dest.value || null,
+            navio: navio.value || null,
+            tipoViagem: tipoViagem.value || "Main",
+            viagemVoo: viagem.value || null
           });
         }
       });
 
-      const payload = {
+      return {
         success: true,
         data: {
           numeroProcesso: getVal('numeroProcesso'),
@@ -2741,28 +2773,72 @@ const fallbackValoresPadrao = {
           hbl: getVal('hbl'),
           companhiaTransporte: getVal('companhiaTransporte'),
           armazem: getVal('armazem'),
-          pesoBruto: getVal('pesoBruto', true),
-          cubagem: getVal('cubagem', true),
+          pesoBruto: getVal('pesoBruto') ? Number(getVal('pesoBruto')).toFixed(3) : null,
+          cubagem: getVal('cubagem') ? Number(getVal('cubagem')).toFixed(3) : null,
           navio: getVal('navio'),
           viagemVoo: getVal('viagemVoo'),
-          dataPrevisaoEmbarque: getVal('dataPrevisaoEmbarque'),
-          dataEmbarque: getVal('dataEmbarque'),
-          dataPrevisaoDesembarque: getVal('dataPrevisaoDesembarque'),
-          dataDesembarque: getVal('dataDesembarque'),
+          dataPrevisaoEmbarque: getVal('dataPrevisaoEmbarque') || "",
+          dataEmbarque: getVal('dataEmbarque') || "",
+          dataPrevisaoDesembarque: getVal('dataPrevisaoDesembarque') || "",
+          dataDesembarque: getVal('dataDesembarque') || null,
           modalidadePagamento: getVal('modalidadePagamento'),
           container: getVal('container'),
-          moedaFrete: getVal('moedaFrete'),
-          numeroCe: getVal('numeroCe'),
-          valorFrete: getVal('valorFrete'),
-          dataCargaPronta: getVal('dataCargaPronta'),
-          dataEsperadaProntidao: getVal('dataEsperadaProntidao'),
+          moedaFrete: getVal('moedaFrete') || "",
+          numeroCe: getVal('numeroCe') || "",
+          valorFrete: getVal('valorFrete') || "",
+          dataCargaPronta: getVal('dataCargaPronta') || "",
+          dataEsperadaProntidao: getVal('dataEsperadaProntidao') || "",
           volumes: volumes,
           containers: containers,
           rota: rota
         }
       };
+    }
 
-      sendData('/api/maritimo/put', payload, 'maritimo-loading', 'maritimo-message');
+    function visualizarJsonMaritimo() {
+      if (!document.getElementById('origem').value || !document.getElementById('destino').value) {
+        alert('Selecione portos válidos de Origem e Destino.');
+        return;
+      }
+      
+      const form = document.getElementById('maritimo-form');
+      const modalidade = form.querySelector('[name="modalidadePagamento"]');
+      if (!modalidade || !modalidade.value) {
+        alert('Selecione a Modalidade de Pagamento.');
+        return;
+      }
+
+      currentPayloadMaritimo = gerarJsonMaritimo();
+      
+      const previewArea = document.getElementById('jsonPreviewArea');
+      previewArea.textContent = JSON.stringify(currentPayloadMaritimo, null, 2);
+      
+      const modal = document.getElementById('modalJson');
+      modal.classList.add('active');
+    }
+
+    function fecharModalJson() {
+      const modal = document.getElementById('modalJson');
+      modal.classList.remove('active');
+    }
+
+    function enviarPutMaritimoConfirmado() {
+      fecharModalJson();
+      if (!currentPayloadMaritimo) return;
+      sendData('/api/maritimo/put', currentPayloadMaritimo, 'maritimo-loading', 'maritimo-message');
+    }
+
+    // Fechar modal ao clicar fora
+    document.getElementById('modalJson').addEventListener('click', (e) => {
+      if (e.target.id === 'modalJson') {
+        fecharModalJson();
+      }
+    });
+
+    // SUBMIT MARÍTIMO
+    document.getElementById('maritimo-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      visualizarJsonMaritimo();
     });
 
     // SUBMIT AÉREO (TOTALMENTE ADAPTADO AO JSON NOVO)
