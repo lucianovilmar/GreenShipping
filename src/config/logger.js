@@ -5,6 +5,49 @@ require('dotenv').config();
 const logLevel = process.env.LOG_LEVEL || 'info';
 const logFile = process.env.LOG_FILE || 'logs/integration.log';
 
+const isVercel = process.env.VERCEL || process.env.NODE_ENV === 'production';
+
+const transports = [];
+
+if (isVercel) {
+  // Na Vercel (ou produção), registra apenas no Console
+  transports.push(
+    new winston.transports.Console({
+      format: winston.format.combine(
+        winston.format.colorize(),
+        winston.format.printf(({ level, message, timestamp, ...meta }) => {
+          const metaStr = Object.keys(meta).length ? JSON.stringify(meta, null, 2) : '';
+          return `${timestamp} [${level}]: ${message} ${metaStr}`;
+        })
+      )
+    })
+  );
+} else {
+  // Localmente, grava em arquivos e exibe no console
+  transports.push(
+    new winston.transports.File({ 
+      filename: path.join(__dirname, `../../${logFile}`),
+      maxsize: 10485760, // 10MB
+      maxFiles: 5
+    }),
+    new winston.transports.File({
+      filename: path.join(__dirname, '../../logs/error.log'),
+      level: 'error',
+      maxsize: 10485760,
+      maxFiles: 5
+    }),
+    new winston.transports.Console({
+      format: winston.format.combine(
+        winston.format.colorize(),
+        winston.format.printf(({ level, message, timestamp, ...meta }) => {
+          const metaStr = Object.keys(meta).length ? JSON.stringify(meta, null, 2) : '';
+          return `${timestamp} [${level}]: ${message} ${metaStr}`;
+        })
+      )
+    })
+  );
+}
+
 const logger = winston.createLogger({
   level: logLevel,
   format: winston.format.combine(
@@ -13,34 +56,7 @@ const logger = winston.createLogger({
     winston.format.json()
   ),
   defaultMeta: { service: 'integration-middleware' },
-  transports: [
-    // Log em arquivo
-    new winston.transports.File({ 
-      filename: path.join(__dirname, `../../${logFile}`),
-      maxsize: 10485760, // 10MB
-      maxFiles: 5
-    }),
-    // Log erros em arquivo separado
-    new winston.transports.File({
-      filename: path.join(__dirname, '../../logs/error.log'),
-      level: 'error',
-      maxsize: 10485760,
-      maxFiles: 5
-    })
-  ]
+  transports: transports
 });
-
-// Em desenvolvimento, também loga no console
-if (process.env.NODE_ENV !== 'production') {
-  logger.add(new winston.transports.Console({
-    format: winston.format.combine(
-      winston.format.colorize(),
-      winston.format.printf(({ level, message, timestamp, ...meta }) => {
-        const metaStr = Object.keys(meta).length ? JSON.stringify(meta, null, 2) : '';
-        return `${timestamp} [${level}]: ${message} ${metaStr}`;
-      })
-    )
-  }));
-}
 
 module.exports = logger;
