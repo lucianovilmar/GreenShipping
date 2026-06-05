@@ -77,17 +77,25 @@ app.get('/api/portos', async (req, res) => {
 
   try {
     const { apiClient } = require('./config/api');
-    const endpoint = '/ports';
+    const endpoint = '/seaports';
     
     const response = await apiClient.get(endpoint);
-    let portos = response.data?.data || [];
+    let portos = response.data;
+    if (portos && portos.data) {
+      portos = portos.data;
+    }
+    if (!Array.isArray(portos)) {
+      portos = [];
+    }
 
     // Filtra por termo de busca se fornecido
     if (q && q.trim()) {
       const searchTerm = q.toLowerCase();
       portos = portos.filter(p => 
         (p.name && p.name.toLowerCase().includes(searchTerm)) ||
+        (p.sigla && p.sigla.toLowerCase().includes(searchTerm)) ||
         (p.codigo && p.codigo.toLowerCase().includes(searchTerm)) ||
+        (p.country && p.country.toLowerCase().includes(searchTerm)) ||
         (p.id && p.id.toString().includes(searchTerm))
       );
     }
@@ -102,7 +110,13 @@ app.get('/api/portos', async (req, res) => {
     // Tentar fallback local
     try {
       const fallback = require('./config/portos-fallback.json');
-      const list = (q && q.trim()) ? fallback.filter(p => (p.name && p.name.toLowerCase().includes(q.toLowerCase())) || (p.codigo && p.codigo.toLowerCase().includes(q.toLowerCase())) || (p.id && p.id.toString().includes(q))) : fallback;
+      const list = (q && q.trim()) ? fallback.filter(p => 
+        (p.name && p.name.toLowerCase().includes(q.toLowerCase())) || 
+        (p.sigla && p.sigla.toLowerCase().includes(q.toLowerCase())) || 
+        (p.codigo && p.codigo.toLowerCase().includes(q.toLowerCase())) || 
+        (p.country && p.country.toLowerCase().includes(q.toLowerCase())) || 
+        (p.id && p.id.toString().includes(q))
+      ) : fallback;
       return res.json(envelope(true, list.slice(0, q ? 20 : 50), [], ['fallback']));
     } catch (e2) {
       return res.status(500).json(envelope(false, {}, [String(error.message)]));

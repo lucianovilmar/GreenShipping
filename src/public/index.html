@@ -793,7 +793,7 @@
         this.list.innerHTML = '';
         items.forEach(item => {
           const name = item.name || item.nome || '';
-          const code = item.codigo || '';
+          const code = item.sigla || item.codigo || '';
           const display = code ? `${name} (${code})` : name;
 
           const div = document.createElement('div');
