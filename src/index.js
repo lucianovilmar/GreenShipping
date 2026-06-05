@@ -188,6 +188,16 @@ app.get('/api/shipping-lines', async (req, res) => {
   }
 });
 
+app.get('/api/valores-padrao', (req, res) => {
+  try {
+    const data = require('./config/tabelas-valores.json');
+    return res.json(envelope(true, data, [], []));
+  } catch (error) {
+    logger.error('Erro ao ler tabelas-valores.json', { error: error.message });
+    return res.status(500).json(envelope(false, {}, [String(error.message)]));
+  }
+});
+
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
