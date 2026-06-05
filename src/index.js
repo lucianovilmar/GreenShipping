@@ -158,7 +158,13 @@ app.get('/api/shipping-lines', async (req, res) => {
     const endpoint = '/shipping_lines';
     
     const response = await apiClient.get(endpoint);
-    let companies = response.data?.data || [];
+    let companies = response.data;
+    if (companies && companies.data) {
+      companies = companies.data;
+    }
+    if (!Array.isArray(companies)) {
+      companies = [];
+    }
 
     // Filtra por termo de busca se fornecido
     if (q && q.trim()) {
@@ -166,6 +172,7 @@ app.get('/api/shipping-lines', async (req, res) => {
       companies = companies.filter(c => 
         (c.name && c.name.toLowerCase().includes(searchTerm)) ||
         (c.codigo && c.codigo.toLowerCase().includes(searchTerm)) ||
+        (c.owner_code && c.owner_code.toLowerCase().includes(searchTerm)) ||
         (c.id && c.id.toString().includes(searchTerm))
       );
     }
@@ -180,7 +187,7 @@ app.get('/api/shipping-lines', async (req, res) => {
     // Tentar fallback local
     try {
       const fallback = require('./config/shipping-lines-fallback.json');
-      const list = (q && q.trim()) ? fallback.filter(c => (c.name && c.name.toLowerCase().includes(q.toLowerCase())) || (c.codigo && c.codigo.toLowerCase().includes(q.toLowerCase())) || (c.id && c.id.toString().includes(q))) : fallback;
+      const list = (q && q.trim()) ? fallback.filter(c => (c.name && c.name.toLowerCase().includes(q.toLowerCase())) || (c.codigo && c.codigo.toLowerCase().includes(q.toLowerCase())) || (c.owner_code && c.owner_code.toLowerCase().includes(q.toLowerCase())) || (c.id && c.id.toString().includes(q))) : fallback;
       return res.json(envelope(true, list.slice(0, q ? 20 : 50), [], ['fallback']));
     } catch (e2) {
       return res.status(500).json(envelope(false, {}, [String(error.message)]));

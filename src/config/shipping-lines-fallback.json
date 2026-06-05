@@ -1,8 +1,170 @@
 [
-  { "id": "MAE", "name": "Maersk", "codigo": "MAE" },
-  { "id": "MSC", "name": "MSC", "codigo": "MSC" },
-  { "id": "CMA", "name": "CMA CGM", "codigo": "CMA" },
-  { "id": "EVRY", "name": "Evergreen", "codigo": "EVRY" },
-  { "id": "COS", "name": "Cosco", "codigo": "COS" },
-  { "id": "ONE", "name": "Ocean Network Express", "codigo": "ONE" }
+  {
+    "id": 1,
+    "name": "OCEAN NETWORK EXPRESS PTE. LTD.",
+    "country_name": "Cingapura",
+    "owner_code": "SG003526"
+  },
+  {
+    "id": 3,
+    "name": "HAMBURG SUDAMERIKANISCHE.",
+    "country_name": "Alemanha",
+    "owner_code": "DE001046"
+  },
+  {
+    "id": 4,
+    "name": "MSC MEDITERRANEAN SHIPPING CO",
+    "country_name": "China, Republica Popular",
+    "owner_code": "CH001016"
+  },
+  {
+    "id": 6,
+    "name": "HAPAG LLOYD AKTIENGESELLSCHATT",
+    "country_name": "Alemanha",
+    "owner_code": "DE001048"
+  },
+  {
+    "id": 7,
+    "name": "ALIANCA NAVEGACAO E LOGISTICA LTDA.",
+    "country_name": "Brasil",
+    "owner_code": null
+  },
+  {
+    "id": 8,
+    "name": "COSCO-CHINA OCEAN SHIPPING CO",
+    "country_name": "China, Republica Popular",
+    "owner_code": "CN001013"
+  },
+  {
+    "id": 9,
+    "name": "CMA-CGM SOCIÉTÉ ANONYME",
+    "country_name": "Franca",
+    "owner_code": "FR000057"
+  },
+  {
+    "id": 12,
+    "name": "nvo consolidation",
+    "country_name": "Suécia",
+    "owner_code": null
+  },
+  {
+    "id": 13,
+    "name": "EVERGREEN LINE",
+    "country_name": "Formosa (Taiwan)",
+    "owner_code": "TW000001"
+  },
+  {
+    "id": 15,
+    "name": "UNIMAR AGENCIAMENTOS MARITIMOS LTDA",
+    "country_name": "Brasil",
+    "owner_code": null
+  },
+  {
+    "id": 18,
+    "name": "ZIM INTEGRATED SHIPPING SERVICE",
+    "country_name": "Israel",
+    "owner_code": "IL001008"
+  },
+  {
+    "id": 19,
+    "name": "HYUNDAI MERCHANT MARINE CO",
+    "country_name": "Coreia (DO SUL), Republica Popular Democrática",
+    "owner_code": null
+  },
+  {
+    "id": 20,
+    "name": "pil (uk) limited",
+    "country_name": "Alemanha",
+    "owner_code": "GB001474"
+  },
+  {
+    "id": 22,
+    "name": "GRIMALDI DEEP-SEA SPA",
+    "country_name": "Itália",
+    "owner_code": null
+  },
+  {
+    "id": 23,
+    "name": "MAERSK A/S",
+    "country_name": "Dinamarca",
+    "owner_code": "DK001046"
+  },
+  {
+    "id": 24,
+    "name": "YANG MING MARINE TRANSPORT CORP.",
+    "country_name": "Estados Unidos",
+    "owner_code": "US001368"
+  },
+  {
+    "id": 25,
+    "name": "HMM CO., LTD.",
+    "country_name": "Coreia (DO SUL), Republica Popular Democrática",
+    "owner_code": "KR003856"
+  },
+  {
+    "id": 26,
+    "name": "nile dutch",
+    "country_name": "Países Baixos (Holanda)",
+    "owner_code": null
+  },
+  {
+    "id": 27,
+    "name": "ORIENT OVERSEAS CONTAINER LINE",
+    "country_name": "China, Republica Popular",
+    "owner_code": "HK004425"
+  },
+  {
+    "id": 28,
+    "name": "ALLINK TRANSPORTES INTERNACIONAIS LTDA",
+    "country_name": "Brasil",
+    "owner_code": null
+  },
+  {
+    "id": 29,
+    "name": "Craft Multimodal Ltda",
+    "country_name": "Brasil",
+    "owner_code": null
+  },
+  {
+    "id": 30,
+    "name": "PLUS CARGO INTERNACIONAL LTDA",
+    "country_name": "Brasil",
+    "owner_code": null
+  },
+  {
+    "id": 31,
+    "name": "AP MOLLER MAERSK A/S SEALAND",
+    "country_name": "Dinamarca",
+    "owner_code": "DK003171"
+  },
+  {
+    "id": 33,
+    "name": "PACIFIC INTERNATIONAL LINES",
+    "country_name": "Cingapura",
+    "owner_code": "SG003120"
+  },
+  {
+    "id": 34,
+    "name": "SETH SHIPPING (MAUTITIUS) LTD.",
+    "country_name": "Madagascar",
+    "owner_code": "-"
+  },
+  {
+    "id": 40,
+    "name": "Global Container International LLC",
+    "country_name": "Reino Unido",
+    "owner_code": "00000"
+  },
+  {
+    "id": 41,
+    "name": "WORLD FREIGHT AGENCIAMENTOS E TRANSPORTES LTDA",
+    "country_name": "Brasil",
+    "owner_code": "TW000237"
+  },
+  {
+    "id": 42,
+    "name": "YANG MING SINGAPORE PTE LTD",
+    "country_name": "Cingapura",
+    "owner_code": "SG003646"
+  }
 ]
