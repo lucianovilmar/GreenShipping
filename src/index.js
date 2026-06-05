@@ -71,7 +71,7 @@ app.post('/api/aereo/put', async (req, res) => {
   }
 });
 
-app.get('/api/portos', async (req, res) => {
+app.get('/api/seaports', async (req, res) => {
   const { q } = req.query;
   logger.info('Buscando portos da API', { search: q });
 

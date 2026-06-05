@@ -850,8 +850,8 @@
     });
 
     // Initialize Autocompletes
-    new PortoAutocomplete('origem-search', 'origem-list', 'origem', '/api/portos');
-    new PortoAutocomplete('destino-search', 'destino-list', 'destino', '/api/portos');
+    new PortoAutocomplete('origem-search', 'origem-list', 'origem', '/api/seaports');
+    new PortoAutocomplete('destino-search', 'destino-list', 'destino', '/api/seaports');
     new PortoAutocomplete('origem-aereo-search', 'origem-aereo-list', 'origem-aereo', '/api/aeroportos');
     new PortoAutocomplete('destino-aereo-search', 'destino-aereo-list', 'destino-aereo', '/api/aeroportos');
     new PortoAutocomplete('companhia-search', 'companhia-list', 'companhiaTransporte', '/api/shipping-lines');
@@ -1045,8 +1045,8 @@
       `;
       container.appendChild(div);
 
-      new PortoAutocomplete(`rota-origem-search-${index}`, `rota-origem-list-${index}`, `rota-origem-${index}`, '/api/portos');
-      new PortoAutocomplete(`rota-destino-search-${index}`, `rota-destino-list-${index}`, `rota-destino-${index}`, '/api/portos');
+      new PortoAutocomplete(`rota-origem-search-${index}`, `rota-origem-list-${index}`, `rota-origem-${index}`, '/api/seaports');
+      new PortoAutocomplete(`rota-destino-search-${index}`, `rota-destino-list-${index}`, `rota-destino-${index}`, '/api/seaports');
       new PortoAutocomplete(`rota-navio-search-${index}`, `rota-navio-list-${index}`, `rota-navio-${index}`, '/api/navios');
     }
 
@@ -2981,7 +2981,7 @@ const fallbackValoresPadrao = {
       const modal = document.getElementById('modalDestinos');
       const titulo = document.getElementById('modalTitulo');
       const lista = document.getElementById('destinosList');
-      const endpoint = tipo === 'maritimo' ? '/api/portos' : '/api/aeroportos';
+      const endpoint = tipo === 'maritimo' ? '/api/seaports' : '/api/aeroportos';
       titulo.textContent = tipo === 'maritimo' ? '🚢 Portos Disponíveis' : '✈️ Aeroportos Disponíveis';
       lista.innerHTML = '<div class="modal-loading"><div class="spinner"></div><p>Carregando...</p></div>';
       modal.classList.add('active');
