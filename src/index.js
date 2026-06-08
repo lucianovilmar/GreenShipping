@@ -482,6 +482,21 @@ app.get('/api/valores-padrao', (req, res) => {
   }
 });
 
+app.get('/api/config-info', (req, res) => {
+  try {
+    const { apiConfig } = require('./config/api');
+    return res.json(envelope(true, {
+      url: apiConfig.baseURL,
+      token: apiConfig.apiKey,
+      maritimoEndpoint: process.env.MARITIMO_PUT_ENDPOINT || '/agent_destination/maritimo',
+      aereoEndpoint: process.env.AEREO_PUT_ENDPOINT || '/agent_destination/aereo'
+    }, [], []));
+  } catch (error) {
+    logger.error('Erro ao ler apiConfig', { error: error.message });
+    return res.status(500).json(envelope(false, {}, [String(error.message)]));
+  }
+});
+
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });

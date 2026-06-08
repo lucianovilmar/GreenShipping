@@ -881,12 +881,13 @@
   <div id="modalJson" class="modal">
     <div class="modal-content" style="max-width: 700px;">
       <div class="modal-header">
-        <h2>Visualização do JSON Marítimo</h2>
+        <h2>Visualização do Comando cURL Marítimo</h2>
         <button class="modal-close" onclick="fecharModalJson()">✕</button>
       </div>
-      <p style="margin-bottom: 16px; font-size: 14px; color: #64748b;">Esse é o JSON exato que será enviado no corpo da requisição PUT:</p>
+      <p style="margin-bottom: 16px; font-size: 14px; color: #64748b;">Esse é o comando cURL completo (com link e token) para simular a requisição PUT:</p>
       <pre id="jsonPreviewArea" style="background: #f8fafc; border: 1.5px solid #ccd7e0; padding: 16px; border-radius: 8px; overflow-x: auto; max-height: 50vh; font-family: monospace; font-size: 13px; text-align: left;"></pre>
-      <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+      <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px;">
+        <button type="button" class="btn-submit" onclick="copiarCurlMaritimo()" style="background: #64748b; color: white; min-width: 130px;">📋 Copiar cURL</button>
         <button type="button" class="btn-submit" onclick="enviarPutMaritimoConfirmado()" style="min-width: 150px;">📤 Confirmar Envio</button>
       </div>
     </div>
@@ -895,12 +896,13 @@
   <div id="modalJsonAereo" class="modal">
     <div class="modal-content" style="max-width: 700px;">
       <div class="modal-header">
-        <h2>Visualização do JSON Aéreo</h2>
+        <h2>Visualização do Comando cURL Aéreo</h2>
         <button class="modal-close" onclick="fecharModalJsonAereo()">✕</button>
       </div>
-      <p style="margin-bottom: 16px; font-size: 14px; color: #64748b;">Esse é o JSON exato que será enviado no corpo da requisição PUT:</p>
+      <p style="margin-bottom: 16px; font-size: 14px; color: #64748b;">Esse é o comando cURL completo (com link e token) para simular a requisição PUT:</p>
       <pre id="jsonPreviewAreaAereo" style="background: #f8fafc; border: 1.5px solid #ccd7e0; padding: 16px; border-radius: 8px; overflow-x: auto; max-height: 50vh; font-family: monospace; font-size: 13px; text-align: left;"></pre>
-      <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+      <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px;">
+        <button type="button" class="btn-submit" onclick="copiarCurlAereo()" style="background: #64748b; color: white; min-width: 130px;">📋 Copiar cURL</button>
         <button type="button" class="btn-submit" onclick="enviarPutAereoConfirmado()" style="min-width: 150px;">📤 Confirmar Envio</button>
       </div>
     </div>
@@ -2995,6 +2997,25 @@ const fallbackValoresPadrao = {
   ]
 };
 
+    let configInfo = {
+      url: '{{url}}',
+      token: '{{token}}',
+      maritimoEndpoint: '/agent_destination/maritimo',
+      aereoEndpoint: '/agent_destination/aereo'
+    };
+
+    async function carregarConfigInfo() {
+      try {
+        const response = await fetch('/api/config-info');
+        const result = await response.json();
+        if (result.success && result.data) {
+          configInfo = result.data;
+        }
+      } catch (error) {
+        console.warn('Erro ao carregar configurações da API:', error);
+      }
+    }
+
     async function carregarValoresPadrao() {
       try {
         const response = await fetch('/api/valores-padrao');
@@ -3015,6 +3036,7 @@ const fallbackValoresPadrao = {
 
     // Dispara a carga das tabelas e renderização inicial
     carregarValoresPadrao();
+    carregarConfigInfo();
 
     // Auxiliar para formatar datas com hora do input datetime-local para o formato da API (AAAA-MM-DD HH:MM)
     function formatToApiDateTime(val) {
@@ -3108,35 +3130,56 @@ const fallbackValoresPadrao = {
       });
 
       return {
-        success: true,
-        data: {
-          numeroProcesso: getVal('numeroProcesso'),
-          referenciaCliente: getVal('referenciaCliente'),
-          origem: getVal('origem'),
-          destino: getVal('destino'),
-          hbl: getVal('hbl'),
-          companhiaTransporte: getVal('companhiaTransporte'),
-          armazem: getVal('armazem'),
-          pesoBruto: getVal('pesoBruto') ? Number(getVal('pesoBruto')).toFixed(3) : null,
-          cubagem: getVal('cubagem') ? Number(getVal('cubagem')).toFixed(3) : null,
-          navio: getVal('navio'),
-          viagemVoo: getVal('viagemVoo'),
-          dataPrevisaoEmbarque: getVal('dataPrevisaoEmbarque') || "",
-          dataEmbarque: getVal('dataEmbarque') || "",
-          dataPrevisaoDesembarque: getVal('dataPrevisaoDesembarque') || "",
-          dataDesembarque: getVal('dataDesembarque') || null,
-          modalidadePagamento: getVal('modalidadePagamento'),
-          container: getVal('container'),
-          moedaFrete: getVal('moedaFrete') || "",
-          numeroCe: getVal('numeroCe') || "",
-          valorFrete: getVal('valorFrete') || "",
-          dataCargaPronta: getVal('dataCargaPronta') || "",
-          dataEsperadaProntidao: getVal('dataEsperadaProntidao') || "",
-          volumes: volumes,
-          containers: containers,
-          rota: rota
-        }
+        numeroProcesso: getVal('numeroProcesso'),
+        referenciaCliente: getVal('referenciaCliente'),
+        origem: getVal('origem'),
+        destino: getVal('destino'),
+        hbl: getVal('hbl'),
+        companhiaTransporte: getVal('companhiaTransporte'),
+        armazem: getVal('armazem'),
+        pesoBruto: getVal('pesoBruto') ? Number(getVal('pesoBruto')).toFixed(3) : null,
+        cubagem: getVal('cubagem') ? Number(getVal('cubagem')).toFixed(3) : null,
+        navio: getVal('navio'),
+        viagemVoo: getVal('viagemVoo'),
+        dataPrevisaoEmbarque: getVal('dataPrevisaoEmbarque') || "",
+        dataEmbarque: getVal('dataEmbarque') || "",
+        dataPrevisaoDesembarque: getVal('dataPrevisaoDesembarque') || "",
+        dataDesembarque: getVal('dataDesembarque') || null,
+        modalidadePagamento: getVal('modalidadePagamento'),
+        container: getVal('container'),
+        moedaFrete: getVal('moedaFrete') || "",
+        numeroCe: getVal('numeroCe') || "",
+        valorFrete: getVal('valorFrete') || "",
+        dataCargaPronta: getVal('dataCargaPronta') || "",
+        dataEsperadaProntidao: getVal('dataEsperadaProntidao') || "",
+        volumes: volumes,
+        containers: containers,
+        rota: rota
       };
+    }
+
+    function formatCurlCommand(url, endpoint, token, payload) {
+      const fullUrl = `${url.replace(/\/$/, '')}${endpoint}`;
+      const payloadString = JSON.stringify(payload, null, 4);
+      return `curl --location -g --request PUT '${fullUrl}' \\\n--header 'X-Api-Key: ${token}' \\\n--data '${payloadString}'`;
+    }
+
+    function copiarCurlMaritimo() {
+      const previewArea = document.getElementById('jsonPreviewArea');
+      navigator.clipboard.writeText(previewArea.textContent).then(() => {
+        alert('✅ Comando cURL copiado para a área de transferência!');
+      }).catch(err => {
+        console.error('Erro ao copiar cURL:', err);
+      });
+    }
+
+    function copiarCurlAereo() {
+      const previewArea = document.getElementById('jsonPreviewAreaAereo');
+      navigator.clipboard.writeText(previewArea.textContent).then(() => {
+        alert('✅ Comando cURL copiado para a área de transferência!');
+      }).catch(err => {
+        console.error('Erro ao copiar cURL:', err);
+      });
     }
 
     function visualizarJsonMaritimo() {
@@ -3155,7 +3198,11 @@ const fallbackValoresPadrao = {
       currentPayloadMaritimo = gerarJsonMaritimo();
       
       const previewArea = document.getElementById('jsonPreviewArea');
-      previewArea.textContent = JSON.stringify(currentPayloadMaritimo, null, 2);
+      const url = configInfo?.url || '{{url}}';
+      const token = configInfo?.token || '{{token}}';
+      const endpoint = configInfo?.maritimoEndpoint || '/agent_destination/maritimo';
+      
+      previewArea.textContent = formatCurlCommand(url, endpoint, token, currentPayloadMaritimo);
       
       const modal = document.getElementById('modalJson');
       modal.classList.add('active');
@@ -3266,7 +3313,11 @@ const fallbackValoresPadrao = {
       currentPayloadAereo = gerarJsonAereo();
       
       const previewArea = document.getElementById('jsonPreviewAreaAereo');
-      previewArea.textContent = JSON.stringify(currentPayloadAereo, null, 2);
+      const url = configInfo?.url || '{{url}}';
+      const token = configInfo?.token || '{{token}}';
+      const endpoint = configInfo?.aereoEndpoint || '/agent_destination/aereo';
+      
+      previewArea.textContent = formatCurlCommand(url, endpoint, token, currentPayloadAereo);
       
       const modal = document.getElementById('modalJsonAereo');
       modal.classList.add('active');
