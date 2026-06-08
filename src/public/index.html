@@ -4,11 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Integração API - Dati</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { 
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #e6f0ed 0%, #cbdad6 100%);
       min-height: 100vh;
       padding: 20px;
       color: #22303f;
@@ -22,7 +25,7 @@
       overflow: hidden;
     }
     .header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #2d665b 0%, #3b8476 100%);
       padding: 40px 24px;
       text-align: center;
       color: white;
@@ -47,7 +50,7 @@
       transition: all 0.3s ease;
       position: relative;
     }
-    .tab-btn.active { color: #667eea; }
+    .tab-btn.active { color: #3b8476; }
     .tab-btn.active::after {
       content: '';
       position: absolute;
@@ -55,9 +58,9 @@
       left: 0;
       right: 0;
       height: 2px;
-      background: #667eea;
+      background: #3b8476;
     }
-    .tab-btn:hover { color: #667eea; }
+    .tab-btn:hover { color: #3b8476; }
 
     .tab-content {
       display: none;
@@ -75,7 +78,7 @@
     .section-title {
       font-size: 14px;
       font-weight: 700;
-      color: #667eea;
+      color: #3b8476;
       text-transform: uppercase;
       letter-spacing: 0.5px;
       margin-top: 20px;
@@ -110,8 +113,8 @@
 
     input:focus, select:focus, textarea:focus {
       outline: none;
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      border-color: #3b8476;
+      box-shadow: 0 0 0 3px rgba(59, 132, 118, 0.1);
     }
 
     .dynamic-box {
@@ -140,11 +143,11 @@
     }
 
     .btn-submit {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #3b8476 0%, #2d665b 100%);
       color: white;
       min-width: 180px;
     }
-    .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3); }
+    .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(59, 132, 118, 0.3); }
     .btn-submit:active { transform: translateY(0); }
 
     .btn-reset {
@@ -174,13 +177,13 @@
     .message pre { background: rgba(0, 0, 0, 0.05); padding: 12px; border-radius: 4px; overflow-x: auto; font-size: 12px; margin-top: 8px; }
 
     .hint { font-size: 12px; color: #90a4ae; margin-top: 4px; }
-    .loading { display: none; text-align: center; padding: 20px; color: #667eea; }
+    .loading { display: none; text-align: center; padding: 20px; color: #3b8476; }
     .spinner {
       display: inline-block;
       width: 20px;
       height: 20px;
-      border: 3px solid rgba(102, 126, 234, 0.2);
-      border-top-color: #667eea;
+      border: 3px solid rgba(59, 132, 118, 0.2);
+      border-top-color: #3b8476;
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
     }
@@ -200,7 +203,7 @@
     .autocomplete-item { padding: 12px 14px; border-bottom: 1px solid #eceff1; cursor: pointer; transition: background 0.2s ease; }
     .autocomplete-item:last-child { border-bottom: none; }
     .autocomplete-item:hover { background: #f5f7fa; }
-    .autocomplete-item.selected { background: #667eea; color: white; }
+    .autocomplete-item.selected { background: #3b8476; color: white; }
     .autocomplete-item-name { font-weight: 500; display: block; }
     .autocomplete-item-id { font-size: 12px; opacity: 0.7; display: block; }
 
@@ -228,12 +231,12 @@
       align-items: center;
       justify-content: center;
       transition: all 0.2s ease;
-      color: #667eea;
+      color: #3b8476;
       margin: 0;
     }
     .input-group .btn-select-list:hover {
       background: #e2e8f0;
-      color: #764ba2;
+      color: #2d665b;
     }
 
     /* Modal */
@@ -246,12 +249,12 @@
     .modal-close:hover { background: #cfd8dc; }
     .destinos-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
     .destino-card { border: 1px solid #ccd7e0; border-radius: 8px; padding: 16px; background: #f8fafc; transition: all 0.2s ease; cursor: pointer; }
-    .destino-card:hover { border-color: #667eea; background: #f0f4ff; box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15); }
+    .destino-card:hover { border-color: #3b8476; background: #f0f7f5; box-shadow: 0 2px 8px rgba(59, 132, 118, 0.15); }
     .destino-name { font-weight: 600; color: #22303f; margin-bottom: 4px; }
     .destino-id { font-size: 12px; color: #90a4ae; }
-    .btn-listar { background: #f1f5f9; color: #667eea; border: 2px solid #667eea; font-weight: 600; margin-top: 16px; }
-    .btn-listar:hover { background: #667eea; color: white; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); }
-    .modal-loading { text-align: center; padding: 40px; color: #667eea; }
+    .btn-listar { background: #f1f5f9; color: #3b8476; border: 2px solid #3b8476; font-weight: 600; margin-top: 16px; }
+    .btn-listar:hover { background: #3b8476; color: white; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(59, 132, 118, 0.3); }
+    .modal-loading { text-align: center; padding: 40px; color: #3b8476; }
 
     @media (max-width: 768px) {
       .container { margin: 0; border-radius: 0; }
@@ -262,6 +265,30 @@
       button { width: 100%; }
       .destinos-list { grid-template-columns: 1fr; }
       .modal-content { width: 95%; padding: 20px; }
+      
+      /* Sidebar Responsiva */
+      .content-wrapper {
+        flex-direction: column;
+      }
+      .app-sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 2px solid #e8ecf1;
+        flex-direction: row;
+        padding: 12px;
+        gap: 8px;
+      }
+      .sidebar-menu-btn {
+        flex: 1;
+        flex-direction: row;
+        justify-content: center;
+        padding: 12px 14px;
+        font-size: 14px;
+        gap: 8px;
+      }
+      .sidebar-menu-btn span {
+        font-size: 16px;
+      }
     }
 
     /* Dynamic Items Styles */
@@ -295,6 +322,89 @@
       background: #dc2626;
       color: white;
     }
+
+    /* Menu Lateral / Sidebar */
+    .content-wrapper {
+      display: flex;
+      min-height: 600px;
+    }
+    .app-sidebar {
+      width: 140px;
+      flex-shrink: 0;
+      background: #f8fafc;
+      border-right: 2px solid #e8ecf1;
+      padding: 24px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .sidebar-menu-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 16px 8px;
+      border: none;
+      border-radius: 8px;
+      background: transparent;
+      font-size: 12px;
+      font-weight: 700;
+      color: #6b7e99;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s ease;
+      line-height: 1.3;
+    }
+    .sidebar-menu-btn span {
+      font-size: 20px;
+    }
+    .sidebar-menu-btn:hover {
+      background: #f1f5f9;
+      color: #3b8476;
+    }
+    .sidebar-menu-btn.active {
+      background: #e6f0ed;
+      color: #2d665b;
+    }
+    .app-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* Histórico */
+    .history-filters {
+      background: #f8fafc; border: 1.5px solid #ccd7e0; border-radius: 12px;
+      padding: 24px; margin-bottom: 24px; display: grid; gap: 16px;
+    }
+    .history-type-toggle { display: flex; gap: 12px; margin-bottom: 8px; }
+    .type-toggle-btn {
+      flex: 1; padding: 12px; border: 1.5px solid #ccd7e0; border-radius: 8px;
+      background: white; font-weight: 600; color: #6b7e99; cursor: pointer; transition: all 0.2s;
+    }
+    .type-toggle-btn.active {
+      border-color: #3b8476; background: #f0f7f5; color: #3b8476;
+    }
+    
+    .history-table-container { width: 100%; overflow-x: auto; margin-top: 16px; border: 1.5px solid #ccd7e0; border-radius: 12px; }
+    .history-table { width: 100%; border-collapse: collapse; text-align: left; background: white; }
+    .history-table th { background: #f8fafc; padding: 14px 16px; font-weight: 600; color: #22303f; border-bottom: 1.5px solid #ccd7e0; }
+    .history-table td { padding: 14px 16px; border-bottom: 1px solid #eceff1; font-size: 14px; color: #22303f; }
+    .history-table tr:last-child td { border-bottom: none; }
+    .history-table tr:hover td { background: #f8fafc; }
+
+    .badge {
+      display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; text-transform: uppercase;
+    }
+    .badge.success { background: #e8f5e9; color: #2e7d32; }
+    .badge.error { background: #ffebee; color: #c62828; }
+
+    .btn-view-history {
+      background: #f1f5f9; color: #3b8476; border: 1px solid #3b8476;
+      padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-view-history:hover { background: #3b8476; color: white; }
   </style>
 </head>
 <body>
@@ -304,10 +414,26 @@
       <p>Envie dados de embarque para a API do cliente</p>
     </div>
 
-    <div class="tabs">
-      <button class="tab-btn active" data-tab="maritimo">🚢 Marítimo</button>
-      <button class="tab-btn" data-tab="aereo">✈️ Aéreo</button>
-    </div>
+    <div class="content-wrapper">
+      <aside class="app-sidebar">
+        <button class="sidebar-menu-btn active" id="btn-cadastro-menu" onclick="switchMainMenu('cadastro')">
+          <span>📝</span>
+          Formulários de Cadastro
+        </button>
+        <button class="sidebar-menu-btn" id="btn-historico-menu" onclick="switchMainMenu('historico')">
+          <span>🕒</span>
+          Histórico de Processos
+        </button>
+      </aside>
+
+      <!-- Área de Conteúdo -->
+      <main class="app-content">
+        <!-- Container dos Formulários de Cadastro -->
+        <div id="cadastro-container">
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="maritimo">🚢 Marítimo</button>
+        <button class="tab-btn" data-tab="aereo">✈️ Aéreo</button>
+      </div>
 
     <div id="maritimo" class="tab-content active">
       <form id="maritimo-form">
@@ -531,14 +657,6 @@
             Número do Voo
             <input type="text" name="numeroDoVoo" placeholder="Ex: 1234" />
           </label>
-          <label>
-            Company ID
-            <input type="number" name="company_id" placeholder="Ex: 723" />
-          </label>
-          <label>
-            Customer ID
-            <input type="number" name="customer_id" placeholder="Ex: 340" />
-          </label>
         </div>
 
         <div class="section-title">Rotas (Aeroportos) <span class="required">*</span></div>
@@ -686,8 +804,9 @@
         </div>
 
         <div class="btn-group">
-          <button type="reset" class="btn-reset">Limpar</button>
+          <button type="reset" class="btn-reset" onclick="limparFormularioAereo()">Limpar</button>
 
+          <button type="button" class="btn-submit" onclick="visualizarJsonAereo()" style="background: #f59e0b; color: white;">🔍 Testar Envio (JSON)</button>
           <button type="submit" class="btn-submit">📤 Enviar PUT Aéreo</button>
         </div>
 
@@ -698,7 +817,56 @@
         <div class="message" id="aereo-message"></div>
       </form>
     </div>
-  </div>
+  </div> <!-- fim do cadastro-container -->
+
+  <!-- Container do Histórico -->
+  <div id="historico-container" style="display: none; padding: 32px 24px;">
+    <div class="history-filters">
+      <div style="display: grid; gap: 8px;">
+        <span style="font-weight: 600; font-size: 14px; color: #22303f;">Tipo de Transporte</span>
+        <div class="history-type-toggle">
+          <button type="button" class="type-toggle-btn active" id="toggle-tipo-maritimo" onclick="setHistoryType('maritimo')">🚢 Marítimo</button>
+          <button type="button" class="type-toggle-btn" id="toggle-tipo-aereo" onclick="setHistoryType('aereo')">✈️ Aéreo</button>
+        </div>
+      </div>
+      <div class="row">
+        <label>
+          Número do Processo
+          <input type="text" id="filtro-processo" placeholder="Digite o número do processo" oninput="buscarHistorico()" />
+        </label>
+        <label>
+          Data de Envio
+          <input type="date" id="filtro-data" onchange="buscarHistorico()" />
+        </label>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 8px;">
+        <button type="button" class="btn-reset" onclick="limparFiltrosHistorico()" style="min-width: 100px; padding: 10px 16px;">Limpar</button>
+        <button type="button" class="btn-submit" onclick="buscarHistorico()" style="min-width: 120px; padding: 10px 16px;">🔍 Buscar</button>
+      </div>
+    </div>
+
+    <div class="section-title">Resultados do Histórico</div>
+    <div class="history-table-container">
+      <table class="history-table">
+        <thead>
+          <tr>
+            <th>Data/Hora Envio</th>
+            <th>Número Processo</th>
+            <th>Referência Cliente</th>
+            <th>Status Envio</th>
+            <th style="text-align: center;">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="history-table-body">
+          <tr>
+            <td colspan="5" style="text-align: center; color: #90a4ae; padding: 30px;">Nenhum registro encontrado. Realize uma busca.</td>
+          </tr>
+        </tbody>
+      </table>
+  </div> <!-- fim do historico-container -->
+      </main> <!-- fim da app-content -->
+    </div> <!-- fim da content-wrapper -->
+  </div> <!-- fim da container -->
 
   <div id="modalDestinos" class="modal">
     <div class="modal-content">
@@ -720,6 +888,157 @@
       <pre id="jsonPreviewArea" style="background: #f8fafc; border: 1.5px solid #ccd7e0; padding: 16px; border-radius: 8px; overflow-x: auto; max-height: 50vh; font-family: monospace; font-size: 13px; text-align: left;"></pre>
       <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
         <button type="button" class="btn-submit" onclick="enviarPutMaritimoConfirmado()" style="min-width: 150px;">📤 Confirmar Envio</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modalJsonAereo" class="modal">
+    <div class="modal-content" style="max-width: 700px;">
+      <div class="modal-header">
+        <h2>Visualização do JSON Aéreo</h2>
+        <button class="modal-close" onclick="fecharModalJsonAereo()">✕</button>
+      </div>
+      <p style="margin-bottom: 16px; font-size: 14px; color: #64748b;">Esse é o JSON exato que será enviado no corpo da requisição PUT:</p>
+      <pre id="jsonPreviewAreaAereo" style="background: #f8fafc; border: 1.5px solid #ccd7e0; padding: 16px; border-radius: 8px; overflow-x: auto; max-height: 50vh; font-family: monospace; font-size: 13px; text-align: left;"></pre>
+      <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+        <button type="button" class="btn-submit" onclick="enviarPutAereoConfirmado()" style="min-width: 150px;">📤 Confirmar Envio</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modalDetalhesHistorico" class="modal">
+    <div class="modal-content" style="max-width: 900px; width: 95%;">
+      <div class="modal-header">
+        <h2 id="detalhes-titulo">Detalhes do Processo (Visualização)</h2>
+        <button class="modal-close" onclick="fecharDetalhesHistorico()">✕</button>
+      </div>
+      <div id="detalhes-form-content" style="max-height: 70vh; overflow-y: auto; text-align: left;">
+        
+        <!-- VISUALIZAÇÃO MARÍTIMO -->
+        <div id="view-maritimo" style="display: none;">
+          <div class="section-title">Identificação</div>
+          <div class="row">
+            <label>Número do Processo <input type="text" id="v-m-processo" disabled /></label>
+            <label>Referência do Cliente <input type="text" id="v-m-referencia" disabled /></label>
+            <label>Número do BL / HBL <input type="text" id="v-m-hbl" disabled /></label>
+            <label>Número CE <input type="text" id="v-m-ce" disabled /></label>
+          </div>
+
+          <div class="section-title">Rotas</div>
+          <div class="row">
+            <label>Origem <input type="text" id="v-m-origem" disabled /></label>
+            <label>Destino <input type="text" id="v-m-destino" disabled /></label>
+          </div>
+
+          <div class="section-title">Transportes & Logística</div>
+          <div class="row">
+            <label>Navio <input type="text" id="v-m-navio" disabled /></label>
+            <label>Viagem / Voo <input type="text" id="v-m-viagem" disabled /></label>
+            <label>Companhia Transporte <input type="text" id="v-m-companhia" disabled /></label>
+            <label>Armazém <input type="text" id="v-m-armazem" disabled /></label>
+          </div>
+
+          <div class="section-title">Prazos e Datas</div>
+          <div class="row">
+            <label>Previsão Embarque <input type="text" id="v-m-prev-embarque" disabled /></label>
+            <label>Data Embarque <input type="text" id="v-m-data-embarque" disabled /></label>
+            <label>Previsão Desembarque <input type="text" id="v-m-prev-desembarque" disabled /></label>
+            <label>Data Desembarque <input type="text" id="v-m-data-desembarque" disabled /></label>
+          </div>
+          <div class="row" style="margin-top: 16px;">
+            <label>Data Carga Pronta <input type="text" id="v-m-carga-pronta" disabled /></label>
+            <label>Data Esperada Prontidão <input type="text" id="v-m-esperada-prontidao" disabled /></label>
+          </div>
+
+          <div class="section-title">Carga Geral</div>
+          <div class="row">
+            <label>Tipo de Container Geral <input type="text" id="v-m-container-geral" disabled /></label>
+            <label>Peso Bruto Geral (kg) <input type="text" id="v-m-peso-geral" disabled /></label>
+            <label>Cubagem Geral (m³) <input type="text" id="v-m-cubagem-geral" disabled /></label>
+          </div>
+
+          <div class="section-title">Financeiro</div>
+          <div class="row">
+            <label>Modalidade Pagamento <input type="text" id="v-m-modalidade" disabled /></label>
+            <label>Moeda Frete <input type="text" id="v-m-moeda" disabled /></label>
+            <label>Valor do Frete <input type="text" id="v-m-valor-frete" disabled /></label>
+          </div>
+
+          <div class="section-title">Volumes</div>
+          <div id="v-m-volumes-container" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;"></div>
+
+          <div class="section-title">Containers Detalhados</div>
+          <div id="v-m-containers-container" style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 16px;"></div>
+
+          <div class="section-title">Rota Detalhada</div>
+          <div id="v-m-rotas-container" style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 16px;"></div>
+        </div>
+
+        <!-- VISUALIZAÇÃO AÉREO -->
+        <div id="view-aereo" style="display: none;">
+          <div class="section-title">Identificação Aérea</div>
+          <div class="row">
+            <label>Número do Processo <input type="text" id="v-a-processo" disabled /></label>
+            <label>Referência do Cliente <input type="text" id="v-a-referencia" disabled /></label>
+            <label>HAWB (House) <input type="text" id="v-a-hawb" disabled /></label>
+            <label>MAWB (Master) <input type="text" id="v-a-mawb" disabled /></label>
+          </div>
+          <div class="row" style="margin-top: 16px;">
+            <label>Termo de Entrada / Manifesto <input type="text" id="v-a-termo" disabled /></label>
+            <label>Número do Voo <input type="text" id="v-a-voo" disabled /></label>
+          </div>
+
+          <div class="section-title">Rotas (Aeroportos)</div>
+          <div class="row">
+            <label>Origem (Aeroporto) <input type="text" id="v-a-origem" disabled /></label>
+            <label>Destino (Aeroporto) <input type="text" id="v-a-destino" disabled /></label>
+          </div>
+
+          <div class="section-title">Transportes & Logística</div>
+          <div class="row">
+            <label>Companhia Aérea (ID) <input type="text" id="v-a-companhia" disabled /></label>
+            <label>Armazém <input type="text" id="v-a-armazem" disabled /></label>
+          </div>
+
+          <div class="section-title">Marcos Temporais (Datas e Horários)</div>
+          <div class="row">
+            <label>Data Carga Pronta <input type="text" id="v-a-carga-pronta" disabled /></label>
+            <label>Data Esperada Prontidão <input type="text" id="v-a-esperada-prontidao" disabled /></label>
+            <label>Previsão Embarque <input type="text" id="v-a-prev-embarque" disabled /></label>
+            <label>Data Embarque <input type="text" id="v-a-data-embarque" disabled /></label>
+          </div>
+          <div class="row" style="margin-top: 16px;">
+            <label>Prev. Primeiro Desembarque <input type="text" id="v-a-prev-prim-desembarque" disabled /></label>
+            <label>Primeiro Desembarque <input type="text" id="v-a-prim-desembarque" disabled /></label>
+            <label>Previsão Desembarque Final <input type="text" id="v-a-prev-desembarque" disabled /></label>
+            <label>Desembarque Final <input type="text" id="v-a-data-desembarque" disabled /></label>
+          </div>
+          <div class="row" style="margin-top: 16px;">
+            <label>Data Presença de Carga <input type="text" id="v-a-presenca-carga" disabled /></label>
+            <label>Data Registro DTA <input type="text" id="v-a-registro-dta" disabled /></label>
+            <label>Data Desembaraço DTA <input type="text" id="v-a-desembaraco-dta" disabled /></label>
+            <label>Data Desembaraço Final <input type="text" id="v-a-desembaraco" disabled /></label>
+          </div>
+
+          <div class="section-title">Carga & Pesos</div>
+          <div class="row">
+            <label>Peso Bruto (kg) <input type="text" id="v-a-peso-bruto" disabled /></label>
+            <label>Cubagem (m³) <input type="text" id="v-a-cubagem" disabled /></label>
+          </div>
+
+          <div class="section-title">Financeiro</div>
+          <div class="row">
+            <label>Modalidade Pagamento <input type="text" id="v-a-modalidade" disabled /></label>
+            <label>Valor do Frete <input type="text" id="v-a-valor-frete" disabled /></label>
+            <label>Moeda Frete <input type="text" id="v-a-moeda" disabled /></label>
+          </div>
+
+          <div class="section-title">Embalagens</div>
+          <div id="v-a-embalagens-container" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;"></div>
+        </div>
+      </div>
+      <div style="display: flex; justify-content: flex-end; margin-top: 20px; border-top: 1.5px solid #e8ecf1; padding-top: 16px;">
+        <button type="button" class="btn-reset" onclick="fecharDetalhesHistorico()" style="min-width: 120px;">Fechar</button>
       </div>
     </div>
   </div>
@@ -2867,13 +3186,10 @@ const fallbackValoresPadrao = {
     });
 
     // SUBMIT AÉREO (TOTALMENTE ADAPTADO AO JSON NOVO)
-    document.getElementById('aereo-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      if (!document.getElementById('origem-aereo').value || !document.getElementById('destino-aereo').value) {
-        alert('Selecione aeroportos válidos');
-        return;
-      }
-      const form = e.target;
+    let currentPayloadAereo = null;
+
+    function gerarJsonAereo() {
+      const form = document.getElementById('aereo-form');
 
       const getVal = (name) => {
         const el = form.querySelector(`[name="${name}"]`);
@@ -2896,67 +3212,91 @@ const fallbackValoresPadrao = {
         const q = form.querySelectorAll('[name="emb_quantidade[]"]')[i];
         if (el.value || q.value) {
           embalagens.push({
-            tipo: el.value || null,
+            tipo: el.value ? String(el.value).padStart(2, '0') : null,
             quantidade: q.value ? parseInt(q.value, 10) : null
           });
         }
       });
 
-      // Construção idêntica do Payload baseado no modelo enviado
-      const payload = {
-        success: true,
-        data: {
-          numeroProcesso: getVal('numeroProcesso'),
-          referenciaCliente: getVal('referenciaCliente'),
-          origem: getNum('origem'),
-          destino: getNum('destino'),
-          hawb: getVal('hawb'),
-          mawb: getVal('mawb'),
-          companhiaTransporte: getNum('companhiaTransporte'),
-          armazem: getNum('armazem'),
-          termoDeEntrada: getVal('termoDeEntrada'),
-          numeroDoVoo: getVal('numeroDoVoo'),
-          dataCargaPronta: getDate('dataCargaPronta'),
-          dataEsperadaProntidao: getDate('dataEsperadaProntidao'),
-          dataPrevisaoEmbarque: getDate('dataPrevisaoEmbarque'),
-          dataEmbarque: getDate('dataEmbarque'),
-          dataPrevistaPrimeiroDesembarque: getDate('dataPrevistaPrimeiroDesembarque'),
-          dataPrimeiroDesembarque: getDate('dataPrimeiroDesembarque'),
-          dataPrevisaoDesembarque: getDate('dataPrevisaoDesembarque'),
-          dataDesembarque: getDate('dataDesembarque'),
-          dataPresencaDeCarga: getDate('dataPresencaDeCarga'),
-          dataRegistroDta: getDate('dataRegistroDta'),
-          dataDesembaracoDta: getDate('dataDesembaracoDta'),
-          dataDesembaraco: getDate('dataDesembaraco'),
-          pesoBruto: getNum('pesoBruto'),
-          cubagem: getNum('cubagem'),
-          modalidadePagamento: getVal('modalidadePagamento'),
-          valorFrete: getNum('valorFrete', true),
-          moedaFrete: getNum('moedaFrete'),
-          embalagem: embalagens,
-          company_id: getNum('company_id'),
-          file: {
-            warehouse_id: getNum('armazem'),
-            origin: getNum('origem'),
-            destination: getNum('destino'),
-            flight_number: getVal('numeroDoVoo'),
-            transport_type: "air",
-            master_number: getVal('mawb'),
-            house_number: getVal('hawb'),
-            operation_type: "direta",
-            client_reference: getVal('referenciaCliente'),
-            freight_value: getNum('valorFrete', true),
-            freight_type: getVal('modalidadePagamento'),
-            manifesto_carga_number: getVal('termoDeEntrada'),
-            airline_id: getNum('companhiaTransporte'),
-            cubagem: getNum('cubagem'),
-            gross_weight: getNum('pesoBruto')
-          },
-          customer_id: getNum('customer_id')
-        }
+      return {
+        numeroProcesso: getVal('numeroProcesso'),
+        referenciaCliente: getVal('referenciaCliente'),
+        origem: getNum('origem'),
+        destino: getNum('destino'),
+        hawb: getVal('hawb'),
+        mawb: getVal('mawb'),
+        companhiaTransporte: getNum('companhiaTransporte'),
+        armazem: getNum('armazem'),
+        termoDeEntrada: getVal('termoDeEntrada'),
+        numeroDoVoo: getVal('numeroDoVoo'),
+        dataCargaPronta: getDate('dataCargaPronta'),
+        dataEsperadaProntidao: getDate('dataEsperadaProntidao'),
+        dataPrevisaoEmbarque: getDate('dataPrevisaoEmbarque'),
+        dataEmbarque: getDate('dataEmbarque'),
+        dataPrevistaPrimeiroDesembarque: getDate('dataPrevistaPrimeiroDesembarque'),
+        dataPrimeiroDesembarque: getDate('dataPrimeiroDesembarque'),
+        dataPrevisaoDesembarque: getDate('dataPrevisaoDesembarque'),
+        dataDesembarque: getDate('dataDesembarque'),
+        dataPresencaDeCarga: getDate('dataPresencaDeCarga'),
+        dataRegistroDta: getDate('dataRegistroDta'),
+        dataDesembaracoDta: getDate('dataDesembaracoDta'),
+        dataDesembaraco: getDate('dataDesembaraco'),
+        pesoBruto: getNum('pesoBruto', true),
+        cubagem: getNum('cubagem', true),
+        modalidadePagamento: getVal('modalidadePagamento'),
+        valorFrete: getNum('valorFrete', true),
+        moedaFrete: getNum('moedaFrete'),
+        embalagem: embalagens
       };
+    }
 
-      sendData('/api/aereo/put', payload, 'aereo-loading', 'aereo-message');
+    function visualizarJsonAereo() {
+      if (!document.getElementById('origem-aereo').value || !document.getElementById('destino-aereo').value) {
+        alert('Selecione aeroportos válidos de Origem e Destino.');
+        return;
+      }
+      
+      const form = document.getElementById('aereo-form');
+      const modalidade = form.querySelector('[name="modalidadePagamento"]');
+      if (!modalidade || !modalidade.value) {
+        alert('Selecione a Modalidade de Pagamento.');
+        return;
+      }
+
+      currentPayloadAereo = gerarJsonAereo();
+      
+      const previewArea = document.getElementById('jsonPreviewAreaAereo');
+      previewArea.textContent = JSON.stringify(currentPayloadAereo, null, 2);
+      
+      const modal = document.getElementById('modalJsonAereo');
+      modal.classList.add('active');
+    }
+
+    function fecharModalJsonAereo() {
+      const modal = document.getElementById('modalJsonAereo');
+      modal.classList.remove('active');
+    }
+
+    function enviarPutAereoConfirmado() {
+      fecharModalJsonAereo();
+      if (!currentPayloadAereo) return;
+      sendData('/api/aereo/put', currentPayloadAereo, 'aereo-loading', 'aereo-message');
+    }
+
+    function limparFormularioAereo() {
+      recriarItensIniciais();
+    }
+
+    // Fechar modal ao clicar fora
+    document.getElementById('modalJsonAereo').addEventListener('click', (e) => {
+      if (e.target.id === 'modalJsonAereo') {
+        fecharModalJsonAereo();
+      }
+    });
+
+    document.getElementById('aereo-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      visualizarJsonAereo();
     });
 
     // Função genérica de envio e simulação de resposta
@@ -3014,6 +3354,302 @@ const fallbackValoresPadrao = {
     function fecharDestinos() { document.getElementById('modalDestinos').classList.remove('active'); }
     function copiarParaClipboard(texto) { navigator.clipboard.writeText(texto).then(() => alert('✅ Copiado: ' + texto)); }
     document.getElementById('modalDestinos').addEventListener('click', (e) => { if (e.target.id === 'modalDestinos') fecharDestinos(); });
+
+    // Navegação do Menu Principal
+    function switchMainMenu(menu) {
+      const btnCadastro = document.getElementById('btn-cadastro-menu');
+      const btnHistorico = document.getElementById('btn-historico-menu');
+      const containerCadastro = document.getElementById('cadastro-container');
+      const containerHistorico = document.getElementById('historico-container');
+
+      if (menu === 'cadastro') {
+        btnCadastro.classList.add('active');
+        btnHistorico.classList.remove('active');
+
+        containerCadastro.style.display = 'block';
+        containerHistorico.style.display = 'none';
+      } else {
+        btnHistorico.classList.add('active');
+        btnCadastro.classList.remove('active');
+
+        containerCadastro.style.display = 'none';
+        containerHistorico.style.display = 'block';
+        
+        // Define a data de envio como hoje (formato YYYY-MM-DD)
+        const hoje = new Date();
+        const pad = (num) => String(num).padStart(2, '0');
+        const hojeStr = `${hoje.getFullYear()}-${pad(hoje.getMonth() + 1)}-${pad(hoje.getDate())}`;
+        document.getElementById('filtro-data').value = hojeStr;
+        
+        buscarHistorico();
+      }
+    }
+
+    // Variável para armazenar o tipo de histórico selecionado ('maritimo' ou 'aereo')
+    let currentHistoryType = 'maritimo';
+    let cacheHistorico = []; // Armazena os registros buscados para visualização detalhada
+
+    function setHistoryType(tipo) {
+      currentHistoryType = tipo;
+      document.getElementById('toggle-tipo-maritimo').classList.toggle('active', tipo === 'maritimo');
+      document.getElementById('toggle-tipo-aereo').classList.toggle('active', tipo === 'aereo');
+      buscarHistorico();
+    }
+
+    function limparFiltrosHistorico() {
+      document.getElementById('filtro-processo').value = '';
+      document.getElementById('filtro-data').value = '';
+      buscarHistorico();
+    }
+
+    async function buscarHistorico() {
+      const tableBody = document.getElementById('history-table-body');
+      tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 30px;"><div class="spinner" style="width: 20px; height: 20px;"></div> Carregando histórico...</td></tr>';
+
+      const processo = document.getElementById('filtro-processo').value;
+      const data = document.getElementById('filtro-data').value;
+
+      try {
+        let url = `/api/historico?tipo=${currentHistoryType}`;
+        if (processo) url += `&processo=${encodeURIComponent(processo)}`;
+        if (data) url += `&data=${encodeURIComponent(data)}`;
+
+        const response = await fetch(url);
+        const result = await response.json();
+
+        if (result.success && result.data) {
+          cacheHistorico = result.data;
+          renderTabelaHistorico(result.data);
+        } else {
+          tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #f44336; padding: 30px;">Erro ao carregar dados: ${result.errors.join(', ')}</td></tr>`;
+        }
+      } catch (error) {
+        console.error('Erro ao buscar histórico:', error);
+        tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #f44336; padding: 30px;">Erro de conexão com o servidor.</td></tr>';
+      }
+    }
+
+    function renderTabelaHistorico(registros) {
+      const tableBody = document.getElementById('history-table-body');
+      tableBody.innerHTML = '';
+
+      if (registros.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #90a4ae; padding: 30px;">Nenhum registro encontrado.</td></tr>';
+        return;
+      }
+
+      registros.forEach(reg => {
+        const payloadData = reg.payload.data || reg.payload;
+        const processo = payloadData.numeroProcesso || '-';
+        const referencia = payloadData.referenciaCliente || '-';
+        
+        const badgeClass = reg.status === 'sucesso' ? 'success' : 'error';
+        const badgeText = reg.status === 'sucesso' ? 'Sucesso' : 'Erro';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${reg.dataHoraEnvio}</td>
+          <td style="font-weight: 600;">${processo}</td>
+          <td>${referencia}</td>
+          <td><span class="badge ${badgeClass}">${badgeText}</span></td>
+          <td style="text-align: center;">
+            <button type="button" class="btn-view-history" onclick="visualizarDetalhesItem('${reg.id}')">👁️ Visualizar</button>
+          </td>
+        `;
+        tableBody.appendChild(tr);
+      });
+    }
+
+    function visualizarDetalhesItem(id) {
+      const item = cacheHistorico.find(reg => reg.id === id);
+      if (!item) {
+        alert('Registro não encontrado no cache.');
+        return;
+      }
+
+      const payload = item.payload.data || item.payload;
+      const modal = document.getElementById('modalDetalhesHistorico');
+      const viewMaritimo = document.getElementById('view-maritimo');
+      const viewAereo = document.getElementById('view-aereo');
+
+      // Limpar containers dinâmicos antes de preencher
+      document.getElementById('v-m-volumes-container').innerHTML = '';
+      document.getElementById('v-m-containers-container').innerHTML = '';
+      document.getElementById('v-m-rotas-container').innerHTML = '';
+      document.getElementById('v-a-embalagens-container').innerHTML = '';
+
+      if (currentHistoryType === 'maritimo') {
+        document.getElementById('detalhes-titulo').textContent = `Ficha do Processo Marítimo - ${payload.numeroProcesso || ''}`;
+        viewMaritimo.style.display = 'block';
+        viewAereo.style.display = 'none';
+
+        // Preencher Identificação
+        document.getElementById('v-m-processo').value = payload.numeroProcesso || '';
+        document.getElementById('v-m-referencia').value = payload.referenciaCliente || '';
+        document.getElementById('v-m-hbl').value = payload.hbl || '';
+        document.getElementById('v-m-ce').value = payload.numeroCe || '';
+
+        // Preencher Rotas
+        document.getElementById('v-m-origem').value = payload.origem || '';
+        document.getElementById('v-m-destino').value = payload.destino || '';
+
+        // Preencher Transportes & Logística
+        document.getElementById('v-m-navio').value = payload.navio || '';
+        document.getElementById('v-m-viagem').value = payload.viagemVoo || '';
+        document.getElementById('v-m-companhia').value = payload.companhiaTransporte || '';
+        document.getElementById('v-m-armazem').value = payload.armazem || '';
+
+        // Preencher Prazos e Datas
+        document.getElementById('v-m-prev-embarque').value = payload.dataPrevisaoEmbarque || '';
+        document.getElementById('v-m-data-embarque').value = payload.dataEmbarque || '';
+        document.getElementById('v-m-prev-desembarque').value = payload.dataPrevisaoDesembarque || '';
+        document.getElementById('v-m-data-desembarque').value = payload.dataDesembarque || '';
+        document.getElementById('v-m-carga-pronta').value = payload.dataCargaPronta || '';
+        document.getElementById('v-m-esperada-prontidao').value = payload.dataEsperadaProntidao || '';
+
+        // Preencher Carga Geral
+        document.getElementById('v-m-container-geral').value = payload.container || '';
+        document.getElementById('v-m-peso-geral').value = payload.pesoBruto || '';
+        document.getElementById('v-m-cubagem-geral').value = payload.cubagem || '';
+
+        // Preencher Financeiro
+        document.getElementById('v-m-modalidade').value = payload.modalidadePagamento || '';
+        document.getElementById('v-m-moeda').value = payload.moedaFrete || '';
+        document.getElementById('v-m-valor-frete').value = payload.valorFrete || '';
+
+        // Preencher Volumes Dinâmicos
+        if (Array.isArray(payload.volumes)) {
+          payload.volumes.forEach((vol, i) => {
+            const div = document.createElement('div');
+            div.className = 'dynamic-box row';
+            div.innerHTML = `
+              <label style="flex: 1;">Tipo Volume <input type="text" value="${vol.tipo || ''}" disabled /></label>
+              <label style="flex: 1;">Quantidade <input type="text" value="${vol.quantidade || ''}" disabled /></label>
+            `;
+            document.getElementById('v-m-volumes-container').appendChild(div);
+          });
+        }
+
+        // Preencher Containers Dinâmicos
+        if (Array.isArray(payload.containers)) {
+          payload.containers.forEach((cont, i) => {
+            const div = document.createElement('div');
+            div.className = 'dynamic-box';
+            div.innerHTML = `
+              <div style="font-weight: 600; color: #764ba2; margin-bottom: 8px;">Container #${i + 1}</div>
+              <div class="row">
+                <label>Número Container <input type="text" value="${cont.numero || ''}" disabled /></label>
+                <label>Equipamento <input type="text" value="${cont.equipamento || ''} (${cont.equipamentoCodigo || ''})" disabled /></label>
+                <label>Lacres <input type="text" value="${cont.lacres || ''}" disabled /></label>
+              </div>
+              <div class="row" style="margin-top: 8px;">
+                <label>Peso (kg) <input type="text" value="${cont.peso || ''}" disabled /></label>
+                <label>Cubagem (m³) <input type="text" value="${cont.cubagem || ''}" disabled /></label>
+                <label>Tara <input type="text" value="${cont.tara || ''}" disabled /></label>
+              </div>
+            `;
+            document.getElementById('v-m-containers-container').appendChild(div);
+          });
+        }
+
+        // Preencher Rota Detalhada Dinâmica
+        if (Array.isArray(payload.rota)) {
+          payload.rota.forEach((rt, i) => {
+            const div = document.createElement('div');
+            div.className = 'dynamic-box';
+            div.innerHTML = `
+              <div style="font-weight: 600; color: #667eea; margin-bottom: 8px;">Trecho #${i + 1}</div>
+              <div class="row">
+                <label>Origem <input type="text" value="${rt.origem || ''}" disabled /></label>
+                <label>Destino <input type="text" value="${rt.destino || ''}" disabled /></label>
+              </div>
+              <div class="row" style="margin-top: 8px;">
+                <label>Navio <input type="text" value="${rt.navio || ''}" disabled /></label>
+                <label>Viagem / Voo <input type="text" value="${rt.viagemVoo || ''}" disabled /></label>
+                <label>Tipo Viagem <input type="text" value="${rt.tipoViagem || 'Main'}" disabled /></label>
+              </div>
+              <div class="row" style="margin-top: 8px;">
+                <label>Previsão Embarque <input type="text" value="${rt.dataPrevisaoEmbarque || ''}" disabled /></label>
+                <label>Data Embarque <input type="text" value="${rt.dataEmbarque || ''}" disabled /></label>
+                <label>Previsão Desembarque <input type="text" value="${rt.dataPrevisaoDesembarque || ''}" disabled /></label>
+                <label>Data Desembarque <input type="text" value="${rt.dataDesembarque || ''}" disabled /></label>
+              </div>
+            `;
+            document.getElementById('v-m-rotas-container').appendChild(div);
+          });
+        }
+
+      } else {
+        document.getElementById('detalhes-titulo').textContent = `Ficha do Processo Aéreo - ${payload.numeroProcesso || ''}`;
+        viewMaritimo.style.display = 'none';
+        viewAereo.style.display = 'block';
+
+        // Preencher Identificação Aérea
+        document.getElementById('v-a-processo').value = payload.numeroProcesso || '';
+        document.getElementById('v-a-referencia').value = payload.referenciaCliente || '';
+        document.getElementById('v-a-hawb').value = payload.hawb || '';
+        document.getElementById('v-a-mawb').value = payload.mawb || '';
+        document.getElementById('v-a-termo').value = payload.termoDeEntrada || '';
+        document.getElementById('v-a-voo').value = payload.numeroDoVoo || '';
+
+        // Preencher Rotas (Aeroportos)
+        document.getElementById('v-a-origem').value = payload.origem || '';
+        document.getElementById('v-a-destino').value = payload.destino || '';
+
+        // Preencher Transportes & Logística
+        document.getElementById('v-a-companhia').value = payload.companhiaTransporte || '';
+        document.getElementById('v-a-armazem').value = payload.armazem || '';
+
+        // Preencher Marcos Temporais (Datas e Horários)
+        document.getElementById('v-a-carga-pronta').value = payload.dataCargaPronta || '';
+        document.getElementById('v-a-esperada-prontidao').value = payload.dataEsperadaProntidao || '';
+        document.getElementById('v-a-prev-embarque').value = payload.dataPrevisaoEmbarque || '';
+        document.getElementById('v-a-data-embarque').value = payload.dataEmbarque || '';
+        document.getElementById('v-a-prev-prim-desembarque').value = payload.dataPrevistaPrimeiroDesembarque || '';
+        document.getElementById('v-a-prim-desembarque').value = payload.dataPrimeiroDesembarque || '';
+        document.getElementById('v-a-prev-desembarque').value = payload.dataPrevisaoDesembarque || '';
+        document.getElementById('v-a-data-desembarque').value = payload.dataDesembarque || '';
+        document.getElementById('v-a-presenca-carga').value = payload.dataPresencaDeCarga || '';
+        document.getElementById('v-a-registro-dta').value = payload.dataRegistroDta || '';
+        document.getElementById('v-a-desembaraco-dta').value = payload.dataDesembaracoDta || '';
+        document.getElementById('v-a-desembaraco').value = payload.dataDesembaraco || '';
+
+        // Preencher Carga & Pesos
+        document.getElementById('v-a-peso-bruto').value = payload.pesoBruto || '';
+        document.getElementById('v-a-cubagem').value = payload.cubagem || '';
+
+        // Preencher Financeiro
+        document.getElementById('v-a-modalidade').value = payload.modalidadePagamento || '';
+        document.getElementById('v-a-valor-frete').value = payload.valorFrete || '';
+        document.getElementById('v-a-moeda').value = payload.moedaFrete || '';
+
+        // Preencher Embalagens Dinâmicas
+        if (Array.isArray(payload.embalagem)) {
+          payload.embalagem.forEach((emb, i) => {
+            const div = document.createElement('div');
+            div.className = 'dynamic-box row';
+            div.innerHTML = `
+              <label style="flex: 1;">Tipo de Embalagem <input type="text" value="${emb.tipo || ''}" disabled /></label>
+              <label style="flex: 1;">Quantidade <input type="text" value="${emb.quantidade || ''}" disabled /></label>
+            `;
+            document.getElementById('v-a-embalagens-container').appendChild(div);
+          });
+        }
+      }
+
+      modal.classList.add('active');
+    }
+
+    function fecharDetalhesHistorico() {
+      document.getElementById('modalDetalhesHistorico').classList.remove('active');
+    }
+
+    // Fechar modal de detalhes ao clicar fora
+    document.getElementById('modalDetalhesHistorico').addEventListener('click', (e) => {
+      if (e.target.id === 'modalDetalhesHistorico') {
+        fecharDetalhesHistorico();
+      }
+    });
   </script>
 </body>
 </html>

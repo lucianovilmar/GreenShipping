@@ -1,0 +1,66 @@
+[
+  {
+    "id": "17809256979257l7f7",
+    "dataHoraEnvio": "2026-06-08 10:34:57",
+    "status": "erro",
+    "payload": {
+      "success": true,
+      "data": {
+        "numeroProcesso": "WEI-19024",
+        "referenciaCliente": "26/0002",
+        "origem": "2",
+        "destino": "3",
+        "hbl": "teste bl",
+        "companhiaTransporte": "3",
+        "armazem": "5",
+        "pesoBruto": "3545.000",
+        "cubagem": "543.000",
+        "navio": "7",
+        "viagemVoo": "teste viagem",
+        "dataPrevisaoEmbarque": "2026-06-08",
+        "dataEmbarque": "2026-06-09",
+        "dataPrevisaoDesembarque": "2026-06-10",
+        "dataDesembarque": "2026-06-11",
+        "modalidadePagamento": "P",
+        "container": "49P0",
+        "moedaFrete": "AFN",
+        "numeroCe": "CE teste",
+        "valorFrete": "23423",
+        "dataCargaPronta": "2026-06-14",
+        "dataEsperadaProntidao": "2026-06-15",
+        "volumes": [
+          {
+            "tipo": "2",
+            "quantidade": "54664"
+          }
+        ],
+        "containers": [
+          {
+            "equipamento": "20 Pés",
+            "equipamentoCodigo": "20",
+            "freeTime": null,
+            "moedaFrete": "AFN",
+            "numero": "efwa2",
+            "lacres": "646",
+            "tara": "6456.000",
+            "cubagem": "64.000",
+            "peso": "334.000"
+          }
+        ],
+        "rota": [
+          {
+            "dataPrevisaoEmbarque": "2026-06-21",
+            "dataEmbarque": "2026-06-22",
+            "dataPrevisaoDesembarque": "2026-06-23",
+            "dataDesembarque": "2026-06-24",
+            "origem": "1",
+            "destino": "2",
+            "navio": "7",
+            "tipoViagem": "Main",
+            "viagemVoo": "4"
+          }
+        ]
+      }
+    }
+  }
+]

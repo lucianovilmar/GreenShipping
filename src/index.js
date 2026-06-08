@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
+const fs = require('fs').promises;
 const logger = require('./config/logger');
 const maritimoApiService = require('./services/maritimoApiService');
 const aereoApiService = require('./services/aereoApiService');
@@ -23,18 +24,61 @@ function envelope(success, data = {}, errors = [], warnings = []) {
   };
 }
 
+// Função auxiliar para salvar o histórico de envio
+async function salvarHistorico(tipo, payload, status) {
+  try {
+    const dataAtual = new Date();
+    const anoMes = dataAtual.toISOString().slice(0, 7); // "YYYY-MM"
+    const pad = (num) => String(num).padStart(2, '0');
+    const dataHoraStr = `${dataAtual.getFullYear()}-${pad(dataAtual.getMonth() + 1)}-${pad(dataAtual.getDate())} ${pad(dataAtual.getHours())}:${pad(dataAtual.getMinutes())}:${pad(dataAtual.getSeconds())}`;
+
+    const dirPath = path.join(__dirname, 'data', 'history');
+    await fs.mkdir(dirPath, { recursive: true });
+
+    const fileName = `${tipo}-${anoMes}.json`;
+    const filePath = path.join(dirPath, fileName);
+
+    let registros = [];
+    try {
+      const content = await fs.readFile(filePath, 'utf8');
+      registros = JSON.parse(content);
+      if (!Array.isArray(registros)) {
+        registros = [];
+      }
+    } catch (err) {
+      registros = [];
+    }
+
+    const novoRegistro = {
+      id: Date.now().toString() + Math.random().toString(36).substring(2, 7),
+      dataHoraEnvio: dataHoraStr,
+      status: status,
+      payload: payload
+    };
+
+    registros.unshift(novoRegistro); // Insere no início do histórico
+
+    await fs.writeFile(filePath, JSON.stringify(registros, null, 2), 'utf8');
+    logger.info('Histórico salvo com sucesso', { tipo, fileName });
+  } catch (error) {
+    logger.error('Falha ao salvar histórico', { error: error.message });
+  }
+}
+
 app.post('/api/maritimo/put', async (req, res) => {
   const payload = req.body;
   logger.info('Recebido formulário Marítimo', { bodyKeys: Object.keys(payload) });
 
   try {
     const result = await maritimoApiService.sendMaritimoPut(payload);
+    await salvarHistorico('maritimo', payload, 'sucesso');
     return res.status(result.statusCode || 200).json(envelope(true, result.data || {}, [], []));
   } catch (error) {
     const statusCode = error.response?.status || 500;
     const errorData = error.response?.data || error.message;
 
     logger.error('Falha no PUT Marítimo', { statusCode, error: errorData });
+    await salvarHistorico('maritimo', payload, 'erro');
     const errors = [];
     if (errorData && typeof errorData === 'object') {
       if (errorData.message) errors.push(String(errorData.message));
@@ -53,12 +97,14 @@ app.post('/api/aereo/put', async (req, res) => {
 
   try {
     const result = await aereoApiService.sendAereoPut(payload);
+    await salvarHistorico('aereo', payload, 'sucesso');
     return res.status(result.statusCode || 200).json(envelope(true, result.data || {}, [], []));
   } catch (error) {
     const statusCode = error.response?.status || 500;
     const errorData = error.response?.data || error.message;
 
     logger.error('Falha no PUT Aéreo', { statusCode, error: errorData });
+    await salvarHistorico('aereo', payload, 'erro');
     const errors = [];
     if (errorData && typeof errorData === 'object') {
       if (errorData.message) errors.push(String(errorData.message));
@@ -68,6 +114,64 @@ app.post('/api/aereo/put', async (req, res) => {
     }
 
     return res.status(statusCode).json(envelope(false, {}, errors));
+  }
+});
+
+app.get('/api/historico', async (req, res) => {
+  const { tipo, processo, data } = req.query;
+
+  if (!tipo || (tipo !== 'maritimo' && tipo !== 'aereo')) {
+    return res.status(400).json(envelope(false, {}, ['O parâmetro "tipo" (maritimo ou aereo) é obrigatório.']));
+  }
+
+  logger.info('Buscando histórico', { tipo, processo, data });
+
+  try {
+    const dirPath = path.join(__dirname, 'data', 'history');
+    await fs.mkdir(dirPath, { recursive: true });
+
+    const files = await fs.readdir(dirPath);
+    const filteredFiles = files.filter(file => file.startsWith(`${tipo}-`) && file.endsWith('.json'));
+
+    let todosRegistros = [];
+
+    for (const file of filteredFiles) {
+      try {
+        const content = await fs.readFile(path.join(dirPath, file), 'utf8');
+        const registros = JSON.parse(content);
+        if (Array.isArray(registros)) {
+          todosRegistros = todosRegistros.concat(registros);
+        }
+      } catch (err) {
+        logger.error(`Erro ao ler arquivo de histórico ${file}`, { error: err.message });
+      }
+    }
+
+    // Ordenar por dataHoraEnvio descrescente
+    todosRegistros.sort((a, b) => {
+      return new Date(b.dataHoraEnvio.replace(' ', 'T')) - new Date(a.dataHoraEnvio.replace(' ', 'T'));
+    });
+
+    let resultados = todosRegistros;
+
+    if (processo && processo.trim()) {
+      const searchProc = processo.toLowerCase().trim();
+      resultados = resultados.filter(reg => {
+        const payloadData = reg.payload.data || reg.payload;
+        const numProc = payloadData.numeroProcesso || '';
+        return String(numProc).toLowerCase().includes(searchProc);
+      });
+    }
+
+    if (data && data.trim()) {
+      const searchData = data.trim();
+      resultados = resultados.filter(reg => reg.dataHoraEnvio.startsWith(searchData));
+    }
+
+    return res.json(envelope(true, resultados, [], []));
+  } catch (error) {
+    logger.error('Erro ao ler histórico', { error: error.message });
+    return res.status(500).json(envelope(false, {}, [String(error.message)]));
   }
 });
 

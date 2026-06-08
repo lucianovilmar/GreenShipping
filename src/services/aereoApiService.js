@@ -8,12 +8,12 @@ class AereoApiService {
   }
 
   async sendAereoPut(payload) {
-    const hasReference = Boolean(payload.referenciaCliente || payload.houseNumber);
+    const hasReference = Boolean(payload.referenciaCliente || payload.hawb);
     const requiredFields = ['origem', 'destino', 'modalidadePagamento'];
     const missingFields = requiredFields.filter((field) => !payload[field]);
 
     if (!hasReference) {
-      throw new Error('É necessário informar referenciaCliente ou houseNumber.');
+      throw new Error('É necessário informar referenciaCliente ou hawb.');
     }
 
     if (missingFields.length > 0) {
