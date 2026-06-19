@@ -8,6 +8,11 @@ const apiConfig = {
   apiKey: process.env.API_KEY || ''
 };
 
+const putApiConfig = {
+  baseURL: process.env.PUT_API_BASE_URL || 'https://external.dati-api.com/teste',
+  apiKey: process.env.PUT_API_KEY || 's3TnVtnux9aP8qSpEt6ITnLHOjjelPG3MnzYTe0h'
+};
+
 // Criar instância do axios com configuração padrão
 const apiClient = axios.create({
   baseURL: apiConfig.baseURL,
@@ -18,7 +23,19 @@ const apiClient = axios.create({
   }
 });
 
+// Criar instância do axios para requisições PUT (temporariamente fixada para o ambiente de testes)
+const putApiClient = axios.create({
+  baseURL: putApiConfig.baseURL,
+  timeout: apiConfig.timeout,
+  headers: {
+    'Content-Type': 'application/json',
+    ...(putApiConfig.apiKey && { 'X-Api-Key': putApiConfig.apiKey })
+  }
+});
+
 module.exports = {
   apiClient,
-  apiConfig
+  apiConfig,
+  putApiClient,
+  putApiConfig
 };

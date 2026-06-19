@@ -1,9 +1,9 @@
 const logger = require('../config/logger');
-const { apiClient } = require('../config/api');
+const { putApiClient } = require('../config/api');
 
 class AereoApiService {
   constructor() {
-    this.apiClient = apiClient;
+    this.apiClient = putApiClient;
     this.endpoint = process.env.AEREO_PUT_ENDPOINT || '/agent_destination/aereo';
   }
 

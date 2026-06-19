@@ -1,9 +1,9 @@
 const logger = require('../config/logger');
-const { apiClient } = require('../config/api');
+const { putApiClient } = require('../config/api');
 
 class MaritimoApiService {
   constructor() {
-    this.apiClient = apiClient;
+    this.apiClient = putApiClient;
     this.endpoint = process.env.MARITIMO_PUT_ENDPOINT || '/agent_destination/maritimo';
   }
 

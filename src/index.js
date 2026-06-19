@@ -484,15 +484,15 @@ app.get('/api/valores-padrao', (req, res) => {
 
 app.get('/api/config-info', (req, res) => {
   try {
-    const { apiConfig } = require('./config/api');
+    const { putApiConfig } = require('./config/api');
     return res.json(envelope(true, {
-      url: apiConfig.baseURL,
-      token: apiConfig.apiKey,
+      url: putApiConfig.baseURL,
+      token: putApiConfig.apiKey,
       maritimoEndpoint: process.env.MARITIMO_PUT_ENDPOINT || '/agent_destination/maritimo',
       aereoEndpoint: process.env.AEREO_PUT_ENDPOINT || '/agent_destination/aereo'
     }, [], []));
   } catch (error) {
-    logger.error('Erro ao ler apiConfig', { error: error.message });
+    logger.error('Erro ao ler putApiConfig', { error: error.message });
     return res.status(500).json(envelope(false, {}, [String(error.message)]));
   }
 });
