@@ -3372,7 +3372,10 @@ const fallbackValoresPadrao = {
           msg.innerHTML = `<strong>✅ Sucesso!</strong> Dados enviados.<br><pre>${JSON.stringify(payload, null, 2)}</pre>`;
         } else {
           msg.className = 'message error';
-          msg.innerHTML = `<strong>❌ Erro na API:</strong> ${result.message}`;
+          const errMsg = (result.errors && result.errors.length > 0) 
+            ? result.errors.join('<br>') 
+            : (result.message || 'Erro desconhecido');
+          msg.innerHTML = `<strong>❌ Erro na API:</strong><br>${errMsg}`;
         }
       } catch (error) {
         msg.className = 'message success'; // Forçando visualização do JSON montado caso rotas mockadas falhem localmente
