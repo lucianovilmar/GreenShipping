@@ -206,7 +206,10 @@ app.get('/api/seaports', async (req, res) => {
     }
 
     // Se não há busca, retorna até 50 resultados; se há busca, retorna até 20
-    const limit = q ? 20 : 50;
+    let limit = q ? 20 : 50;
+    if (req.query.limit === 'all') {
+      limit = portos.length;
+    }
     portos = portos.slice(0, limit);
 
     return res.json(envelope(true, portos, [], []));
@@ -261,7 +264,10 @@ app.get('/api/airports', async (req, res) => {
     }
 
     // Se não há busca, retorna até 50 resultados; se há busca, retorna até 20
-    const limit = q ? 20 : 50;
+    let limit = q ? 20 : 50;
+    if (req.query.limit === 'all') {
+      limit = aeroportos.length;
+    }
     aeroportos = aeroportos.slice(0, limit);
 
     return res.json(envelope(true, aeroportos, [], []));
@@ -314,7 +320,10 @@ app.get('/api/shipping-lines', async (req, res) => {
     }
 
     // Se não há busca, retorna até 50 resultados; se há busca, retorna até 20
-    const limit = q ? 20 : 50;
+    let limit = q ? 20 : 50;
+    if (req.query.limit === 'all') {
+      limit = companies.length;
+    }
     companies = companies.slice(0, limit);
 
     return res.json(envelope(true, companies, [], []));
@@ -360,7 +369,10 @@ app.get('/api/airlines', async (req, res) => {
     }
 
     // Se não há busca, retorna até 50 resultados; se há busca, retorna até 20
-    const limit = q ? 20 : 50;
+    let limit = q ? 20 : 50;
+    if (req.query.limit === 'all') {
+      limit = airlines.length;
+    }
     airlines = airlines.slice(0, limit);
 
     return res.json(envelope(true, airlines, [], []));
@@ -410,7 +422,10 @@ app.get('/api/navios', async (req, res) => {
     }
 
     // Se não há busca, retorna até 50 resultados; se há busca, retorna até 20
-    const limit = q ? 20 : 50;
+    let limit = q ? 20 : 50;
+    if (req.query.limit === 'all') {
+      limit = vessels.length;
+    }
     vessels = vessels.slice(0, limit);
 
     return res.json(envelope(true, vessels, [], []));
@@ -455,7 +470,10 @@ app.get('/api/armazens', async (req, res) => {
     }
 
     // Se não há busca, retorna até 50 resultados; se há busca, retorna até 20
-    const limit = q ? 20 : 50;
+    let limit = q ? 20 : 50;
+    if (req.query.limit === 'all') {
+      limit = warehouses.length;
+    }
     warehouses = warehouses.slice(0, limit);
 
     return res.json(envelope(true, warehouses, [], []));

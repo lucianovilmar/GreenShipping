@@ -1054,6 +1054,11 @@
         this.hidden = document.getElementById(hiddenId);
         this.url = url;
         this.btn = this.input.parentElement.querySelector('.btn-select-list');
+        
+        this.allItems = [];
+        this.renderedCount = 0;
+        this.pageSize = 50;
+        
         this.setupEvents();
       }
 
@@ -1094,6 +1099,13 @@
             }
           }
         });
+
+        // Evento de rolagem para carregamento progressivo (infinite scroll)
+        this.list.addEventListener('scroll', () => {
+          if (this.list.scrollTop + this.list.clientHeight >= this.list.scrollHeight - 20) {
+            this.renderMore();
+          }
+        });
       }
 
       async fetchSuggestions(query) {
@@ -1101,13 +1113,19 @@
         this.list.classList.add('active');
 
         try {
-          const endpoint = query ? `${this.url}?q=${encodeURIComponent(query)}` : this.url;
+          const endpoint = query 
+            ? `${this.url}?q=${encodeURIComponent(query)}&limit=all` 
+            : `${this.url}?limit=all`;
           const response = await fetch(endpoint);
           const result = await response.json();
 
           if (result.success && result.data && result.data.length > 0) {
-            this.renderItems(result.data);
+            this.allItems = result.data;
+            this.renderedCount = 0;
+            this.list.innerHTML = '';
+            this.renderMore();
           } else {
+            this.allItems = [];
             this.list.innerHTML = '<div class="autocomplete-item" style="color: #90a4ae;">Nenhum item encontrado</div>';
           }
         } catch (error) {
@@ -1116,8 +1134,16 @@
         }
       }
 
-      renderItems(items) {
-        this.list.innerHTML = '';
+      renderMore() {
+        if (this.renderedCount >= this.allItems.length) return;
+        
+        const nextBatch = this.allItems.slice(this.renderedCount, this.renderedCount + this.pageSize);
+        this.renderedCount += nextBatch.length;
+        
+        this.appendItems(nextBatch);
+      }
+
+      appendItems(items) {
         items.forEach(item => {
           const name = item.name || item.nome || '';
           
