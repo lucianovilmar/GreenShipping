@@ -1416,7 +1416,7 @@
       if (moedaMaritimo) {
         moedaMaritimo.innerHTML = '<option value="">Selecione</option>';
         valoresPadrao.tiposMoedas.forEach(m => {
-          moedaMaritimo.innerHTML += `<option value="${m.nickname}">${m.nickname} (${m.name})</option>`;
+          moedaMaritimo.innerHTML += `<option value="${m.code}">${m.nickname} (${m.name})</option>`;
         });
       }
 
@@ -3123,7 +3123,7 @@ const fallbackValoresPadrao = {
             equipamento: equipNome,
             equipamentoCodigo: equipCodigo,
             freeTime: null,
-            moedaFrete: getVal('moedaFrete'),
+            moedaFrete: getNum('moedaFrete'),
             numero: el.value || null,
             lacres: lacres.value || null,
             tara: tara.value ? parseFloat(tara.value) : null,
@@ -3177,7 +3177,7 @@ const fallbackValoresPadrao = {
         dataDesembarque: getVal('dataDesembarque'),
         modalidadePagamento: getVal('modalidadePagamento'),
         container: getVal('container'),
-        moedaFrete: getVal('moedaFrete'),
+        moedaFrete: getNum('moedaFrete'),
         numeroCe: getVal('numeroCe'),
         valorFrete: getNum('valorFrete', true),
         dataCargaPronta: getVal('dataCargaPronta'),
