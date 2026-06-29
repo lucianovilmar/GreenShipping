@@ -3049,10 +3049,14 @@ const fallbackValoresPadrao = {
 
     function gerarJsonMaritimo() {
       const form = document.getElementById('maritimo-form');
-      const getVal = (name, isNumeric = false) => {
+      const getVal = (name) => {
+        const el = form.querySelector(`[name="${name}"]`);
+        return el && el.value.trim() !== '' ? el.value : null;
+      };
+      const getNum = (name, isFloat = false) => {
         const el = form.querySelector(`[name="${name}"]`);
         if (!el || el.value.trim() === '') return null;
-        return isNumeric ? String(parseFloat(el.value)) : el.value;
+        return isFloat ? parseFloat(el.value) : parseInt(el.value, 10);
       };
 
       const volumes = [];
@@ -3061,7 +3065,7 @@ const fallbackValoresPadrao = {
         if (el.value || q.value) {
           volumes.push({
             tipo: el.value || null,
-            quantidade: q.value || null
+            quantidade: q.value ? parseInt(q.value, 10) : null
           });
         }
       });
@@ -3093,12 +3097,12 @@ const fallbackValoresPadrao = {
             equipamento: equipNome,
             equipamentoCodigo: equipCodigo,
             freeTime: null,
-            moedaFrete: getVal('moedaFrete') || "",
+            moedaFrete: getVal('moedaFrete'),
             numero: el.value || null,
             lacres: lacres.value || null,
-            tara: tara.value ? Number(tara.value).toFixed(3) : null,
-            cubagem: cub.value ? Number(cub.value).toFixed(3) : null,
-            peso: peso.value ? Number(peso.value).toFixed(3) : null
+            tara: tara.value ? parseFloat(tara.value) : null,
+            cubagem: cub.value ? parseFloat(cub.value) : null,
+            peso: peso.value ? parseFloat(peso.value) : null
           });
         }
       });
@@ -3116,13 +3120,13 @@ const fallbackValoresPadrao = {
         
         if (el.value || dest.value) {
           rota.push({
-            dataPrevisaoEmbarque: prevEmb.value || "",
-            dataEmbarque: emb.value || "",
-            dataPrevisaoDesembarque: prevDes.value || "",
-            dataDesembarque: des.value || "",
-            origem: el.value || null,
-            destino: dest.value || null,
-            navio: navio.value || null,
+            dataPrevisaoEmbarque: prevEmb.value || null,
+            dataEmbarque: emb.value || null,
+            dataPrevisaoDesembarque: prevDes.value || null,
+            dataDesembarque: des.value || null,
+            origem: el.value ? parseInt(el.value, 10) : null,
+            destino: dest.value ? parseInt(dest.value, 10) : null,
+            navio: navio.value ? parseInt(navio.value, 10) : null,
             tipoViagem: tipoViagem.value || "Main",
             viagemVoo: viagem.value || null
           });
@@ -3132,26 +3136,26 @@ const fallbackValoresPadrao = {
       return {
         numeroProcesso: getVal('numeroProcesso'),
         referenciaCliente: getVal('referenciaCliente'),
-        origem: getVal('origem'),
-        destino: getVal('destino'),
+        origem: getNum('origem'),
+        destino: getNum('destino'),
         hbl: getVal('hbl'),
-        companhiaTransporte: getVal('companhiaTransporte'),
-        armazem: getVal('armazem'),
-        pesoBruto: getVal('pesoBruto') ? Number(getVal('pesoBruto')).toFixed(3) : null,
-        cubagem: getVal('cubagem') ? Number(getVal('cubagem')).toFixed(3) : null,
-        navio: getVal('navio'),
+        companhiaTransporte: getNum('companhiaTransporte'),
+        armazem: getNum('armazem'),
+        pesoBruto: getNum('pesoBruto', true),
+        cubagem: getNum('cubagem', true),
+        navio: getNum('navio'),
         viagemVoo: getVal('viagemVoo'),
-        dataPrevisaoEmbarque: getVal('dataPrevisaoEmbarque') || "",
-        dataEmbarque: getVal('dataEmbarque') || "",
-        dataPrevisaoDesembarque: getVal('dataPrevisaoDesembarque') || "",
-        dataDesembarque: getVal('dataDesembarque') || null,
+        dataPrevisaoEmbarque: getVal('dataPrevisaoEmbarque'),
+        dataEmbarque: getVal('dataEmbarque'),
+        dataPrevisaoDesembarque: getVal('dataPrevisaoDesembarque'),
+        dataDesembarque: getVal('dataDesembarque'),
         modalidadePagamento: getVal('modalidadePagamento'),
         container: getVal('container'),
-        moedaFrete: getVal('moedaFrete') || "",
-        numeroCe: getVal('numeroCe') || "",
-        valorFrete: getVal('valorFrete') || "",
-        dataCargaPronta: getVal('dataCargaPronta') || "",
-        dataEsperadaProntidao: getVal('dataEsperadaProntidao') || "",
+        moedaFrete: getVal('moedaFrete'),
+        numeroCe: getVal('numeroCe'),
+        valorFrete: getNum('valorFrete', true),
+        dataCargaPronta: getVal('dataCargaPronta'),
+        dataEsperadaProntidao: getVal('dataEsperadaProntidao'),
         volumes: volumes,
         containers: containers,
         rota: rota
