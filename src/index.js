@@ -24,10 +24,18 @@ function envelope(success, data = {}, errors = [], warnings = []) {
   };
 }
 
+const os = require('os');
+const getHistoryDirPath = () => {
+  if (process.env.VERCEL === '1') {
+    return path.join(os.tmpdir(), 'history');
+  }
+  return path.join(__dirname, 'data', 'history');
+};
+
 // Helper: Verifica se uma referência de cliente já existe no histórico com status sucesso ou manual
 async function verificarReferenciaExistente(refCliente) {
   try {
-    const dirPath = path.join(__dirname, 'data', 'history');
+    const dirPath = getHistoryDirPath();
     await fs.mkdir(dirPath, { recursive: true });
     const files = await fs.readdir(dirPath);
     for (const file of files) {
@@ -57,7 +65,7 @@ async function salvarHistorico(tipo, payload, status, updateId = null, operacao 
     const pad = (num) => String(num).padStart(2, '0');
     const dataHoraStr = `${dataAtual.getFullYear()}-${pad(dataAtual.getMonth() + 1)}-${pad(dataAtual.getDate())} ${pad(dataAtual.getHours())}:${pad(dataAtual.getMinutes())}:${pad(dataAtual.getSeconds())}`;
 
-    const dirPath = path.join(__dirname, 'data', 'history');
+    const dirPath = getHistoryDirPath();
     await fs.mkdir(dirPath, { recursive: true });
 
     let registrosAntigos = { anexos: [], followUps: [], despesas: [] };
@@ -219,7 +227,7 @@ app.get('/api/historico', async (req, res) => {
   logger.info('Buscando histórico', { tipo, processo, data });
 
   try {
-    const dirPath = path.join(__dirname, 'data', 'history');
+    const dirPath = getHistoryDirPath();
     await fs.mkdir(dirPath, { recursive: true });
 
     const files = await fs.readdir(dirPath);
@@ -275,7 +283,7 @@ app.get('/api/historico', async (req, res) => {
 // 1. Listar histórico unificado (Aéreo e Marítimo)
 app.get('/api/processos/unificados', async (req, res) => {
   try {
-    const dirPath = path.join(__dirname, 'data', 'history');
+    const dirPath = getHistoryDirPath();
     await fs.mkdir(dirPath, { recursive: true });
     const files = await fs.readdir(dirPath);
     
@@ -381,7 +389,7 @@ app.get('/api/processos/unificados', async (req, res) => {
 
 // Helper: Atualiza um processo específico no arquivo de histórico local para guardar anexos/despesas
 async function atualizarProcessoLocal(id, updates) {
-  const dirPath = path.join(__dirname, 'data', 'history');
+  const dirPath = getHistoryDirPath();
   const files = await fs.readdir(dirPath);
   
   for (const file of files) {
@@ -473,7 +481,7 @@ app.post('/api/processos/anexos', async (req, res) => {
       
       // Atualizar no histórico local para persistir
       if (idProcesso) {
-        const dirPath = path.join(__dirname, 'data', 'history');
+        const dirPath = getHistoryDirPath();
         const files = await fs.readdir(dirPath);
         for (const file of files) {
           if (file.endsWith('.json')) {
@@ -561,7 +569,7 @@ app.delete('/api/processos/anexos/:id', async (req, res) => {
     if (response.data && response.data.success !== false) {
       // Remover do histórico local
       if (idProcesso) {
-        const dirPath = path.join(__dirname, 'data', 'history');
+        const dirPath = getHistoryDirPath();
         const files = await fs.readdir(dirPath);
         for (const file of files) {
           if (file.endsWith('.json')) {
@@ -647,7 +655,7 @@ app.post('/api/processos/follow-up', async (req, res) => {
       
       // Salvar no histórico local
       if (idProcesso) {
-        const dirPath = path.join(__dirname, 'data', 'history');
+        const dirPath = getHistoryDirPath();
         const files = await fs.readdir(dirPath);
         for (const file of files) {
           if (file.endsWith('.json')) {
@@ -801,7 +809,7 @@ app.post('/api/processos/despesas', async (req, res) => {
       
       // Salvar no histórico local
       if (idProcesso) {
-        const dirPath = path.join(__dirname, 'data', 'history');
+        const dirPath = getHistoryDirPath();
         const files = await fs.readdir(dirPath);
         for (const file of files) {
           if (file.endsWith('.json')) {
