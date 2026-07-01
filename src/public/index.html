@@ -405,6 +405,36 @@
       padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s;
     }
     .btn-view-history:hover { background: #3b8476; color: white; }
+
+    /* Estilos das Ações na Gestão de Processos */
+    .btn-action-update {
+      background: #e0f2fe; color: #0369a1; border: 1px solid #0284c7;
+      padding: 5px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-action-update:hover { background: #0284c7; color: white; }
+
+    .btn-action-attach {
+      background: #fef3c7; color: #b45309; border: 1px solid #d97706;
+      padding: 5px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-action-attach:hover { background: #d97706; color: white; }
+
+    .btn-action-follow {
+      background: #faf5ff; color: #6b21a8; border: 1px solid #8b5cf6;
+      padding: 5px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-action-follow:hover { background: #8b5cf6; color: white; }
+
+    .btn-action-expenses {
+      background: #ecfdf5; color: #047857; border: 1px solid #10b981;
+      padding: 5px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-action-expenses:hover { background: #10b981; color: white; }
+    
+    .btn-action-group {
+      display: flex; gap: 6px; justify-content: center; align-items: center;
+      flex-wrap: wrap;
+    }
   </style>
 </head>
 <body>
@@ -423,6 +453,10 @@
         <button class="sidebar-menu-btn" id="btn-historico-menu" onclick="switchMainMenu('historico')">
           <span>🕒</span>
           Histórico de Processos
+        </button>
+        <button class="sidebar-menu-btn" id="btn-processos-menu" onclick="switchMainMenu('processos')">
+          <span>⚙️</span>
+          Gestão de Processos
         </button>
       </aside>
 
@@ -444,8 +478,8 @@
             <input type="text" name="numeroProcesso" placeholder="Ex: WEI-10921" />
           </label>
           <label>
-            Referência do Cliente
-            <input type="text" name="referenciaCliente" placeholder="referenciaCliente" />
+            Referência do Cliente *
+            <input type="text" name="referenciaCliente" placeholder="referenciaCliente" required />
           </label>
           <label>
             Número do BL / HBL
@@ -457,10 +491,10 @@
           </label>
         </div>
 
-        <div class="section-title">Rotas <span class="required">*</span></div>
+        <div class="section-title">Rotas *</div>
         <div class="row">
           <div class="autocomplete-field">
-            <label for="origem-search"><span>Origem <span class="required">*</span></span></label>
+            <label for="origem-search">Origem *</label>
             <div class="input-group">
               <input type="text" id="origem-search" class="autocomplete-input" placeholder="Digite o nome do porto" autocomplete="off" required />
               <button type="button" class="btn-select-list" title="Ver lista completa">📋</button>
@@ -470,7 +504,7 @@
             <input type="hidden" name="origem" id="origem" />
           </div>
           <div class="autocomplete-field">
-            <label for="destino-search"><span>Destino <span class="required">*</span></span></label>
+            <label for="destino-search">Destino *</label>
             <div class="input-group">
               <input type="text" id="destino-search" class="autocomplete-input" placeholder="Digite o nome do porto" autocomplete="off" required />
               <button type="button" class="btn-select-list" title="Ver lista completa">📋</button>
@@ -570,7 +604,7 @@
         <div class="section-title">Financeiro</div>
         <div class="row">
           <label>
-            <span>Modalidade Pagamento <span class="required">*</span></span>
+            Modalidade Pagamento *
             <select name="modalidadePagamento" required>
               <option value="">Carregando...</option>
             </select>
@@ -636,8 +670,8 @@
             <input type="text" name="numeroProcesso" placeholder="Ex: IM 144/23" />
           </label>
           <label>
-            Referência do Cliente
-            <input type="text" name="referenciaCliente" placeholder="Ex: VULCABRAS20231010" />
+            Referência do Cliente *
+            <input type="text" name="referenciaCliente" placeholder="Ex: VULCABRAS20231010" required />
           </label>
           <label>
             HAWB (House)
@@ -659,10 +693,10 @@
           </label>
         </div>
 
-        <div class="section-title">Rotas (Aeroportos) <span class="required">*</span></div>
+        <div class="section-title">Rotas (Aeroportos) *</div>
         <div class="row">
           <div class="autocomplete-field">
-            <label for="origem-aereo-search"><span>Origem (Aeroporto) <span class="required">*</span></span></label>
+            <label for="origem-aereo-search">Origem (Aeroporto) *</label>
             <div class="input-group">
               <input type="text" id="origem-aereo-search" class="autocomplete-input" placeholder="Digite o nome do aeroporto" autocomplete="off" required />
               <button type="button" class="btn-select-list" title="Ver lista completa">📋</button>
@@ -672,7 +706,7 @@
             <input type="hidden" name="origem" id="origem-aereo" />
           </div>
           <div class="autocomplete-field">
-            <label for="destino-aereo-search"><span>Destino (Aeroporto) <span class="required">*</span></span></label>
+            <label for="destino-aereo-search">Destino (Aeroporto) *</label>
             <div class="input-group">
               <input type="text" id="destino-aereo-search" class="autocomplete-input" placeholder="Digite o nome do aeroporto" autocomplete="off" required />
               <button type="button" class="btn-select-list" title="Ver lista completa">📋</button>
@@ -778,7 +812,7 @@
         <div class="section-title">Financeiro</div>
         <div class="row">
           <label>
-            <span>Modalidade Pagamento <span class="required">*</span></span>
+            Modalidade Pagamento *
             <select name="modalidadePagamento" required>
               <option value="">Carregando...</option>
             </select>
@@ -851,19 +885,84 @@
         <thead>
           <tr>
             <th>Data/Hora Envio</th>
+            <th>Operação</th>
             <th>Número Processo</th>
             <th>Referência Cliente</th>
             <th>Status Envio</th>
+            <th>Usuário</th>
             <th style="text-align: center;">Ações</th>
           </tr>
         </thead>
         <tbody id="history-table-body">
           <tr>
-            <td colspan="5" style="text-align: center; color: #90a4ae; padding: 30px;">Nenhum registro encontrado. Realize uma busca.</td>
+            <td colspan="7" style="text-align: center; color: #90a4ae; padding: 30px;">Nenhum registro encontrado. Realize uma busca.</td>
           </tr>
         </tbody>
       </table>
+    </div> <!-- fim da history-table-container -->
   </div> <!-- fim do historico-container -->
+
+  <!-- Container da Gestão de Processos -->
+  <div id="processos-container" style="display: none; padding: 32px 24px;">
+    <!-- Formulário de Cadastro Manual de Processo -->
+    <div class="history-filters" style="margin-bottom: 24px;">
+      <div class="section-title" style="margin-top: 0;">➕ Cadastrar Processo Manualmente no Painel</div>
+      <form id="processo-manual-form" onsubmit="cadastrarProcessoManual(event)" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) auto; gap: 16px; align-items: flex-end;">
+        <label>
+          Referência do Cliente *
+          <input type="text" id="manual-referencia" placeholder="Ex: REF-123" required />
+        </label>
+        <label>
+          Número do Processo *
+          <input type="text" id="manual-processo" placeholder="Ex: WEI-10921" required />
+        </label>
+        <label>
+          Tipo de Transporte *
+          <select id="manual-tipo" required style="width: 100%; padding: 10px; border: 1.5px solid #ccd7e0; border-radius: 8px; font-size: 14px; background: white;">
+            <option value="maritimo">🚢 Marítimo</option>
+            <option value="aereo">✈️ Aéreo</option>
+          </select>
+        </label>
+        <button type="submit" class="btn-submit" style="height: 42px; margin-top: 0; min-width: 150px;">💾 Adicionar</button>
+      </form>
+    </div>
+
+    <!-- Tabela de Processos com filtros e busca -->
+    <div class="history-filters" style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+      <div>
+        <div class="section-title" style="margin: 0;">📋 Painel de Gestão e Atualizações</div>
+        <p style="color: #64748b; font-size: 13px; margin-top: 4px;">Gerencie anexos, follow-ups, despesas e atualize os processos na Dati.</p>
+      </div>
+      <div style="display: flex; gap: 12px; align-items: center;">
+        <input type="text" id="filtro-painel-busca" placeholder="Buscar por Ref ou Processo..." oninput="filtrarPainelProcessos()" style="padding: 10px 16px; border: 1.5px solid #ccd7e0; border-radius: 8px; font-size: 14px; width: 250px;" />
+        <select id="filtro-painel-tipo" onchange="filtrarPainelProcessos()" style="padding: 10px 12px; border: 1.5px solid #ccd7e0; border-radius: 8px; font-size: 14px; background: white;">
+          <option value="todos">Todos os Modais</option>
+          <option value="maritimo">🚢 Marítimo</option>
+          <option value="aereo">✈️ Aéreo</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="history-table-container">
+      <table class="history-table">
+        <thead>
+          <tr>
+            <th>Data de Criação</th>
+            <th>Tipo</th>
+            <th>Referência Cliente</th>
+            <th>Número Processo</th>
+            <th>Status</th>
+            <th style="text-align: center; width: 420px;">Ações de Gestão</th>
+          </tr>
+        </thead>
+        <tbody id="painel-processos-body">
+          <tr>
+            <td colspan="6" style="text-align: center; color: #90a4ae; padding: 30px;">Carregando processos...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div> <!-- fim do processos-container -->
       </main> <!-- fim da app-content -->
     </div> <!-- fim da content-wrapper -->
   </div> <!-- fim da container -->
@@ -875,6 +974,165 @@
         <button class="modal-close" onclick="fecharDestinos()">✕</button>
       </div>
       <div id="destinosList" class="destinos-list"></div>
+    </div>
+  </div>
+
+  <!-- Modal Anexos -->
+  <div id="modalAnexos" class="modal">
+    <div class="modal-content" style="max-width: 600px;">
+      <div class="modal-header">
+        <h2>📁 Gerenciar Anexos - Ref: <span id="anexos-ref-title"></span></h2>
+        <button class="modal-close" onclick="fecharModalAnexos()">✕</button>
+      </div>
+      
+      <form id="form-upload-anexo" onsubmit="uploadAnexoProcesso(event)" style="display: grid; gap: 16px; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1.5px solid #e2e8f0;">
+        <input type="hidden" id="anexo-id-processo" />
+        <input type="hidden" id="anexo-ref-cliente" />
+        <div class="row">
+          <label style="flex: 1.5;">
+            Categoria do Anexo *
+            <select id="anexo-categoria" required style="width: 100%; padding: 10px; border: 1.5px solid #ccd7e0; border-radius: 8px; font-size: 14px; background: white;">
+              <option value="3">3 - Invoice</option>
+              <option value="4">4 - Packing List</option>
+              <option value="5">5 - Pre-Alert</option>
+              <option value="6">6 - Confirmação de Embarque</option>
+              <option value="7">7 - Draft BL (Bill of Lading)</option>
+              <option value="8">8 - Draft AWB (Air WayBill)</option>
+              <option value="9">9 - HBL (House Bill of Lading)</option>
+              <option value="10">10 - BL (Bill of Lading)</option>
+              <option value="11">11 - HAWB (House Air WayBill)</option>
+              <option value="12">12 - MAWB (Master Air WayBill)</option>
+              <option value="35">35 - Boleto do Agente de Cargas</option>
+              <option value="36">36 - Comprovante de Pagamento Agente de Cargas</option>
+              <option value="40">40 - Original Packing e Invoice Digitalizados</option>
+              <option value="47">47 - Extrato Mapa</option>
+              <option value="55">55 - Cobrança Frete Internacional</option>
+              <option value="65">65 - Extrato de Avaria da Carga</option>
+              <option value="74">74 - Fatura Frete Internacional</option>
+              <option value="75">75 - NF de Serviço Frete Internacional</option>
+              <option value="77">77 - CE - Mercante</option>
+              <option value="95">95 - Carta de Correção de HBL/AWB</option>
+              <option value="99">99 - Certificado (Outros)</option>
+              <option value="104">104 - Cotação De Frete</option>
+            </select>
+          </label>
+          <label style="flex: 2;">
+            Arquivo *
+            <input type="file" id="anexo-arquivo-input" required style="padding: 6px; border: 1.5px solid #ccd7e0; border-radius: 8px; font-size: 14px; width: 100%;" />
+          </label>
+        </div>
+        <div style="display: flex; justify-content: flex-end;">
+          <button type="submit" id="btn-submit-anexo" class="btn-submit" style="margin-top: 0; min-width: 120px;">📤 Enviar</button>
+        </div>
+      </form>
+
+      <div class="section-title" style="margin-top: 0;">Documentos Enviados</div>
+      <div style="max-height: 250px; overflow-y: auto;">
+        <table class="history-table" style="font-size: 13px;">
+          <thead>
+            <tr>
+              <th>Data Upload</th>
+              <th>Nome do Arquivo</th>
+              <th>Categoria</th>
+              <th style="text-align: center; width: 80px;">Ação</th>
+            </tr>
+          </thead>
+          <tbody id="lista-anexos-body">
+            <tr>
+              <td colspan="4" style="text-align: center; color: #94a3b8; padding: 15px;">Nenhum anexo enviado.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Follow-Up -->
+  <div id="modalFollowUp" class="modal">
+    <div class="modal-content" style="max-width: 550px;">
+      <div class="modal-header">
+        <h2>💬 Registrar Follow Up - Ref: <span id="follow-ref-title"></span></h2>
+        <button class="modal-close" onclick="fecharModalFollowUp()">✕</button>
+      </div>
+      
+      <form id="form-follow-up" onsubmit="enviarFollowUpProcesso(event)" style="display: grid; gap: 16px; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1.5px solid #e2e8f0;">
+        <input type="hidden" id="follow-id-processo" />
+        <input type="hidden" id="follow-ref-cliente" />
+        <label>
+          Mensagem / Descrição do Acompanhamento *
+          <textarea id="follow-descricao" placeholder="Escreva a atualização do processo..." required style="width: 100%; height: 100px; padding: 12px; border: 1.5px solid #ccd7e0; border-radius: 8px; font-size: 14px; font-family: inherit; resize: vertical;"></textarea>
+        </label>
+        <div style="display: flex; justify-content: flex-end;">
+          <button type="submit" id="btn-submit-follow" class="btn-submit" style="margin-top: 0; min-width: 120px;">💾 Registrar</button>
+        </div>
+      </form>
+
+      <div class="section-title" style="margin-top: 0;">Histórico de Acompanhamentos</div>
+      <div style="max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px;" id="lista-follow-ups-container">
+        <p style="text-align: center; color: #94a3b8; font-size: 13px; padding: 15px; margin: 0;">Nenhum acompanhamento registrado.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Despesas -->
+  <div id="modalDespesas" class="modal">
+    <div class="modal-content" style="max-width: 600px;">
+      <div class="modal-header">
+        <h2>💰 Gerenciar Despesas - Ref: <span id="despesas-ref-title"></span></h2>
+        <button class="modal-close" onclick="fecharModalDespesas()">✕</button>
+      </div>
+      
+      <form id="form-despesas" onsubmit="enviarDespesaProcesso(event)" style="display: grid; gap: 16px; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1.5px solid #e2e8f0;">
+        <input type="hidden" id="despesas-id-processo" />
+        <input type="hidden" id="despesas-ref-cliente" />
+        
+        <div class="row">
+          <label style="flex: 2;">
+            Categoria de Despesa *
+            <select id="despesa-categoria-select" required style="width: 100%; padding: 10px; border: 1.5px solid #ccd7e0; border-radius: 8px; font-size: 14px; background: white;">
+              <!-- Carregado via API -->
+            </select>
+          </label>
+        </div>
+        
+        <div class="row" style="margin-top: 12px;">
+          <label style="flex: 1;">
+            Moeda *
+            <select id="despesa-moeda" required style="width: 100%; padding: 10px; border: 1.5px solid #ccd7e0; border-radius: 8px; font-size: 14px; background: white;">
+              <option value="1">USD (Dólar)</option>
+              <option value="2">BRL (Real)</option>
+              <option value="3">EUR (Euro)</option>
+            </select>
+          </label>
+          <label style="flex: 2;">
+            Valor da Despesa *
+            <input type="number" id="despesa-valor" placeholder="0.00" step="0.01" required style="width: 100%; padding: 10px; border: 1.5px solid #ccd7e0; border-radius: 8px; font-size: 14px;" />
+          </label>
+        </div>
+        
+        <div style="display: flex; justify-content: flex-end; margin-top: 8px;">
+          <button type="submit" id="btn-submit-despesa" class="btn-submit" style="margin-top: 0; min-width: 120px;">💰 Cadastrar</button>
+        </div>
+      </form>
+
+      <div class="section-title" style="margin-top: 0;">Lançamentos de Despesas</div>
+      <div style="max-height: 250px; overflow-y: auto;">
+        <table class="history-table" style="font-size: 13px;">
+          <thead>
+            <tr>
+              <th>Data Lançamento</th>
+              <th>Categoria</th>
+              <th>Moeda</th>
+              <th style="text-align: right;">Valor</th>
+            </tr>
+          </thead>
+          <tbody id="lista-despesas-body">
+            <tr>
+              <td colspan="4" style="text-align: center; color: #94a3b8; padding: 15px;">Nenhuma despesa lançada.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 
@@ -916,6 +1174,17 @@
       </div>
       <div id="detalhes-form-content" style="max-height: 70vh; overflow-y: auto; text-align: left;">
         
+        <!-- VISUALIZAÇÃO DE EVENTO DE AÇÃO -->
+        <div id="view-evento-acao" style="display: none; padding: 20px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 16px;">
+          <h3 id="v-acao-titulo" style="margin-top: 0; color: #5c6bc0; font-size: 18px;">Tipo de Operação</h3>
+          <div style="margin-top: 12px; font-size: 14px; color: #334155; line-height: 1.6;">
+            <p><strong>Usuário Responsável:</strong> <span id="v-acao-usuario">Admin</span></p>
+            <p><strong>Data/Hora do Registro:</strong> <span id="v-acao-data">-</span></p>
+            <p><strong>Referência do Cliente:</strong> <span id="v-acao-referencia">-</span></p>
+            <div id="v-acao-detalhes" style="margin-top: 16px; padding: 12px; background: white; border-radius: 6px; border: 1px dashed #cbd5e1; font-family: monospace; white-space: pre-wrap; font-size: 13px; color: #1e293b;"></div>
+          </div>
+        </div>
+
         <!-- VISUALIZAÇÃO MARÍTIMO -->
         <div id="view-maritimo" style="display: none;">
           <div class="section-title">Identificação</div>
@@ -1342,7 +1611,7 @@
         </div>
         <div class="row">
           <div class="autocomplete-field">
-            <label for="rota-origem-search-${index}"><span>Origem <span class="required">*</span></span></label>
+            <label for="rota-origem-search-${index}">Origem *</label>
             <div class="input-group">
               <input type="text" id="rota-origem-search-${index}" class="autocomplete-input" placeholder="Porto de origem" autocomplete="off" value="${origemNome}" required />
               <button type="button" class="btn-select-list" title="Ver lista completa">📋</button>
@@ -1351,7 +1620,7 @@
             <input type="hidden" name="rota_origem[]" id="rota-origem-${index}" value="${origemId}" />
           </div>
           <div class="autocomplete-field">
-            <label for="rota-destino-search-${index}"><span>Destino <span class="required">*</span></span></label>
+            <label for="rota-destino-search-${index}">Destino *</label>
             <div class="input-group">
               <input type="text" id="rota-destino-search-${index}" class="autocomplete-input" placeholder="Porto de destino" autocomplete="off" value="${destinoNome}" required />
               <button type="button" class="btn-select-list" title="Ver lista completa">📋</button>
@@ -1462,6 +1731,7 @@
       document.getElementById('containers-container').innerHTML = '';
       document.getElementById('rotas-container').innerHTML = '';
       document.getElementById('embalagem-container').innerHTML = '';
+      rotaCount = 0;
       
       adicionarVolume('', '');
       adicionarContainer('', '', '', '', '', '');
@@ -3386,16 +3656,28 @@ const fallbackValoresPadrao = {
       document.getElementById(messageId).style.display = 'none';
       const msg = document.getElementById(messageId);
 
+      const headers = { 'Content-Type': 'application/json' };
+      if (window.activeEditingProcessId) {
+        headers['x-update-process-id'] = window.activeEditingProcessId;
+      }
+
       try {
         const response = await fetch(endpoint, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: headers,
           body: JSON.stringify(payload)
         });
         const result = await response.json();
         if (response.ok && result.success) {
           msg.className = 'message success';
           msg.innerHTML = `<strong>✅ Sucesso!</strong> Dados enviados.<br><pre>${JSON.stringify(payload, null, 2)}</pre>`;
+          
+          // Limpar estado de edição
+          window.activeEditingProcessId = null;
+          document.querySelectorAll('[name="referenciaCliente"]').forEach(el => {
+            el.readOnly = false;
+            el.style.background = '';
+          });
         } else {
           msg.className = 'message error';
           const errMsg = (result.errors && result.errors.length > 0) 
@@ -3410,6 +3692,697 @@ const fallbackValoresPadrao = {
       msg.style.display = 'block';
       document.getElementById(loadingId).style.display = 'none';
     }
+
+    // ==========================================
+    // LOGICA DA GESTÃO DE PROCESSOS (FRONTEND)
+    // ==========================================
+    let cachePainelProcessos = [];
+    let cacheCategoriasDespesas = [];
+
+    async function carregarPainelProcessos(carregandoGeral = true) {
+      const tbody = document.getElementById('painel-processos-body');
+      if (carregandoGeral) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px;"><div class="spinner" style="width: 20px; height: 20px;"></div> Carregando painel de processos...</td></tr>';
+      }
+
+      try {
+        const response = await fetch('/api/processos/unificados');
+        const result = await response.json();
+        if (result.success && result.data) {
+          cachePainelProcessos = result.data;
+          filtrarPainelProcessos();
+        } else {
+          tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #f44336; padding: 30px;">Erro ao carregar dados do painel: ${result.errors.join(', ')}</td></tr>`;
+        }
+      } catch (error) {
+        console.error(error);
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #f44336; padding: 30px;">Erro de conexão com o servidor.</td></tr>';
+      }
+    }
+
+    function filtrarPainelProcessos() {
+      const busca = document.getElementById('filtro-painel-busca').value.toLowerCase();
+      const tipo = document.getElementById('filtro-painel-tipo').value;
+
+      let filtrados = cachePainelProcessos;
+
+      if (tipo !== 'todos') {
+        filtrados = filtrados.filter(p => p.tipo === tipo);
+      }
+
+      if (busca) {
+        filtrados = filtrados.filter(p => 
+          p.referenciaCliente.toLowerCase().includes(busca) || 
+          p.numeroProcesso.toLowerCase().includes(busca)
+        );
+      }
+
+      renderTabelaPainel(filtrados);
+    }
+
+    function renderTabelaPainel(processos) {
+      const tbody = document.getElementById('painel-processos-body');
+      tbody.innerHTML = '';
+
+      if (processos.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #90a4ae; padding: 30px;">Nenhum processo encontrado no painel.</td></tr>';
+        return;
+      }
+
+      processos.forEach(p => {
+        const modalEmoji = p.tipo === 'maritimo' ? '🚢 Marítimo' : '✈️ Aéreo';
+        const badgeClass = p.status === 'sucesso' ? 'success' : (p.status === 'registro_manual' ? 'success' : 'error');
+        const badgeText = p.status === 'sucesso' ? 'Sucesso' : (p.status === 'registro_manual' ? 'Manual' : 'Erro');
+        
+        // Formatar data
+        const dataStr = p.dataHoraEnvio || '-';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${dataStr}</td>
+          <td><span style="font-size: 13px; font-weight: 500;">${modalEmoji}</span></td>
+          <td style="font-weight: 600; color: #334155;">${p.referenciaCliente}</td>
+          <td>${p.numeroProcesso}</td>
+          <td><span class="badge ${badgeClass}">${badgeText}</span></td>
+          <td style="text-align: center;">
+            <div class="btn-action-group">
+              <button type="button" class="btn-action-update" onclick="atualizarProcessoPainel('${p.id}')">🔄 Atualizar</button>
+              <button type="button" class="btn-action-attach" onclick="abrirModalAnexos('${p.id}')">📁 Anexos (${p.anexos?.length || 0})</button>
+              <button type="button" class="btn-action-follow" onclick="abrirModalFollowUp('${p.id}')">💬 Follow Up (${p.followUps?.length || 0})</button>
+              <button type="button" class="btn-action-expenses" onclick="abrirModalDespesas('${p.id}')">💰 Despesas (${p.despesas?.length || 0})</button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function cadastrarProcessoManual(event) {
+      event.preventDefault();
+      const referenciaCliente = document.getElementById('manual-referencia').value.trim();
+      const numeroProcesso = document.getElementById('manual-processo').value.trim();
+      const tipo = document.getElementById('manual-tipo').value;
+
+      try {
+        const response = await fetch('/api/processos/manual', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tipo, referenciaCliente, numeroProcesso })
+        });
+        const result = await response.json();
+        if (response.ok && result.success) {
+          alert('✅ Processo manual registrado com sucesso!');
+          document.getElementById('manual-referencia').value = '';
+          document.getElementById('manual-processo').value = '';
+          carregarPainelProcessos();
+        } else {
+          alert('❌ Erro: ' + (result.errors?.join(', ') || result.message));
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Erro ao registrar processo manual.');
+      }
+    }
+
+    // MODAL ANEXOS
+    function abrirModalAnexos(id) {
+      const item = cachePainelProcessos.find(p => p.id === id);
+      if (!item) return;
+
+      document.getElementById('anexo-id-processo').value = item.id;
+      document.getElementById('anexo-ref-cliente').value = item.referenciaCliente;
+      document.getElementById('anexos-ref-title').textContent = item.referenciaCliente;
+      document.getElementById('anexo-arquivo-input').value = '';
+
+      document.getElementById('modalAnexos').classList.add('active');
+      carregarListaAnexos(item.id, item.referenciaCliente);
+    }
+
+    function fecharModalAnexos() {
+      document.getElementById('modalAnexos').classList.remove('active');
+    }
+
+    function carregarListaAnexos(idProcesso, referenciaCliente) {
+      const item = cachePainelProcessos.find(p => p.id === idProcesso);
+      const tbody = document.getElementById('lista-anexos-body');
+      tbody.innerHTML = '';
+
+      const anexos = item?.anexos || [];
+      if (anexos.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #94a3b8; padding: 15px;">Nenhum anexo enviado.</td></tr>';
+        return;
+      }
+
+      anexos.forEach(anexo => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${anexo.dataUpload || '-'}</td>
+          <td style="font-weight: 500;">${anexo.nome}</td>
+          <td>${anexo.categoriaNome || anexo.categoriaAnexo}</td>
+          <td style="text-align: center;">
+            <button type="button" class="btn-reset" onclick="deletarAnexo('${anexo.id}', '${idProcesso}', '${referenciaCliente}')" style="background: #ffebee; color: #c62828; border: 1px solid #ef5350; padding: 3px 8px; font-size: 11px; min-width: auto; margin: 0;">Excluir</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function uploadAnexoProcesso(event) {
+      event.preventDefault();
+      const idProcesso = document.getElementById('anexo-id-processo').value;
+      const referenciaCliente = document.getElementById('anexo-ref-cliente').value;
+      const categoriaAnexo = document.getElementById('anexo-categoria').value;
+      const fileInput = document.getElementById('anexo-arquivo-input');
+
+      if (!fileInput.files || fileInput.files.length === 0) {
+        alert('Por favor, selecione um arquivo.');
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const btnSubmit = document.getElementById('btn-submit-anexo');
+      btnSubmit.disabled = true;
+      btnSubmit.textContent = 'Enviando...';
+
+      const reader = new FileReader();
+      reader.onload = async function() {
+        const base64String = reader.result.split(',')[1];
+
+        try {
+          const response = await fetch('/api/processos/anexos', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              idProcesso,
+              referenciaCliente,
+              nome: file.name,
+              base64: base64String,
+              categoriaAnexo
+            })
+          });
+
+          const result = await response.json();
+          if (response.ok && result.success) {
+            alert('✅ Anexo enviado com sucesso para a Dati!');
+            fileInput.value = '';
+            // Atualizar
+            await carregarPainelProcessos(false);
+            carregarListaAnexos(idProcesso, referenciaCliente);
+          } else {
+            alert('❌ Erro ao enviar anexo: ' + (result.errors?.join('\n') || result.message || 'Erro desconhecido'));
+          }
+        } catch (err) {
+          console.error(err);
+          alert('❌ Erro ao conectar com o servidor.');
+        } finally {
+          btnSubmit.disabled = false;
+          btnSubmit.textContent = '📤 Enviar';
+        }
+      };
+
+      reader.onerror = function() {
+        alert('Erro ao ler arquivo.');
+        btnSubmit.disabled = false;
+        btnSubmit.textContent = '📤 Enviar';
+      };
+
+      reader.readAsDataURL(file);
+    }
+
+    async function deletarAnexo(anexoId, idProcesso, referenciaCliente) {
+      if (!confirm('Deseja realmente excluir este anexo na Dati?')) return;
+
+      try {
+        const response = await fetch(`/api/processos/anexos/${anexoId}?idProcesso=${idProcesso}&referenciaCliente=${encodeURIComponent(referenciaCliente)}`, {
+          method: 'DELETE'
+        });
+        const result = await response.json();
+        if (response.ok && result.success) {
+          alert('✅ Anexo deletado com sucesso!');
+          await carregarPainelProcessos(false);
+          carregarListaAnexos(idProcesso, referenciaCliente);
+        } else {
+          alert('❌ Erro ao deletar anexo: ' + (result.errors?.join('\n') || result.message));
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Erro de conexão ao deletar.');
+      }
+    }
+
+    // MODAL FOLLOW UP
+    function abrirModalFollowUp(id) {
+      const item = cachePainelProcessos.find(p => p.id === id);
+      if (!item) return;
+
+      document.getElementById('follow-id-processo').value = item.id;
+      document.getElementById('follow-ref-cliente').value = item.referenciaCliente;
+      document.getElementById('follow-ref-title').textContent = item.referenciaCliente;
+      document.getElementById('follow-descricao').value = '';
+
+      document.getElementById('modalFollowUp').classList.add('active');
+      carregarListaFollowUps(item.id);
+    }
+
+    function fecharModalFollowUp() {
+      document.getElementById('modalFollowUp').classList.remove('active');
+    }
+
+    function carregarListaFollowUps(idProcesso) {
+      const item = cachePainelProcessos.find(p => p.id === idProcesso);
+      const container = document.getElementById('lista-follow-ups-container');
+      container.innerHTML = '';
+
+      const followUps = item?.followUps || [];
+      if (followUps.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: #94a3b8; font-size: 13px; padding: 15px; margin: 0;">Nenhum acompanhamento registrado.</p>';
+        return;
+      }
+
+      // Mais recentes no topo
+      const sorted = [...followUps].reverse();
+      sorted.forEach(f => {
+        const card = document.createElement('div');
+        card.style.background = '#f8fafc';
+        card.style.border = '1px solid #e2e8f0';
+        card.style.borderRadius = '8px';
+        card.style.padding = '12px';
+        card.innerHTML = `
+          <div style="display: flex; justify-content: space-between; font-size: 11px; color: #64748b; margin-bottom: 6px;">
+            <span>🕒 ${f.data}</span>
+            <span style="color: #8b5cf6; font-weight: 600;">Registrado</span>
+          </div>
+          <div style="font-size: 13px; color: #334155; white-space: pre-wrap; font-weight: 500;">${f.descricao}</div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    async function enviarFollowUpProcesso(event) {
+      event.preventDefault();
+      const idProcesso = document.getElementById('follow-id-processo').value;
+      const referenciaCliente = document.getElementById('follow-ref-cliente').value;
+      const descricao = document.getElementById('follow-descricao').value.trim();
+
+      const btnSubmit = document.getElementById('btn-submit-follow');
+      btnSubmit.disabled = true;
+      btnSubmit.textContent = 'Registrando...';
+
+      try {
+        const response = await fetch('/api/processos/follow-up', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ idProcesso, referenciaCliente, descricao })
+        });
+        const result = await response.json();
+        if (response.ok && result.success) {
+          alert('✅ Follow Up registrado com sucesso!');
+          document.getElementById('follow-descricao').value = '';
+          await carregarPainelProcessos(false);
+          carregarListaFollowUps(idProcesso);
+        } else {
+          alert('❌ Erro ao registrar Follow Up: ' + (result.errors?.join('\n') || result.message));
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Erro ao registrar.');
+      } finally {
+        btnSubmit.disabled = false;
+        btnSubmit.textContent = '💾 Registrar';
+      }
+    }
+
+    // MODAL DESPESAS
+    function abrirModalDespesas(id) {
+      const item = cachePainelProcessos.find(p => p.id === id);
+      if (!item) return;
+
+      document.getElementById('despesas-id-processo').value = item.id;
+      document.getElementById('despesas-ref-cliente').value = item.referenciaCliente;
+      document.getElementById('despesas-ref-title').textContent = item.referenciaCliente;
+      document.getElementById('despesa-valor').value = '';
+
+      document.getElementById('modalDespesas').classList.add('active');
+
+      carregarCategoriasDespesas(item.referenciaCliente).then(() => {
+        carregarListaDespesas(item.id);
+      });
+    }
+
+    function fecharModalDespesas() {
+      document.getElementById('modalDespesas').classList.remove('active');
+    }
+
+    async function carregarCategoriasDespesas(referenciaCliente) {
+      const select = document.getElementById('despesa-categoria-select');
+      
+      select.innerHTML = '<option value="">Carregando categorias...</option>';
+      try {
+        const response = await fetch(`/api/processos/despesas/categorias?referenciaCliente=${encodeURIComponent(referenciaCliente)}`);
+        const result = await response.json();
+        if (result.success && result.data) {
+          cacheCategoriasDespesas = result.data;
+          preencherSelectCategorias();
+        } else {
+          select.innerHTML = '<option value="">Erro ao carregar categorias</option>';
+        }
+      } catch (err) {
+        select.innerHTML = '<option value="">Erro de conexão</option>';
+      }
+    }
+
+    function preencherSelectCategorias() {
+      const select = document.getElementById('despesa-categoria-select');
+      select.innerHTML = '<option value="">Selecione uma Categoria</option>';
+      cacheCategoriasDespesas.forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat.id;
+        opt.textContent = cat.name || cat.nome || cat.description || `Categoria ${cat.id}`;
+        select.appendChild(opt);
+      });
+    }
+
+    function carregarListaDespesas(idProcesso) {
+      const item = cachePainelProcessos.find(p => p.id === idProcesso);
+      const tbody = document.getElementById('lista-despesas-body');
+      tbody.innerHTML = '';
+
+      const despesas = item?.despesas || [];
+      if (despesas.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #94a3b8; padding: 15px;">Nenhuma despesa lançada.</td></tr>';
+        return;
+      }
+
+      despesas.forEach(desp => {
+        const moedasStr = { 1: 'USD', 2: 'BRL', 3: 'EUR' };
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${desp.dataCadastro || '-'}</td>
+          <td style="font-weight: 500;">${desp.categoriaNome}</td>
+          <td>${moedasStr[desp.moeda] || desp.moeda}</td>
+          <td style="text-align: right; font-weight: 600; color: #047857;">${desp.valor.toFixed(2)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function enviarDespesaProcesso(event) {
+      event.preventDefault();
+      const idProcesso = document.getElementById('despesas-id-processo').value;
+      const referenciaCliente = document.getElementById('despesas-ref-cliente').value;
+      const selectCat = document.getElementById('despesa-categoria-select');
+      const categoriaId = selectCat.value;
+      const categoriaNome = selectCat.options[selectCat.selectedIndex].text;
+      const valor = document.getElementById('despesa-valor').value;
+      const moeda = document.getElementById('despesa-moeda').value;
+
+      const btnSubmit = document.getElementById('btn-submit-despesa');
+      btnSubmit.disabled = true;
+      btnSubmit.textContent = 'Cadastrando...';
+
+      try {
+        const response = await fetch('/api/processos/despesas', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            idProcesso,
+            referenciaCliente,
+            categoriaId,
+            categoriaNome,
+            valor,
+            moeda
+          })
+        });
+        const result = await response.json();
+        if (response.ok && result.success) {
+          alert('✅ Despesa cadastrada com sucesso!');
+          document.getElementById('despesa-valor').value = '';
+          await carregarPainelProcessos(false);
+          carregarListaDespesas(idProcesso);
+        } else {
+          alert('❌ Erro ao cadastrar despesa: ' + (result.errors?.join('\n') || result.message));
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Erro ao cadastrar despesa.');
+      } finally {
+        btnSubmit.disabled = false;
+        btnSubmit.textContent = '💰 Cadastrar';
+      }
+    }
+
+    async function obterNomePorId(url, id) {
+      if (!id) return '';
+      try {
+        const response = await fetch(`${url}?q=${encodeURIComponent(id)}`);
+        const result = await response.json();
+        if (result.success && result.data && result.data.length > 0) {
+          const item = result.data.find(x => String(x.id) === String(id));
+          if (item) {
+            return item.name || item.nome || '';
+          }
+        }
+      } catch (err) {
+        console.warn('Erro ao obter nome do ID ' + id, err);
+      }
+      return '';
+    }
+
+    function atualizarProcessoPainel(id) {
+      try {
+        const item = cachePainelProcessos.find(p => p.id === id);
+        if (!item) return;
+
+      // Definir id ativo
+      window.activeEditingProcessId = item.id;
+
+      // Ir para aba cadastro
+      switchMainMenu('cadastro');
+
+      // Clicar na aba do modal correto
+      const tabBtn = document.querySelector(`.tab-btn[data-tab="${item.tipo}"]`);
+      if (tabBtn) tabBtn.click();
+
+      const payload = item.payload || {};
+      const formId = item.tipo === 'maritimo' ? 'maritimo-form' : 'aereo-form';
+      const form = document.getElementById(formId);
+
+      // Reset
+      form.reset();
+
+      // Preencher campos
+      Object.keys(payload).forEach(key => {
+        const val = payload[key];
+        if (val === null || val === undefined) return;
+
+        const input = form.querySelector(`[name="${key}"]`);
+        if (input) {
+          if (input.type === 'checkbox') {
+            input.checked = !!val;
+          } else {
+            input.value = val;
+          }
+
+          if (key === 'referenciaCliente') {
+            input.readOnly = true;
+            input.style.background = '#f1f5f9';
+          }
+        }
+
+        // Preencher autocompletes
+        let hiddenInput = null;
+        let searchInput = null;
+        let url = '';
+
+        if (item.tipo === 'maritimo') {
+          if (key === 'origem') {
+            hiddenInput = form.querySelector('#origem');
+            searchInput = form.querySelector('#origem-search');
+            url = '/api/seaports';
+          } else if (key === 'destino') {
+            hiddenInput = form.querySelector('#destino');
+            searchInput = form.querySelector('#destino-search');
+            url = '/api/seaports';
+          } else if (key === 'companhiaTransporte') {
+            hiddenInput = form.querySelector('#companhiaTransporte');
+            searchInput = form.querySelector('#companhia-search');
+            url = '/api/shipping-lines';
+          } else if (key === 'navio') {
+            hiddenInput = form.querySelector('#navio');
+            searchInput = form.querySelector('#navio-search');
+            url = '/api/navios';
+          } else if (key === 'armazem') {
+            hiddenInput = form.querySelector('#armazem');
+            searchInput = form.querySelector('#armazem-search');
+            url = '/api/armazens';
+          }
+        } else if (item.tipo === 'aereo') {
+          if (key === 'origem') {
+            hiddenInput = form.querySelector('#origem-aereo');
+            searchInput = form.querySelector('#origem-aereo-search');
+            url = '/api/airports';
+          } else if (key === 'destino') {
+            hiddenInput = form.querySelector('#destino-aereo');
+            searchInput = form.querySelector('#destino-aereo-search');
+            url = '/api/airports';
+          } else if (key === 'companhiaTransporte') {
+            hiddenInput = form.querySelector('#companhiaTransporte-aereo');
+            searchInput = form.querySelector('#companhia-aereo-search');
+            url = '/api/airlines';
+          } else if (key === 'armazem') {
+            hiddenInput = form.querySelector('#armazem-aereo');
+            searchInput = form.querySelector('#armazem-aereo-search');
+            url = '/api/armazens';
+          }
+        }
+
+        if (hiddenInput) {
+          hiddenInput.value = val;
+        }
+        if (searchInput) {
+          if (url) {
+            searchInput.value = 'Carregando...';
+            obterNomePorId(url, val).then(name => {
+              searchInput.value = name || val;
+            });
+          } else {
+            searchInput.value = val;
+          }
+        }
+      });
+
+      // Sub-itens do marítimo
+      if (item.tipo === 'maritimo') {
+        const volContainer = document.getElementById('volumes-container');
+        volContainer.innerHTML = '';
+        if (Array.isArray(payload.volumes)) {
+          payload.volumes.forEach(vol => {
+            adicionarVolume();
+            const rows = volContainer.querySelectorAll('.row');
+            const lastRow = rows[rows.length - 1];
+            if (lastRow) {
+              const tipo = lastRow.querySelector('[name="vol_tipo[]"]');
+              const quant = lastRow.querySelector('[name="vol_quantidade[]"]');
+              if (tipo) tipo.value = vol.tipo || '';
+              if (quant) quant.value = vol.quantidade || '';
+            }
+          });
+        }
+
+        const contContainer = document.getElementById('containers-container');
+        contContainer.innerHTML = '';
+        if (Array.isArray(payload.containers)) {
+          payload.containers.forEach(cont => {
+            adicionarContainer();
+            const boxes = contContainer.querySelectorAll('.dynamic-box');
+            const lastBox = boxes[boxes.length - 1];
+            if (lastBox) {
+              const numero = lastBox.querySelector('[name="cont_numero[]"]');
+              const equip = lastBox.querySelector('[name="cont_equipamento[]"]');
+              const lacres = lastBox.querySelector('[name="cont_lacres[]"]');
+              const peso = lastBox.querySelector('[name="cont_peso[]"]');
+              const cub = lastBox.querySelector('[name="cont_cubagem[]"]');
+              const tara = lastBox.querySelector('[name="cont_tara[]"]');
+
+              if (numero) numero.value = cont.numero || '';
+              if (equip && cont.equipamentoCodigo) {
+                for (let opt of equip.options) {
+                  if (opt.text.startsWith(cont.equipamentoCodigo)) {
+                    equip.value = opt.value;
+                    break;
+                  }
+                }
+              }
+              if (lacres) lacres.value = cont.lacres || '';
+              if (peso) peso.value = cont.peso || '';
+              if (cub) cub.value = cont.cubagem || '';
+              if (tara) tara.value = cont.tara || '';
+            }
+          });
+        }
+
+        const rotaContainer = document.getElementById('rotas-container');
+        rotaContainer.innerHTML = '';
+        rotaCount = 0;
+        if (Array.isArray(payload.rota)) {
+          payload.rota.forEach(rt => {
+            const currentIndex = rotaCount;
+            adicionarRota(
+              rt.origem || '', 'Carregando...',
+              rt.destino || '', 'Carregando...',
+              rt.navio || '', rt.navio ? 'Carregando...' : '',
+              rt.viagemVoo || '',
+              rt.tipoViagem || 'Main',
+              rt.dataPrevisaoEmbarque || '',
+              rt.dataEmbarque || '',
+              rt.dataPrevisaoDesembarque || '',
+              rt.dataDesembarque || ''
+            );
+
+            if (rt.origem) {
+              obterNomePorId('/api/seaports', rt.origem).then(name => {
+                const searchEl = document.getElementById(`rota-origem-search-${currentIndex}`);
+                if (searchEl) searchEl.value = name || rt.origem;
+              });
+            } else {
+              const searchEl = document.getElementById(`rota-origem-search-${currentIndex}`);
+              if (searchEl) searchEl.value = '';
+            }
+
+            if (rt.destino) {
+              obterNomePorId('/api/seaports', rt.destino).then(name => {
+                const searchEl = document.getElementById(`rota-destino-search-${currentIndex}`);
+                if (searchEl) searchEl.value = name || rt.destino;
+              });
+            } else {
+              const searchEl = document.getElementById(`rota-destino-search-${currentIndex}`);
+              if (searchEl) searchEl.value = '';
+            }
+
+            if (rt.navio) {
+              obterNomePorId('/api/navios', rt.navio).then(name => {
+                const searchEl = document.getElementById(`rota-navio-search-${currentIndex}`);
+                if (searchEl) searchEl.value = name || rt.navio;
+              });
+            } else {
+              const searchEl = document.getElementById(`rota-navio-search-${currentIndex}`);
+              if (searchEl) searchEl.value = '';
+            }
+          });
+        }
+      } else if (item.tipo === 'aereo') {
+        const embContainer = document.getElementById('embalagem-container');
+        embContainer.innerHTML = '';
+        if (Array.isArray(payload.embalagem)) {
+          payload.embalagem.forEach(emb => {
+            adicionarEmbalagem();
+            const rows = embContainer.querySelectorAll('.row');
+            const lastRow = rows[rows.length - 1];
+            if (lastRow) {
+              const tipo = lastRow.querySelector('[name="emb_tipo[]"]');
+              const quant = lastRow.querySelector('[name="emb_quantidade[]"]');
+              if (tipo) tipo.value = emb.tipo || '';
+              if (quant) quant.value = emb.quantidade || '';
+            }
+          });
+        }
+      }
+      } catch (err) {
+        console.error('Erro ao carregar dados no formulário de atualização:', err);
+        alert('Erro ao carregar os dados do processo: ' + err.message);
+      }
+    }
+
+    // Event listeners para cliques fora de modais
+    document.getElementById('modalAnexos').addEventListener('click', (e) => {
+      if (e.target.id === 'modalAnexos') fecharModalAnexos();
+    });
+    document.getElementById('modalFollowUp').addEventListener('click', (e) => {
+      if (e.target.id === 'modalFollowUp') fecharModalFollowUp();
+    });
+    document.getElementById('modalDespesas').addEventListener('click', (e) => {
+      if (e.target.id === 'modalDespesas') fecharModalDespesas();
+    });
 
     // Modal & Destinos Globais
     async function abrirDestinos(tipo) {
@@ -3440,23 +4413,32 @@ const fallbackValoresPadrao = {
     document.getElementById('modalDestinos').addEventListener('click', (e) => { if (e.target.id === 'modalDestinos') fecharDestinos(); });
 
     // Navegação do Menu Principal
+    window.activeEditingProcessId = null;
+
     function switchMainMenu(menu) {
       const btnCadastro = document.getElementById('btn-cadastro-menu');
       const btnHistorico = document.getElementById('btn-historico-menu');
+      const btnProcessos = document.getElementById('btn-processos-menu');
+      
       const containerCadastro = document.getElementById('cadastro-container');
       const containerHistorico = document.getElementById('historico-container');
+      const containerProcessos = document.getElementById('processos-container');
+
+      // Reset classes
+      btnCadastro.classList.remove('active');
+      btnHistorico.classList.remove('active');
+      btnProcessos.classList.remove('active');
+
+      // Hide all
+      containerCadastro.style.display = 'none';
+      containerHistorico.style.display = 'none';
+      containerProcessos.style.display = 'none';
 
       if (menu === 'cadastro') {
         btnCadastro.classList.add('active');
-        btnHistorico.classList.remove('active');
-
         containerCadastro.style.display = 'block';
-        containerHistorico.style.display = 'none';
-      } else {
+      } else if (menu === 'historico') {
         btnHistorico.classList.add('active');
-        btnCadastro.classList.remove('active');
-
-        containerCadastro.style.display = 'none';
         containerHistorico.style.display = 'block';
         
         // Define a data de envio como hoje (formato YYYY-MM-DD)
@@ -3466,6 +4448,10 @@ const fallbackValoresPadrao = {
         document.getElementById('filtro-data').value = hojeStr;
         
         buscarHistorico();
+      } else if (menu === 'processos') {
+        btnProcessos.classList.add('active');
+        containerProcessos.style.display = 'block';
+        carregarPainelProcessos();
       }
     }
 
@@ -3488,7 +4474,7 @@ const fallbackValoresPadrao = {
 
     async function buscarHistorico() {
       const tableBody = document.getElementById('history-table-body');
-      tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 30px;"><div class="spinner" style="width: 20px; height: 20px;"></div> Carregando histórico...</td></tr>';
+      tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 30px;"><div class="spinner" style="width: 20px; height: 20px;"></div> Carregando histórico...</td></tr>';
 
       const processo = document.getElementById('filtro-processo').value;
       const data = document.getElementById('filtro-data').value;
@@ -3505,11 +4491,11 @@ const fallbackValoresPadrao = {
           cacheHistorico = result.data;
           renderTabelaHistorico(result.data);
         } else {
-          tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #f44336; padding: 30px;">Erro ao carregar dados: ${result.errors.join(', ')}</td></tr>`;
+          tableBody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: #f44336; padding: 30px;">Erro ao carregar dados: ${result.errors.join(', ')}</td></tr>`;
         }
       } catch (error) {
         console.error('Erro ao buscar histórico:', error);
-        tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #f44336; padding: 30px;">Erro de conexão com o servidor.</td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #f44336; padding: 30px;">Erro de conexão com o servidor.</td></tr>';
       }
     }
 
@@ -3518,24 +4504,36 @@ const fallbackValoresPadrao = {
       tableBody.innerHTML = '';
 
       if (registros.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #90a4ae; padding: 30px;">Nenhum registro encontrado.</td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #90a4ae; padding: 30px;">Nenhum registro encontrado.</td></tr>';
         return;
       }
 
       registros.forEach(reg => {
-        const payloadData = reg.payload.data || reg.payload;
+        const payloadData = reg.payload?.data || reg.payload || {};
         const processo = payloadData.numeroProcesso || '-';
         const referencia = payloadData.referenciaCliente || '-';
         
-        const badgeClass = reg.status === 'sucesso' ? 'success' : 'error';
-        const badgeText = reg.status === 'sucesso' ? 'Sucesso' : 'Erro';
+        const operacao = reg.operacao || 'Novo Envio';
+        const usuario = reg.usuario || 'Admin';
+
+        let badgeClass = 'error';
+        let badgeText = 'Erro';
+        if (reg.status === 'sucesso') {
+          badgeClass = 'success';
+          badgeText = 'Sucesso';
+        } else if (reg.status === 'registro_manual') {
+          badgeClass = 'success';
+          badgeText = 'Manual';
+        }
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td>${reg.dataHoraEnvio}</td>
+          <td style="font-weight: 600; color: #5c6bc0;">${operacao}</td>
           <td style="font-weight: 600;">${processo}</td>
           <td>${referencia}</td>
           <td><span class="badge ${badgeClass}">${badgeText}</span></td>
+          <td style="font-weight: 500; color: #64748b;">${usuario}</td>
           <td style="text-align: center;">
             <button type="button" class="btn-view-history" onclick="visualizarDetalhesItem('${reg.id}')">👁️ Visualizar</button>
           </td>
@@ -3551,16 +4549,52 @@ const fallbackValoresPadrao = {
         return;
       }
 
-      const payload = item.payload.data || item.payload;
+      const payload = item.payload?.data || item.payload || {};
       const modal = document.getElementById('modalDetalhesHistorico');
       const viewMaritimo = document.getElementById('view-maritimo');
       const viewAereo = document.getElementById('view-aereo');
+      const viewEventoAcao = document.getElementById('view-evento-acao');
 
       // Limpar containers dinâmicos antes de preencher
       document.getElementById('v-m-volumes-container').innerHTML = '';
       document.getElementById('v-m-containers-container').innerHTML = '';
       document.getElementById('v-m-rotas-container').innerHTML = '';
       document.getElementById('v-a-embalagens-container').innerHTML = '';
+
+      const operacao = item.operacao || 'Novo Envio';
+      const isProcessoOp = operacao === 'Novo Envio' || operacao === 'Atualização' || operacao === 'Registro Manual';
+
+      if (!isProcessoOp) {
+        document.getElementById('detalhes-titulo').textContent = `Registro de Evento - ${operacao}`;
+        viewMaritimo.style.display = 'none';
+        viewAereo.style.display = 'none';
+        if (viewEventoAcao) {
+          viewEventoAcao.style.display = 'block';
+          document.getElementById('v-acao-titulo').textContent = operacao;
+          document.getElementById('v-acao-usuario').textContent = item.usuario || 'Admin';
+          document.getElementById('v-acao-data').textContent = item.dataHoraEnvio || '-';
+          document.getElementById('v-acao-referencia').textContent = payload.referenciaCliente || '-';
+          
+          let detalhesText = '';
+          if (operacao === 'Inclusão de Anexo') {
+            detalhesText = `Arquivo adicionado:\nNome: ${payload.nomeAnexo || '-'}\nTamanho: ${payload.tamanhoAnexo || '-'}\nCategoria: ${payload.categoria || '-'}`;
+          } else if (operacao === 'Exclusão de Anexo') {
+            detalhesText = `Arquivo deletado:\nID do Anexo: ${payload.anexoId || '-'}`;
+          } else if (operacao === 'Lançamento de Follow Up') {
+            detalhesText = `Mensagem enviada:\n"${payload.mensagem || '-'}"`;
+          } else if (operacao === 'Lançamento de Despesa') {
+            const valFormt = parseFloat(payload.valor || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+            detalhesText = `Despesa cadastrada:\nValor: ${payload.moeda || ''} ${valFormt}\nCategoria: ${payload.categoriaNome || `Categoria ID ${payload.categoriaId}`}`;
+          } else {
+            detalhesText = JSON.stringify(payload, null, 2);
+          }
+          document.getElementById('v-acao-detalhes').textContent = detalhesText;
+        }
+        abrirModal('modalDetalhesHistorico');
+        return;
+      }
+
+      if (viewEventoAcao) viewEventoAcao.style.display = 'none';
 
       if (currentHistoryType === 'maritimo') {
         document.getElementById('detalhes-titulo').textContent = `Ficha do Processo Marítimo - ${payload.numeroProcesso || ''}`;
@@ -3573,15 +4607,46 @@ const fallbackValoresPadrao = {
         document.getElementById('v-m-hbl').value = payload.hbl || '';
         document.getElementById('v-m-ce').value = payload.numeroCe || '';
 
-        // Preencher Rotas
-        document.getElementById('v-m-origem').value = payload.origem || '';
-        document.getElementById('v-m-destino').value = payload.destino || '';
+        // Preencher Rotas (com resolução de nomes)
+        const elOrigem = document.getElementById('v-m-origem');
+        const elDestino = document.getElementById('v-m-destino');
+        if (payload.origem) {
+          elOrigem.value = 'Carregando...';
+          obterNomePorId('/api/seaports', payload.origem).then(n => elOrigem.value = n || payload.origem);
+        } else {
+          elOrigem.value = '-';
+        }
+        if (payload.destino) {
+          elDestino.value = 'Carregando...';
+          obterNomePorId('/api/seaports', payload.destino).then(n => elDestino.value = n || payload.destino);
+        } else {
+          elDestino.value = '-';
+        }
 
-        // Preencher Transportes & Logística
-        document.getElementById('v-m-navio').value = payload.navio || '';
+        // Preencher Transportes & Logística (com resolução de nomes)
+        const elNavio = document.getElementById('v-m-navio');
+        const elCompanhia = document.getElementById('v-m-companhia');
+        const elArmazem = document.getElementById('v-m-armazem');
+
+        if (payload.navio) {
+          elNavio.value = 'Carregando...';
+          obterNomePorId('/api/navios', payload.navio).then(n => elNavio.value = n || payload.navio);
+        } else {
+          elNavio.value = '-';
+        }
         document.getElementById('v-m-viagem').value = payload.viagemVoo || '';
-        document.getElementById('v-m-companhia').value = payload.companhiaTransporte || '';
-        document.getElementById('v-m-armazem').value = payload.armazem || '';
+        if (payload.companhiaTransporte) {
+          elCompanhia.value = 'Carregando...';
+          obterNomePorId('/api/shipping-lines', payload.companhiaTransporte).then(n => elCompanhia.value = n || payload.companhiaTransporte);
+        } else {
+          elCompanhia.value = '-';
+        }
+        if (payload.armazem) {
+          elArmazem.value = 'Carregando...';
+          obterNomePorId('/api/armazens', payload.armazem).then(n => elArmazem.value = n || payload.armazem);
+        } else {
+          elArmazem.value = '-';
+        }
 
         // Preencher Prazos e Datas
         document.getElementById('v-m-prev-embarque').value = payload.dataPrevisaoEmbarque || '';
@@ -3636,7 +4701,7 @@ const fallbackValoresPadrao = {
           });
         }
 
-        // Preencher Rota Detalhada Dinâmica
+        // Preencher Rota Detalhada Dinâmica (com resolução de nomes)
         if (Array.isArray(payload.rota)) {
           payload.rota.forEach((rt, i) => {
             const div = document.createElement('div');
@@ -3644,11 +4709,11 @@ const fallbackValoresPadrao = {
             div.innerHTML = `
               <div style="font-weight: 600; color: #667eea; margin-bottom: 8px;">Trecho #${i + 1}</div>
               <div class="row">
-                <label>Origem <input type="text" value="${rt.origem || ''}" disabled /></label>
-                <label>Destino <input type="text" value="${rt.destino || ''}" disabled /></label>
+                <label>Origem <input type="text" id="v-m-rota-origem-${i}" value="Carregando..." disabled /></label>
+                <label>Destino <input type="text" id="v-m-rota-destino-${i}" value="Carregando..." disabled /></label>
               </div>
               <div class="row" style="margin-top: 8px;">
-                <label>Navio <input type="text" value="${rt.navio || ''}" disabled /></label>
+                <label>Navio <input type="text" id="v-m-rota-navio-${i}" value="Carregando..." disabled /></label>
                 <label>Viagem / Voo <input type="text" value="${rt.viagemVoo || ''}" disabled /></label>
                 <label>Tipo Viagem <input type="text" value="${rt.tipoViagem || 'Main'}" disabled /></label>
               </div>
@@ -3660,6 +4725,36 @@ const fallbackValoresPadrao = {
               </div>
             `;
             document.getElementById('v-m-rotas-container').appendChild(div);
+
+            if (rt.origem) {
+              obterNomePorId('/api/seaports', rt.origem).then(n => {
+                const el = document.getElementById(`v-m-rota-origem-${i}`);
+                if (el) el.value = n || rt.origem;
+              });
+            } else {
+              const el = document.getElementById(`v-m-rota-origem-${i}`);
+              if (el) el.value = '-';
+            }
+
+            if (rt.destino) {
+              obterNomePorId('/api/seaports', rt.destino).then(n => {
+                const el = document.getElementById(`v-m-rota-destino-${i}`);
+                if (el) el.value = n || rt.destino;
+              });
+            } else {
+              const el = document.getElementById(`v-m-rota-destino-${i}`);
+              if (el) el.value = '-';
+            }
+
+            if (rt.navio) {
+              obterNomePorId('/api/navios', rt.navio).then(n => {
+                const el = document.getElementById(`v-m-rota-navio-${i}`);
+                if (el) el.value = n || rt.navio;
+              });
+            } else {
+              const el = document.getElementById(`v-m-rota-navio-${i}`);
+              if (el) el.value = '-';
+            }
           });
         }
 
@@ -3676,13 +4771,37 @@ const fallbackValoresPadrao = {
         document.getElementById('v-a-termo').value = payload.termoDeEntrada || '';
         document.getElementById('v-a-voo').value = payload.numeroDoVoo || '';
 
-        // Preencher Rotas (Aeroportos)
-        document.getElementById('v-a-origem').value = payload.origem || '';
-        document.getElementById('v-a-destino').value = payload.destino || '';
+        // Preencher Rotas (Aeroportos com resolução de nomes)
+        const elAeroOrigem = document.getElementById('v-a-origem');
+        const elAeroDestino = document.getElementById('v-a-destino');
+        if (payload.origem) {
+          elAeroOrigem.value = 'Carregando...';
+          obterNomePorId('/api/airports', payload.origem).then(n => elAeroOrigem.value = n || payload.origem);
+        } else {
+          elAeroOrigem.value = '-';
+        }
+        if (payload.destino) {
+          elAeroDestino.value = 'Carregando...';
+          obterNomePorId('/api/airports', payload.destino).then(n => elAeroDestino.value = n || payload.destino);
+        } else {
+          elAeroDestino.value = '-';
+        }
 
-        // Preencher Transportes & Logística
-        document.getElementById('v-a-companhia').value = payload.companhiaTransporte || '';
-        document.getElementById('v-a-armazem').value = payload.armazem || '';
+        // Preencher Transportes & Logística (com resolução de nomes)
+        const elAeroCompanhia = document.getElementById('v-a-companhia');
+        const elAeroArmazem = document.getElementById('v-a-armazem');
+        if (payload.companhiaTransporte) {
+          elAeroCompanhia.value = 'Carregando...';
+          obterNomePorId('/api/airlines', payload.companhiaTransporte).then(n => elAeroCompanhia.value = n || payload.companhiaTransporte);
+        } else {
+          elAeroCompanhia.value = '-';
+        }
+        if (payload.armazem) {
+          elAeroArmazem.value = 'Carregando...';
+          obterNomePorId('/api/armazens', payload.armazem).then(n => elAeroArmazem.value = n || payload.armazem);
+        } else {
+          elAeroArmazem.value = '-';
+        }
 
         // Preencher Marcos Temporais (Datas e Horários)
         document.getElementById('v-a-carga-pronta').value = payload.dataCargaPronta || '';
