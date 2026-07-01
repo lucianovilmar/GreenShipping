@@ -5,6 +5,7 @@ const fs = require('fs').promises;
 const logger = require('./config/logger');
 const maritimoApiService = require('./services/maritimoApiService');
 const aereoApiService = require('./services/aereoApiService');
+const db = require('./config/db');
 
 const app = express();
 const port = parseInt(process.env.PORT, 10) || 3000;
@@ -24,35 +25,16 @@ function envelope(success, data = {}, errors = [], warnings = []) {
   };
 }
 
-const os = require('os');
-const getHistoryDirPath = () => {
-  if (process.env.VERCEL === '1') {
-    return path.join(os.tmpdir(), 'history');
-  }
-  return path.join(__dirname, 'data', 'history');
-};
-
 // Helper: Verifica se uma referência de cliente já existe no histórico com status sucesso ou manual
 async function verificarReferenciaExistente(refCliente) {
   try {
-    const dirPath = getHistoryDirPath();
-    await fs.mkdir(dirPath, { recursive: true });
-    const files = await fs.readdir(dirPath);
-    for (const file of files) {
-      if (file.endsWith('.json')) {
-        const content = await fs.readFile(path.join(dirPath, file), 'utf8');
-        const data = JSON.parse(content);
-        if (Array.isArray(data)) {
-          const found = data.find(reg => 
-            reg.payload?.referenciaCliente?.trim() === refCliente.trim() && 
-            (reg.status === 'sucesso' || reg.status === 'registro_manual')
-          );
-          if (found) return true;
-        }
-      }
-    }
+    const res = await db.query(
+      'SELECT 1 FROM processos WHERE TRIM(referencia_cliente) = $1 AND status IN ($2, $3) LIMIT 1',
+      [refCliente.trim(), 'sucesso', 'registro_manual']
+    );
+    return res.rowCount > 0;
   } catch (err) {
-    logger.error('Erro ao verificar referencia existente', { error: err.message });
+    logger.error('Erro ao verificar referencia existente no banco', { error: err.message });
   }
   return false;
 }
@@ -61,89 +43,57 @@ async function verificarReferenciaExistente(refCliente) {
 async function salvarHistorico(tipo, payload, status, updateId = null, operacao = null, usuario = 'Admin') {
   try {
     const dataAtual = new Date();
-    const anoMes = dataAtual.toISOString().slice(0, 7); // "YYYY-MM"
-    const pad = (num) => String(num).padStart(2, '0');
-    const dataHoraStr = `${dataAtual.getFullYear()}-${pad(dataAtual.getMonth() + 1)}-${pad(dataAtual.getDate())} ${pad(dataAtual.getHours())}:${pad(dataAtual.getMinutes())}:${pad(dataAtual.getSeconds())}`;
-
-    const dirPath = getHistoryDirPath();
-    await fs.mkdir(dirPath, { recursive: true });
-
-    let registrosAntigos = { anexos: [], followUps: [], despesas: [] };
-    
-    // Se houver uma referência de cliente no payload, busca as informações de anexos,
-    // despesas e followUps do registro mais recente dessa referência no histórico
-    // para propagá-las no novo registro (preservando todos os registros no histórico original)
-    const refCliente = payload?.referenciaCliente;
-    if (refCliente) {
-      const files = await fs.readdir(dirPath);
-      let maisRecente = null;
-      let maisRecenteData = null;
-
-      for (const file of files) {
-        if (file.endsWith('.json')) {
-          const filePath = path.join(dirPath, file);
-          try {
-            const content = await fs.readFile(filePath, 'utf8');
-            const registrosFile = JSON.parse(content);
-            if (Array.isArray(registrosFile)) {
-              registrosFile.forEach(r => {
-                if (r.payload?.referenciaCliente === refCliente) {
-                  const dataReg = new Date(r.dataHoraEnvio.replace(' ', 'T'));
-                  if (!maisRecenteData || dataReg > maisRecenteData) {
-                    maisRecenteData = dataReg;
-                    maisRecente = r;
-                  }
-                }
-              });
-            }
-          } catch (err) {
-            logger.error(`Erro ao ler registro no arquivo ${file}`, { error: err.message });
-          }
-        }
-      }
-
-      if (maisRecente) {
-        registrosAntigos.anexos = maisRecente.anexos || [];
-        registrosAntigos.followUps = maisRecente.followUps || [];
-        registrosAntigos.despesas = maisRecente.despesas || [];
-      }
-    }
-
-    const fileName = `${tipo}-${anoMes}.json`;
-    const filePath = path.join(dirPath, fileName);
-
-    let registros = [];
-    try {
-      const content = await fs.readFile(filePath, 'utf8');
-      registros = JSON.parse(content);
-      if (!Array.isArray(registros)) {
-        registros = [];
-      }
-    } catch (err) {
-      registros = [];
-    }
-
     const opFinal = operacao || (status === 'registro_manual' ? 'Registro Manual' : (updateId ? 'Atualização' : 'Novo Envio'));
     const isProcessoOp = opFinal === 'Novo Envio' || opFinal === 'Atualização' || opFinal === 'Registro Manual';
+    
+    // Inserir log de auditoria na tabela historico_logs
+    await db.query(
+      `INSERT INTO historico_logs (status, operacao, usuario, referencia_cliente, numero_processo, tipo, payload)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+      [
+        status, 
+        opFinal, 
+        usuario, 
+        payload?.referenciaCliente || null, 
+        payload?.numeroProcesso || null, 
+        tipo, 
+        payload
+      ]
+    );
 
-    const novoRegistro = {
-      id: updateId || (Date.now().toString() + Math.random().toString(36).substring(2, 7)),
-      dataHoraEnvio: dataHoraStr,
-      status: status,
-      operacao: opFinal,
-      usuario: usuario,
-      payload: payload,
-      anexos: isProcessoOp ? registrosAntigos.anexos : [],
-      followUps: isProcessoOp ? registrosAntigos.followUps : [],
-      despesas: isProcessoOp ? registrosAntigos.despesas : []
-    };
-
-    registros.unshift(novoRegistro); // Insere no início do histórico
-
-    await fs.writeFile(filePath, JSON.stringify(registros, null, 2), 'utf8');
-    logger.info('Histórico salvo com sucesso', { tipo, fileName });
+    // Se for uma operação principal de processo com sucesso, atualizamos a tabela processos
+    if (isProcessoOp && (status === 'sucesso' || status === 'registro_manual')) {
+      const processId = updateId || (tipo + '-' + Date.now() + Math.random().toString(36).substring(2, 7));
+      
+      await db.query(
+        `INSERT INTO processos (id, tipo, numero_processo, referencia_cliente, status, data_hora_envio, operacao, usuario, payload)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+         ON CONFLICT (referencia_cliente)
+         DO UPDATE SET
+           id = EXCLUDED.id,
+           numero_processo = EXCLUDED.numero_processo,
+           status = EXCLUDED.status,
+           data_hora_envio = EXCLUDED.data_hora_envio,
+           operacao = EXCLUDED.operacao,
+           usuario = EXCLUDED.usuario,
+           payload = EXCLUDED.payload`,
+        [
+          processId, 
+          tipo, 
+          payload.numeroProcesso || null, 
+          payload.referenciaCliente, 
+          status, 
+          dataAtual, 
+          opFinal, 
+          usuario, 
+          payload
+        ]
+      );
+    }
+    
+    logger.info('Histórico salvo no banco de dados', { tipo, status, operacao: opFinal });
   } catch (error) {
-    logger.error('Falha ao salvar histórico', { error: error.message });
+    logger.error('Falha ao salvar histórico no banco', { error: error.message });
   }
 }
 
@@ -224,54 +174,43 @@ app.get('/api/historico', async (req, res) => {
     return res.status(400).json(envelope(false, {}, ['O parâmetro "tipo" (maritimo ou aereo) é obrigatório.']));
   }
 
-  logger.info('Buscando histórico', { tipo, processo, data });
+  logger.info('Buscando histórico do banco', { tipo, processo, data });
 
   try {
-    const dirPath = getHistoryDirPath();
-    await fs.mkdir(dirPath, { recursive: true });
-
-    const files = await fs.readdir(dirPath);
-    const filteredFiles = files.filter(file => file.startsWith(`${tipo}-`) && file.endsWith('.json'));
-
-    let todosRegistros = [];
-
-    for (const file of filteredFiles) {
-      try {
-        const content = await fs.readFile(path.join(dirPath, file), 'utf8');
-        const registros = JSON.parse(content);
-        if (Array.isArray(registros)) {
-          todosRegistros = todosRegistros.concat(registros);
-        }
-      } catch (err) {
-        logger.error(`Erro ao ler arquivo de histórico ${file}`, { error: err.message });
-      }
-    }
-
-    // Ordenar por dataHoraEnvio descrescente
-    todosRegistros.sort((a, b) => {
-      return new Date(b.dataHoraEnvio.replace(' ', 'T')) - new Date(a.dataHoraEnvio.replace(' ', 'T'));
-    });
-
-    let resultados = todosRegistros;
+    let sql = `SELECT id, TO_CHAR(data_hora_envio, 'YYYY-MM-DD HH24:MI:SS') as "dataHoraEnvio", status, operacao, usuario, payload 
+               FROM historico_logs 
+               WHERE tipo = $1`;
+    const params = [tipo];
 
     if (processo && processo.trim()) {
-      const searchProc = processo.toLowerCase().trim();
-      resultados = resultados.filter(reg => {
-        const payloadData = reg.payload?.data || reg.payload || {};
-        const numProc = payloadData.numeroProcesso || '';
-        const refCli = payloadData.referenciaCliente || '';
-        return String(numProc).toLowerCase().includes(searchProc) || String(refCli).toLowerCase().includes(searchProc);
-      });
+      params.push(`%${processo.toLowerCase().trim()}%`);
+      sql += ` AND (LOWER(numero_processo) LIKE $${params.length} OR LOWER(referencia_cliente) LIKE $${params.length})`;
     }
-
     if (data && data.trim()) {
-      const searchData = data.trim();
-      resultados = resultados.filter(reg => reg.dataHoraEnvio.startsWith(searchData));
+      params.push(`${data.trim()}%`);
+      sql += ` AND TO_CHAR(data_hora_envio, 'YYYY-MM-DD') LIKE $${params.length}`;
     }
 
-    return res.json(envelope(true, resultados, [], []));
+    sql += ' ORDER BY data_hora_envio DESC';
+
+    const dbRes = await db.query(sql, params);
+    
+    // Formatar os registros para serem compatíveis com o front
+    const registros = dbRes.rows.map(r => ({
+      id: String(r.id),
+      dataHoraEnvio: r.dataHoraEnvio,
+      status: r.status,
+      operacao: r.operacao,
+      usuario: r.usuario,
+      payload: r.payload,
+      anexos: [],
+      followUps: [],
+      despesas: []
+    }));
+
+    return res.json(envelope(true, registros, [], []));
   } catch (error) {
-    logger.error('Erro ao ler histórico', { error: error.message });
+    logger.error('Erro ao buscar histórico no banco', { error: error.message });
     return res.status(500).json(envelope(false, {}, [String(error.message)]));
   }
 });
@@ -283,142 +222,62 @@ app.get('/api/historico', async (req, res) => {
 // 1. Listar histórico unificado (Aéreo e Marítimo)
 app.get('/api/processos/unificados', async (req, res) => {
   try {
-    const dirPath = getHistoryDirPath();
-    await fs.mkdir(dirPath, { recursive: true });
-    const files = await fs.readdir(dirPath);
+    const query = `
+      SELECT p.*,
+        COALESCE((
+          SELECT json_agg(json_build_object(
+            'id', a.id,
+            'nomeAnexo', a.nome,
+            'categoria', a.categoria_anexo,
+            'categoriaNome', a.categoria_nome,
+            'dataUpload', TO_CHAR(a.data_upload, 'YYYY-MM-DD HH24:MI:SS')
+          )) FROM anexos a WHERE a.processo_id = p.id
+        ), '[]'::json) as "anexosList",
+        COALESCE((
+          SELECT json_agg(json_build_object(
+            'id', f.id,
+            'mensagem', f.descricao,
+            'data', TO_CHAR(f.data_cadastro, 'YYYY-MM-DD HH24:MI:SS')
+          )) FROM follow_ups f WHERE f.processo_id = p.id
+        ), '[]'::json) as "followUpsList",
+        COALESCE((
+          SELECT json_agg(json_build_object(
+            'id', d.id,
+            'categoriaId', d.categoria_id,
+            'categoriaNome', d.categoria_nome,
+            'valor', d.valor,
+            'moeda', d.moeda,
+            'dataCadastro', TO_CHAR(d.data_cadastro, 'YYYY-MM-DD HH24:MI:SS')
+          )) FROM despesas d WHERE d.processo_id = p.id
+        ), '[]'::json) as "despesasList"
+      FROM processos p
+      ORDER BY p.data_hora_envio DESC
+    `;
     
-    let todosRegistros = [];
-    
-    // Marítimo
-    const maritimoFiles = files.filter(f => f.startsWith('maritimo-') && f.endsWith('.json'));
-    for (const file of maritimoFiles) {
-      try {
-        const content = await fs.readFile(path.join(dirPath, file), 'utf8');
-        const data = JSON.parse(content);
-        if (Array.isArray(data)) {
-          data.forEach(reg => {
-            todosRegistros.push({
-              id: reg.id,
-              tipo: 'maritimo',
-              dataHoraEnvio: reg.dataHoraEnvio,
-              status: reg.status,
-              operacao: reg.operacao,
-              usuario: reg.usuario,
-              numeroProcesso: reg.payload?.numeroProcesso || '',
-              referenciaCliente: reg.payload?.referenciaCliente || '',
-              payload: reg.payload,
-              anexos: reg.anexos || [],
-              followUps: reg.followUps || [],
-              despesas: reg.despesas || []
-            });
-          });
-        }
-      } catch (err) {
-        logger.error(`Erro ao ler histórico ${file}`, { error: err.message });
-      }
-    }
-    
-    // Aéreo
-    const aereoFiles = files.filter(f => f.startsWith('aereo-') && f.endsWith('.json'));
-    for (const file of aereoFiles) {
-      try {
-        const content = await fs.readFile(path.join(dirPath, file), 'utf8');
-        const data = JSON.parse(content);
-        if (Array.isArray(data)) {
-          data.forEach(reg => {
-            todosRegistros.push({
-              id: reg.id,
-              tipo: 'aereo',
-              dataHoraEnvio: reg.dataHoraEnvio,
-              status: reg.status,
-              operacao: reg.operacao,
-              usuario: reg.usuario,
-              numeroProcesso: reg.payload?.numeroProcesso || '',
-              referenciaCliente: reg.payload?.referenciaCliente || '',
-              payload: reg.payload,
-              anexos: reg.anexos || [],
-              followUps: reg.followUps || [],
-              despesas: reg.despesas || []
-            });
-          });
-        }
-      } catch (err) {
-        logger.error(`Erro ao ler histórico ${file}`, { error: err.message });
-      }
-    }
-    
-    // Agrupar e deduplicar pela Referência do Cliente, mantendo apenas sucesso ou registro_manual de operações do processo
-    const grupos = {};
-    todosRegistros.forEach(reg => {
-      const ref = reg.referenciaCliente?.trim();
-      if (!ref) return; // pular referências vazias
-      
-      if (reg.status === 'sucesso' || reg.status === 'registro_manual') {
-        const opValida = !reg.operacao || reg.operacao === 'Novo Envio' || reg.operacao === 'Atualização' || reg.operacao === 'Registro Manual';
-        if (opValida) {
-          if (!grupos[ref]) {
-            grupos[ref] = [];
-          }
-          grupos[ref].push(reg);
-        }
-      }
-    });
-    
-    const deduplicados = [];
-    Object.keys(grupos).forEach(ref => {
-      const grupo = grupos[ref];
-      // Ordenar decrescente pela dataHoraEnvio
-      grupo.sort((a, b) => {
-        return new Date(b.dataHoraEnvio.replace(' ', 'T')) - new Date(a.dataHoraEnvio.replace(' ', 'T'));
-      });
-      // Adicionar o mais recente
-      deduplicados.push(grupo[0]);
-    });
-    
-    // Ordenar decrescente o resultado final por data de envio
-    deduplicados.sort((a, b) => {
-      return new Date(b.dataHoraEnvio.replace(' ', 'T')) - new Date(a.dataHoraEnvio.replace(' ', 'T'));
-    });
-    
-    return res.json(envelope(true, deduplicados, [], []));
+    const dbRes = await db.query(query);
+
+    const resultados = dbRes.rows.map(p => ({
+      id: p.id,
+      tipo: p.tipo,
+      dataHoraEnvio: p.data_hora_envio ? new Date(p.data_hora_envio).toISOString().slice(0, 19).replace('T', ' ') : '',
+      status: p.status,
+      operacao: p.operacao,
+      usuario: p.usuario,
+      numeroProcesso: p.numero_processo || '',
+      referenciaCliente: p.referencia_cliente || '',
+      payload: p.payload,
+      anexos: p.anexosList || [],
+      followUps: p.followUpsList || [],
+      despesas: p.despesasList || []
+    }));
+
+    return res.json(envelope(true, resultados, [], []));
   } catch (error) {
-    logger.error('Erro ao buscar processos unificados', { error: error.message });
+    logger.error('Erro ao buscar processos unificados do banco', { error: error.message });
     return res.status(500).json(envelope(false, {}, [error.message]));
   }
 });
 
-// Helper: Atualiza um processo específico no arquivo de histórico local para guardar anexos/despesas
-async function atualizarProcessoLocal(id, updates) {
-  const dirPath = getHistoryDirPath();
-  const files = await fs.readdir(dirPath);
-  
-  for (const file of files) {
-    if (file.endsWith('.json')) {
-      const filePath = path.join(dirPath, file);
-      try {
-        const content = await fs.readFile(filePath, 'utf8');
-        let registros = JSON.parse(content);
-        if (Array.isArray(registros)) {
-          let modificado = false;
-          registros = registros.map(reg => {
-            if (reg.id === id) {
-              modificado = true;
-              return { ...reg, ...updates };
-            }
-            return reg;
-          });
-          if (modificado) {
-            await fs.writeFile(filePath, JSON.stringify(registros, null, 2), 'utf8');
-            return true;
-          }
-        }
-      } catch (err) {
-        logger.error(`Erro ao atualizar registro local no arquivo ${file}`, { error: err.message });
-      }
-    }
-  }
-  return false;
-}
 
 // 2. Adicionar processo manual no histórico
 app.post('/api/processos/manual', async (req, res) => {
@@ -471,45 +330,28 @@ app.post('/api/processos/anexos', async (req, res) => {
     
     if (response.data && response.data.success !== false) {
       const codigoAnexo = response.data.codigoAnexo || Date.now();
-      const novoAnexo = {
-        id: codigoAnexo,
-        nome,
-        categoriaAnexo,
-        categoriaNome: response.data.data?.categoriaAnexo || `${categoriaAnexo} - Anexo`,
-        dataUpload: new Date().toISOString().slice(0, 19).replace('T', ' ')
-      };
       
-      // Atualizar no histórico local para persistir
-      if (idProcesso) {
-        const dirPath = getHistoryDirPath();
-        const files = await fs.readdir(dirPath);
-        for (const file of files) {
-          if (file.endsWith('.json')) {
-            const filePath = path.join(dirPath, file);
-            try {
-              const content = await fs.readFile(filePath, 'utf8');
-              let registros = JSON.parse(content);
-              if (Array.isArray(registros)) {
-                let modificado = false;
-                registros = registros.map(reg => {
-                  if (reg.id === idProcesso) {
-                    modificado = true;
-                    const anexos = reg.anexos || [];
-                    anexos.push(novoAnexo);
-                    return { ...reg, anexos };
-                  }
-                  return reg;
-                });
-                if (modificado) {
-                  await fs.writeFile(filePath, JSON.stringify(registros, null, 2), 'utf8');
-                  break;
-                }
-              }
-            } catch (err) {
-              logger.error('Erro ao salvar anexo no histórico local', { error: err.message });
-            }
-          }
-        }
+      // Salvar no banco relacional
+      try {
+        await db.query(
+          `INSERT INTO anexos (id, processo_id, nome, categoria_anexo, categoria_nome, data_upload)
+           VALUES ($1, (SELECT id FROM processos WHERE referencia_cliente = $2 LIMIT 1), $3, $4, $5, $6)
+           ON CONFLICT (id) DO UPDATE SET
+             nome = EXCLUDED.nome,
+             categoria_anexo = EXCLUDED.categoria_anexo,
+             categoria_nome = EXCLUDED.categoria_nome,
+             data_upload = EXCLUDED.data_upload`,
+          [
+            String(codigoAnexo),
+            referenciaCliente,
+            nome,
+            categoriaAnexo,
+            response.data.data?.categoriaAnexo || `${categoriaAnexo} - Anexo`,
+            new Date()
+          ]
+        );
+      } catch (errDb) {
+        logger.error('Erro ao salvar anexo no banco de dados', { error: errDb.message });
       }
 
       // Salvar entrada de log no histórico
@@ -567,36 +409,11 @@ app.delete('/api/processos/anexos/:id', async (req, res) => {
     });
     
     if (response.data && response.data.success !== false) {
-      // Remover do histórico local
-      if (idProcesso) {
-        const dirPath = getHistoryDirPath();
-        const files = await fs.readdir(dirPath);
-        for (const file of files) {
-          if (file.endsWith('.json')) {
-            const filePath = path.join(dirPath, file);
-            try {
-              const content = await fs.readFile(filePath, 'utf8');
-              let registros = JSON.parse(content);
-              if (Array.isArray(registros)) {
-                let modificado = false;
-                registros = registros.map(reg => {
-                  if (reg.id === idProcesso) {
-                    modificado = true;
-                    const anexos = (reg.anexos || []).filter(a => String(a.id) !== String(id));
-                    return { ...reg, anexos };
-                  }
-                  return reg;
-                });
-                if (modificado) {
-                  await fs.writeFile(filePath, JSON.stringify(registros, null, 2), 'utf8');
-                  break;
-                }
-              }
-            } catch (err) {
-              logger.error('Erro ao deletar anexo no histórico local', { error: err.message });
-            }
-          }
-        }
+      // Remover do banco relacional
+      try {
+        await db.query('DELETE FROM anexos WHERE id = $1', [String(id)]);
+      } catch (errDb) {
+        logger.error('Erro ao deletar anexo no banco de dados', { error: errDb.message });
       }
 
       // Salvar entrada de log no histórico
@@ -647,43 +464,15 @@ app.post('/api/processos/follow-up', async (req, res) => {
     const response = await putApiClient.post('/agent_destination/follow-up', datiPayload);
     
     if (response.data && response.data.success !== false) {
-      const novoFollowUp = {
-        id: Date.now(),
-        descricao,
-        data: dataHoraStr
-      };
-      
-      // Salvar no histórico local
-      if (idProcesso) {
-        const dirPath = getHistoryDirPath();
-        const files = await fs.readdir(dirPath);
-        for (const file of files) {
-          if (file.endsWith('.json')) {
-            const filePath = path.join(dirPath, file);
-            try {
-              const content = await fs.readFile(filePath, 'utf8');
-              let registros = JSON.parse(content);
-              if (Array.isArray(registros)) {
-                let modificado = false;
-                registros = registros.map(reg => {
-                  if (reg.id === idProcesso) {
-                    modificado = true;
-                    const followUps = reg.followUps || [];
-                    followUps.push(novoFollowUp);
-                    return { ...reg, followUps };
-                  }
-                  return reg;
-                });
-                if (modificado) {
-                  await fs.writeFile(filePath, JSON.stringify(registros, null, 2), 'utf8');
-                  break;
-                }
-              }
-            } catch (err) {
-              logger.error('Erro ao salvar follow-up no histórico local', { error: err.message });
-            }
-          }
-        }
+      // Salvar no banco relacional
+      try {
+        await db.query(
+          `INSERT INTO follow_ups (processo_id, descricao, data_cadastro)
+           VALUES ((SELECT id FROM processos WHERE referencia_cliente = $1 LIMIT 1), $2, $3)`,
+          [referenciaCliente, descricao, new Date()]
+        );
+      } catch (errDb) {
+        logger.error('Erro ao salvar follow-up no banco de dados', { error: errDb.message });
       }
 
       // Salvar entrada de log no histórico
@@ -798,46 +587,22 @@ app.post('/api/processos/despesas', async (req, res) => {
     }
     
     if (success) {
-      const novaDespesa = {
-        id: Date.now(),
-        categoriaId,
-        categoriaNome: categoriaNome || `Categoria ${categoriaId}`,
-        valor: parseFloat(valor),
-        moeda: parseInt(moeda, 10),
-        dataCadastro: new Date().toISOString().slice(0, 19).replace('T', ' ')
-      };
-      
-      // Salvar no histórico local
-      if (idProcesso) {
-        const dirPath = getHistoryDirPath();
-        const files = await fs.readdir(dirPath);
-        for (const file of files) {
-          if (file.endsWith('.json')) {
-            const filePath = path.join(dirPath, file);
-            try {
-              const content = await fs.readFile(filePath, 'utf8');
-              let registros = JSON.parse(content);
-              if (Array.isArray(registros)) {
-                let modificado = false;
-                registros = registros.map(reg => {
-                  if (reg.id === idProcesso) {
-                    modificado = true;
-                    const despesas = reg.despesas || [];
-                    despesas.push(novaDespesa);
-                    return { ...reg, despesas };
-                  }
-                  return reg;
-                });
-                if (modificado) {
-                  await fs.writeFile(filePath, JSON.stringify(registros, null, 2), 'utf8');
-                  break;
-                }
-              }
-            } catch (err) {
-              logger.error('Erro ao salvar despesa no histórico local', { error: err.message });
-            }
-          }
-        }
+      // Salvar no banco relacional
+      try {
+        await db.query(
+          `INSERT INTO despesas (processo_id, categoria_id, categoria_nome, valor, moeda, data_cadastro)
+           VALUES ((SELECT id FROM processos WHERE referencia_cliente = $1 LIMIT 1), $2, $3, $4, $5, $6)`,
+          [
+            referenciaCliente, 
+            categoriaId, 
+            categoriaNome || `Categoria ${categoriaId}`, 
+            parseFloat(valor), 
+            String(moeda), 
+            new Date()
+          ]
+        );
+      } catch (errDb) {
+        logger.error('Erro ao salvar despesa no banco de dados', { error: errDb.message });
       }
 
       // Salvar entrada de log no histórico
