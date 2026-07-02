@@ -662,7 +662,10 @@
           </div>
           <div class="auth-group">
             <label>Senha de Acesso</label>
-            <input type="password" id="login-senha" placeholder="Sua senha" required>
+            <div style="position: relative; width: 100%;">
+              <input type="password" id="login-senha" placeholder="Sua senha" required style="padding-right: 40px; width: 100%; box-sizing: border-box;">
+              <span onclick="togglePasswordVisibility('login-senha', this)" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #9cdac8; font-size: 16px; user-select: none;">👁️</span>
+            </div>
           </div>
           <div class="auth-actions">
             <a href="#" onclick="switchAuthView('forgot')" class="forgot-link">Esqueceu sua senha?</a>
@@ -699,7 +702,10 @@
           </div>
           <div class="auth-group">
             <label>Nova Senha</label>
-            <input type="password" id="reset-senha" placeholder="Nova senha (6 a 15 caracteres)" required>
+            <div style="position: relative; width: 100%;">
+              <input type="password" id="reset-senha" placeholder="Nova senha (6 a 15 caracteres)" required style="padding-right: 40px; width: 100%; box-sizing: border-box;">
+              <span onclick="togglePasswordVisibility('reset-senha', this)" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #9cdac8; font-size: 16px; user-select: none;">👁️</span>
+            </div>
           </div>
           <div id="reset-error" class="auth-error"></div>
           <div id="reset-success" class="auth-success"></div>
@@ -1314,7 +1320,10 @@
 
         <div style="display: flex; flex-direction: column; gap: 4px;">
           <label style="font-size: 12px; font-weight: 700; color: #475569;">Senha</label>
-          <input type="password" id="usuario-senha" placeholder="Senha (6 a 15 caracteres)" style="padding: 10px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 13px; width: 100%; box-sizing: border-box;">
+          <div style="position: relative; width: 100%;">
+            <input type="password" id="usuario-senha" placeholder="Senha (6 a 15 caracteres)" style="padding: 10px 40px 10px 10px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 13px; width: 100%; box-sizing: border-box;">
+            <span onclick="togglePasswordVisibility('usuario-senha', this)" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #94a3b8; font-size: 14px; user-select: none;">👁️</span>
+          </div>
           <span id="senha-help-text" style="font-size: 10px; color: #64748b; font-style: italic; margin-top: 2px;">Para usuários existentes, deixe em branco para manter a senha atual.</span>
         </div>
 
@@ -3714,6 +3723,12 @@ const fallbackValoresPadrao = {
             userInfo.style.display = 'flex';
           }
 
+          // Mostrar ou esconder menu de Administração
+          const btnAdmin = document.getElementById('btn-admin-menu');
+          if (btnAdmin) {
+            btnAdmin.style.display = (result.data.user.papelId === 1) ? 'flex' : 'none';
+          }
+
           await carregarValoresPadrao();
           await carregarConfigInfo();
         } else {
@@ -3855,6 +3870,12 @@ const fallbackValoresPadrao = {
           if (userInfo && usernameDisplay) {
             usernameDisplay.textContent = `👤 Olá, ${user.nome}`;
             userInfo.style.display = 'flex';
+          }
+
+          // Mostrar ou esconder menu de Administração
+          const btnAdmin = document.getElementById('btn-admin-menu');
+          if (btnAdmin) {
+            btnAdmin.style.display = (user.papelId === 1) ? 'flex' : 'none';
           }
 
           document.getElementById('login-wrapper').classList.add('hidden');
@@ -5603,6 +5624,19 @@ const fallbackValoresPadrao = {
         fecharModalUsuario();
       }
     });
+
+    function togglePasswordVisibility(inputId, icon) {
+      const input = document.getElementById(inputId);
+      if (input) {
+        if (input.type === 'password') {
+          input.type = 'text';
+          icon.textContent = '🙈';
+        } else {
+          input.type = 'password';
+          icon.textContent = '👁️';
+        }
+      }
+    }
   </script>
 </body>
 </html>
