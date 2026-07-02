@@ -1,16 +1,34 @@
 const { Pool } = require('pg');
 
-const connectionString = process.env.DATABASE_URL;
+let pool;
 
-if (!connectionString) {
-  throw new Error('DATABASE_URL environment variable is missing.');
+function getPool() {
+  if (!pool) {
+    const connectionString = process.env.DATABASE_URL;
+    if (!connectionString) {
+      throw new Error('DATABASE_URL environment variable is missing.');
+    }
+    pool = new Pool({
+      connectionString,
+      ssl: {
+        rejectUnauthorized: false
+      }
+    });
+  }
+  return pool;
 }
 
-const pool = new Pool({
-  connectionString,
-  ssl: {
-    rejectUnauthorized: false
+module.exports = {
+  query: (text, params) => {
+    return getPool().query(text, params);
+  },
+  connect: () => {
+    return getPool().connect();
+  },
+  end: () => {
+    if (pool) {
+      return pool.end();
+    }
+    return Promise.resolve();
   }
-});
-
-module.exports = pool;
+};
