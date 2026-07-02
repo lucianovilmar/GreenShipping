@@ -1319,6 +1319,124 @@ app.get('/api/auth/validate-token', (req, res) => {
   }
 });
 
+// Middleware de autorização para Administradores
+function adminMiddleware(req, res, next) {
+  if (req.user && req.user.papelId === 1) {
+    return next();
+  }
+  return res.status(403).json(envelope(false, {}, ['Acesso negado. Apenas administradores podem acessar esta área.']));
+}
+
+// 5. Listar todos os usuários (Admin)
+app.get('/api/admin/users', adminMiddleware, async (req, res) => {
+  try {
+    const dbRes = await db.query(
+      `SELECT u.id, u.nome, u.email, u.ativo, u.papel_id as "papelId", p.nome as "papelNome" 
+       FROM usuarios u
+       LEFT JOIN papeis p ON u.papel_id = p.id
+       ORDER BY u.id ASC`
+    );
+    return res.json(envelope(true, dbRes.rows, [], []));
+  } catch (error) {
+    logger.error('Erro ao listar usuários (admin)', { error: error.message });
+    return res.status(500).json(envelope(false, {}, ['Erro ao obter lista de usuários.']));
+  }
+});
+
+// 6. Listar papéis (Admin)
+app.get('/api/admin/roles', adminMiddleware, async (req, res) => {
+  try {
+    const dbRes = await db.query(`SELECT id, nome, descricao FROM papeis ORDER BY id ASC`);
+    return res.json(envelope(true, dbRes.rows, [], []));
+  } catch (error) {
+    logger.error('Erro ao listar perfis (admin)', { error: error.message });
+    return res.status(500).json(envelope(false, {}, ['Erro ao obter perfis de usuário.']));
+  }
+});
+
+// 7. Criar usuário (Admin)
+app.post('/api/admin/users', adminMiddleware, async (req, res) => {
+  const { nome, email, senha, papelId, ativo } = req.body;
+  if (!nome || !email || !senha || !papelId) {
+    return res.status(400).json(envelope(false, {}, ['Nome, e-mail, senha e papel são obrigatórios.']));
+  }
+
+  if (senha.length < 6 || senha.length > 15) {
+    return res.status(400).json(envelope(false, {}, ['A senha deve conter entre 6 e 15 caracteres.']));
+  }
+
+  try {
+    // Verificar se e-mail já existe
+    const existRes = await db.query('SELECT id FROM usuarios WHERE LOWER(email) = LOWER($1)', [email.trim()]);
+    if (existRes.rows.length > 0) {
+      return res.status(400).json(envelope(false, {}, ['Este endereço de e-mail já está cadastrado.']));
+    }
+
+    const salt = bcrypt.genSaltSync(10);
+    const hashSenha = bcrypt.hashSync(senha, salt);
+
+    await db.query(
+      `INSERT INTO usuarios (nome, email, senha, papel_id, ativo) 
+       VALUES ($1, $2, $3, $4, $5)`,
+      [nome.trim(), email.trim(), hashSenha, parseInt(papelId, 10), ativo !== false]
+    );
+
+    return res.json(envelope(true, { message: 'Usuário cadastrado com sucesso!' }, [], []));
+  } catch (error) {
+    logger.error('Erro ao criar usuário (admin)', { error: error.message });
+    return res.status(500).json(envelope(false, {}, ['Erro ao cadastrar usuário.']));
+  }
+});
+
+// 8. Atualizar usuário (Admin)
+app.put('/api/admin/users/:id', adminMiddleware, async (req, res) => {
+  const { id } = req.params;
+  const { nome, email, senha, papelId, ativo } = req.body;
+
+  if (!nome || !email || !papelId) {
+    return res.status(400).json(envelope(false, {}, ['Nome, e-mail e papel são obrigatórios.']));
+  }
+
+  if (senha && (senha.length < 6 || senha.length > 15)) {
+    return res.status(400).json(envelope(false, {}, ['A senha deve conter entre 6 e 15 caracteres.']));
+  }
+
+  try {
+    // Verificar se e-mail já pertence a outro usuário
+    const existRes = await db.query(
+      'SELECT id FROM usuarios WHERE LOWER(email) = LOWER($1) AND id <> $2',
+      [email.trim(), parseInt(id, 10)]
+    );
+    if (existRes.rows.length > 0) {
+      return res.status(400).json(envelope(false, {}, ['Este endereço de e-mail já está sendo utilizado por outro usuário.']));
+    }
+
+    if (senha) {
+      const salt = bcrypt.genSaltSync(10);
+      const hashSenha = bcrypt.hashSync(senha, salt);
+
+      await db.query(
+        `UPDATE usuarios 
+         SET nome = $1, email = $2, senha = $3, papel_id = $4, ativo = $5 
+         WHERE id = $6`,
+        [nome.trim(), email.trim(), hashSenha, parseInt(papelId, 10), ativo !== false, parseInt(id, 10)]
+      );
+    } else {
+      await db.query(
+        `UPDATE usuarios 
+         SET nome = $1, email = $2, papel_id = $3, ativo = $4 
+         WHERE id = $5`,
+        [nome.trim(), email.trim(), parseInt(papelId, 10), ativo !== false, parseInt(id, 10)]
+      );
+    }
+
+    return res.json(envelope(true, { message: 'Usuário atualizado com sucesso!' }, [], []));
+  } catch (error) {
+    logger.error('Erro ao atualizar usuário (admin)', { error: error.message });
+    return res.status(500).json(envelope(false, {}, ['Erro ao atualizar usuário.']));
+  }
+});
+
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
