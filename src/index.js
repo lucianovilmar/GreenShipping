@@ -1356,12 +1356,14 @@ app.get('/api/admin/roles', adminMiddleware, async (req, res) => {
 
 // 7. Criar usuário (Admin)
 app.post('/api/admin/users', adminMiddleware, async (req, res) => {
-  const { nome, email, senha, papelId, ativo } = req.body;
-  if (!nome || !email || !senha || !papelId) {
-    return res.status(400).json(envelope(false, {}, ['Nome, e-mail, senha e papel são obrigatórios.']));
+  const { nome, email, senha, papelId, ativo, enviarLinkSenha } = req.body;
+  if (!nome || !email || !papelId) {
+    return res.status(400).json(envelope(false, {}, ['Nome, e-mail e papel são obrigatórios.']));
   }
 
-  if (senha.length < 6 || senha.length > 15) {
+  const linkSenha = enviarLinkSenha === true;
+
+  if (!linkSenha && (!senha || senha.length < 6 || senha.length > 15)) {
     return res.status(400).json(envelope(false, {}, ['A senha deve conter entre 6 e 15 caracteres.']));
   }
 
@@ -1372,14 +1374,47 @@ app.post('/api/admin/users', adminMiddleware, async (req, res) => {
       return res.status(400).json(envelope(false, {}, ['Este endereço de e-mail já está cadastrado.']));
     }
 
-    const salt = bcrypt.genSaltSync(10);
-    const hashSenha = bcrypt.hashSync(senha, salt);
+    let hashSenha = '!';
+    if (!linkSenha) {
+      const salt = bcrypt.genSaltSync(10);
+      hashSenha = bcrypt.hashSync(senha, salt);
+    }
 
     await db.query(
       `INSERT INTO usuarios (nome, email, senha, papel_id, ativo) 
        VALUES ($1, $2, $3, $4, $5)`,
       [nome.trim(), email.trim(), hashSenha, parseInt(papelId, 10), ativo !== false]
     );
+
+    // Se escolheu enviar link por e-mail para criar a senha
+    if (linkSenha) {
+      const codigo = String(Math.floor(100000 + Math.random() * 900000).toString().slice(0, 6));
+      const expiraEm = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 horas
+
+      await db.query(
+        `INSERT INTO recuperacao_senha (email, codigo, expira_em) 
+         VALUES ($1, $2, $3)`,
+        [email.trim(), codigo, expiraEm]
+      );
+
+      const subject = 'Ative sua Conta - Green Shipping';
+      const textHtml = `
+        <div style="font-family: sans-serif; padding: 20px; color: #334155; line-height: 1.6;">
+          <h2 style="color: #2d665b; margin-top: 0;">Bem-vindo ao Green Shipping</h2>
+          <p>Olá, <strong>${nome}</strong>.</p>
+          <p>Sua conta foi criada no Painel de Integração de Processos Dati pelo administrador!</p>
+          <p>Para definir sua senha e ativar o seu acesso, use o seguinte código de ativação:</p>
+          <div style="background: #f1f5f9; padding: 15px; border-radius: 8px; font-size: 24px; font-weight: bold; letter-spacing: 4px; text-align: center; color: #0f172a; margin: 20px 0;">
+            ${codigo}
+          </div>
+          <p>Acesse a tela de login, clique em <strong>"Esqueceu sua senha?"</strong> (ou use a opção de redefinir senha) informando seu e-mail e o código acima para cadastrar a sua senha pessoal.</p>
+          <p style="font-size: 13px; color: #64748b; margin-top: 30px; border-top: 1px solid #e2e8f0; padding-top: 15px;">Este link e código expiram em 24 horas.</p>
+        </div>
+      `;
+      const textSimple = `Olá, ${nome}.\n\nSua conta foi criada no Painel de Integração de Processos Dati!\n\nPara definir sua senha e ativar seu acesso, use o código de ativação: ${codigo}\n\nInsira este código na área de redefinir senha do site.`;
+      
+      enviarEmail(email.trim(), subject, textHtml, textSimple);
+    }
 
     return res.json(envelope(true, { message: 'Usuário cadastrado com sucesso!' }, [], []));
   } catch (error) {
@@ -1434,6 +1469,56 @@ app.put('/api/admin/users/:id', adminMiddleware, async (req, res) => {
   } catch (error) {
     logger.error('Erro ao atualizar usuário (admin)', { error: error.message });
     return res.status(500).json(envelope(false, {}, ['Erro ao atualizar usuário.']));
+  }
+});
+
+// 9. Resetar senha de um usuário e enviar convite por e-mail (Admin)
+app.post('/api/admin/users/:id/reset-password', adminMiddleware, async (req, res) => {
+  const { id } = req.params;
+  try {
+    const userRes = await db.query('SELECT nome, email FROM usuarios WHERE id = $1', [parseInt(id, 10)]);
+    if (userRes.rows.length === 0) {
+      return res.status(404).json(envelope(false, {}, ['Usuário não encontrado.']));
+    }
+
+    const { nome, email } = userRes.rows[0];
+
+    // Resetar senha no banco para inativa ('!')
+    await db.query('UPDATE usuarios SET senha = $1 WHERE id = $2', ['!', parseInt(id, 10)]);
+
+    // Gerar código de recuperação
+    const codigo = String(Math.floor(100000 + Math.random() * 900000).toString().slice(0, 6));
+    const expiraEm = new Date(Date.now() + 2 * 60 * 60 * 1000); // 2 horas de validade
+
+    await db.query(
+      `INSERT INTO recuperacao_senha (email, codigo, expira_em) 
+       VALUES ($1, $2, $3)`,
+      [email, codigo, expiraEm]
+    );
+
+    const subject = 'Redefinição de Senha Requerida - Green Shipping';
+    const textHtml = `
+      <div style="font-family: sans-serif; padding: 20px; color: #334155; line-height: 1.6;">
+        <h2 style="color: #b45309; margin-top: 0;">Redefinição de Senha Requerida</h2>
+        <p>Olá, <strong>${nome}</strong>.</p>
+        <p>O administrador solicitou o **reset da sua senha** de acesso ao Painel Green Shipping.</p>
+        <p>Por motivos de segurança, o seu acesso anterior foi temporariamente suspenso até que você cadastre uma nova senha.</p>
+        <p>Para cadastrar a sua nova senha de acesso, use o seguinte código de verificação:</p>
+        <div style="background: #f1f5f9; padding: 15px; border-radius: 8px; font-size: 24px; font-weight: bold; letter-spacing: 4px; text-align: center; color: #0f172a; margin: 20px 0;">
+          ${codigo}
+        </div>
+        <p>Insira este código na tela de redefinição de senha para criar seu novo acesso.</p>
+        <p style="font-size: 13px; color: #64748b; margin-top: 30px; border-top: 1px solid #e2e8f0; padding-top: 15px;">Este código expira em 2 horas.</p>
+      </div>
+    `;
+    const textSimple = `Olá, ${nome}.\n\nO administrador solicitou o reset da sua senha de acesso ao Painel Green Shipping.\n\nPara cadastrar uma nova senha, use o código de verificação: ${codigo}\n\nInsira este código na tela de redefinição do site.`;
+
+    enviarEmail(email, subject, textHtml, textSimple);
+
+    return res.json(envelope(true, { message: 'Senha resetada e e-mail enviado com sucesso!' }, [], []));
+  } catch (error) {
+    logger.error('Erro ao resetar senha de usuário (admin)', { error: error.message });
+    return res.status(500).json(envelope(false, {}, ['Erro ao processar reset de senha.']));
   }
 });
 

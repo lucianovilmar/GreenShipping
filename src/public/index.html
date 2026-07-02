@@ -1269,10 +1269,9 @@
           <tr>
             <th>ID</th>
             <th>Nome</th>
-            <th>E-mail</th>
             <th>Perfil</th>
             <th>Status</th>
-            <th style="text-align: center; width: 140px;">Ações</th>
+            <th style="text-align: center; width: 220px;">Ações</th>
           </tr>
         </thead>
         <tbody id="admin-usuarios-body">
@@ -1318,7 +1317,12 @@
           <input type="email" id="usuario-email" placeholder="Ex: lvs@greenshipping.com.br" required style="padding: 10px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 13px; width: 100%; box-sizing: border-box;">
         </div>
 
-        <div style="display: flex; flex-direction: column; gap: 4px;">
+        <div id="usuario-enviar-link-container" style="display: flex; align-items: center; gap: 8px; margin: 4px 0;">
+          <input type="checkbox" id="usuario-enviar-link" onchange="toggleFormPasswordRequired()" style="width: 16px; height: 16px; cursor: pointer;">
+          <label for="usuario-enviar-link" style="font-size: 13px; font-weight: 700; color: #475569; cursor: pointer;">Enviar convite por e-mail para definir senha</label>
+        </div>
+
+        <div id="usuario-senha-container" style="display: flex; flex-direction: column; gap: 4px; transition: all 0.2s;">
           <label style="font-size: 12px; font-weight: 700; color: #475569;">Senha</label>
           <div style="position: relative; width: 100%;">
             <input type="password" id="usuario-senha" placeholder="Senha (6 a 15 caracteres)" style="padding: 10px 40px 10px 10px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 13px; width: 100%; box-sizing: border-box;">
@@ -5483,7 +5487,7 @@ const fallbackValoresPadrao = {
 
     async function carregarUsuariosAdmin() {
       const tbody = document.getElementById('admin-usuarios-body');
-      tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px;"><div class="spinner" style="width: 20px; height: 20px;"></div> Carregando usuários...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 30px;"><div class="spinner" style="width: 20px; height: 20px;"></div> Carregando usuários...</td></tr>';
       
       try {
         const res = await fetch('/api/admin/users');
@@ -5491,7 +5495,7 @@ const fallbackValoresPadrao = {
         if (result.success) {
           tbody.innerHTML = '';
           if (result.data.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px; color: #64748b;">Nenhum usuário cadastrado.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 20px; color: #64748b;">Nenhum usuário cadastrado.</td></tr>';
             return;
           }
           result.data.forEach(user => {
@@ -5499,7 +5503,6 @@ const fallbackValoresPadrao = {
             tr.innerHTML = `
               <td>${user.id}</td>
               <td style="font-weight: 600; color: #1e293b;">${user.nome}</td>
-              <td>${user.email}</td>
               <td><span style="font-size: 12px; padding: 4px 8px; border-radius: 6px; background: #e2e8f0; color: #475569; font-weight: 500;">${user.papelNome || 'Nenhum'}</span></td>
               <td>
                 <span style="font-size: 12px; padding: 4px 8px; border-radius: 6px; font-weight: 600; ${user.ativo ? 'background: #d1fae5; color: #065f46;' : 'background: #fee2e2; color: #991b1b;'}">
@@ -5508,15 +5511,16 @@ const fallbackValoresPadrao = {
               </td>
               <td style="text-align: center;">
                 <button class="btn-action" onclick='abrirModalUsuario(${JSON.stringify(user)})' style="padding: 6px 12px; font-size: 12px; font-weight: 600; border-radius: 6px; border: 1.5px solid #cbd5e1; background: white; cursor: pointer; color: #475569; transition: all 0.2s;">Editar</button>
+                <button class="btn-action" onclick='resetarSenhaUsuario(${user.id}, "${user.nome}")' style="padding: 6px 12px; font-size: 12px; font-weight: 600; border-radius: 6px; border: 1.5px solid #ef4444; background: white; cursor: pointer; color: #ef4444; transition: all 0.2s; margin-left: 6px; width: auto; min-width: auto; height: auto; box-shadow: none;">Reset Senha</button>
               </td>
             `;
             tbody.appendChild(tr);
           });
         } else {
-          tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 20px; color: #ef4444;">Erro: ${result.errors[0]}</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 20px; color: #ef4444;">Erro: ${result.errors[0]}</td></tr>`;
         }
       } catch (err) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px; color: #ef4444;">Erro de conexão com o servidor.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 20px; color: #ef4444;">Erro de conexão com o servidor.</td></tr>';
       }
     }
 
@@ -5526,6 +5530,7 @@ const fallbackValoresPadrao = {
       const modal = document.getElementById('modalUsuario');
       const titulo = document.getElementById('usuario-modal-titulo');
       const errorDiv = document.getElementById('usuario-error');
+      const linkContainer = document.getElementById('usuario-enviar-link-container');
       
       errorDiv.style.display = 'none';
       errorDiv.textContent = '';
@@ -5543,6 +5548,7 @@ const fallbackValoresPadrao = {
         document.getElementById('usuario-senha').placeholder = 'Deixe em branco para manter a atual';
         document.getElementById('usuario-senha').required = false;
         document.getElementById('senha-help-text').style.display = 'block';
+        if (linkContainer) linkContainer.style.display = 'none';
       } else {
         // Modo Novo
         titulo.textContent = '👤 Novo Usuário';
@@ -5550,8 +5556,10 @@ const fallbackValoresPadrao = {
         document.getElementById('usuario-senha').placeholder = 'Senha (6 a 15 caracteres)';
         document.getElementById('usuario-senha').required = true;
         document.getElementById('senha-help-text').style.display = 'none';
+        if (linkContainer) linkContainer.style.display = 'flex';
       }
       
+      toggleFormPasswordRequired();
       modal.classList.add('active');
     }
 
@@ -5568,12 +5576,14 @@ const fallbackValoresPadrao = {
       const senha = document.getElementById('usuario-senha').value;
       const papelId = document.getElementById('usuario-papel').value;
       const ativo = document.getElementById('usuario-ativo').checked;
+      const enviarLinkSenha = document.getElementById('usuario-enviar-link') ? document.getElementById('usuario-enviar-link').checked : false;
       const errorDiv = document.getElementById('usuario-error');
       
       errorDiv.style.display = 'none';
       
       // Validação de senha local
-      if (!id && (!senha || senha.length < 6 || senha.length > 15)) {
+      const validarSenha = !id && !enviarLinkSenha;
+      if (validarSenha && (!senha || senha.length < 6 || senha.length > 15)) {
         errorDiv.textContent = 'A senha deve conter entre 6 e 15 caracteres.';
         errorDiv.style.display = 'block';
         return;
@@ -5585,6 +5595,9 @@ const fallbackValoresPadrao = {
       }
 
       const payload = { nome, email, papelId, ativo };
+      if (!id) {
+        payload.enviarLinkSenha = enviarLinkSenha;
+      }
       if (senha) payload.senha = senha;
       
       const url = id ? `/api/admin/users/${id}` : '/api/admin/users';
@@ -5624,6 +5637,51 @@ const fallbackValoresPadrao = {
         fecharModalUsuario();
       }
     });
+
+    function toggleFormPasswordRequired() {
+      const linkCheckbox = document.getElementById('usuario-enviar-link');
+      const isChecked = linkCheckbox ? linkCheckbox.checked : false;
+      const senhaInput = document.getElementById('usuario-senha');
+      const senhaContainer = document.getElementById('usuario-senha-container');
+      const userId = document.getElementById('usuario-id').value;
+
+      if (!senhaContainer || !senhaInput) return;
+
+      if (isChecked) {
+        senhaContainer.style.opacity = '0.5';
+        senhaContainer.style.pointerEvents = 'none';
+        senhaInput.disabled = true;
+        senhaInput.value = '';
+        senhaInput.required = false;
+      } else {
+        senhaContainer.style.opacity = '1';
+        senhaContainer.style.pointerEvents = 'auto';
+        senhaInput.disabled = false;
+        senhaInput.required = !userId; // Requerido apenas se for novo usuário
+      }
+    }
+
+    async function resetarSenhaUsuario(id, nome) {
+      if (!confirm(`Tem certeza que deseja resetar a senha de "${nome}"? Ele não poderá logar até cadastrar uma nova senha através do e-mail.`)) {
+        return;
+      }
+      
+      try {
+        const res = await fetch(`/api/admin/users/${id}/reset-password`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        const result = await res.json();
+        if (result.success) {
+          alert(`✅ A senha de "${nome}" foi resetada! Um e-mail com o código de redefinição foi enviado para ele.`);
+          carregarUsuariosAdmin();
+        } else {
+          alert(`❌ Erro ao resetar: ${result.errors[0]}`);
+        }
+      } catch (err) {
+        alert('❌ Erro de conexão com o servidor.');
+      }
+    }
 
     function togglePasswordVisibility(inputId, icon) {
       const input = document.getElementById(inputId);
