@@ -152,14 +152,16 @@ app.post('/api/maritimo/put', async (req, res) => {
 
   try {
     const result = await maritimoApiService.sendMaritimoPut(payload);
-    await salvarHistorico('maritimo', payload, 'sucesso', updateId);
+    const usuario = req.user ? req.user.nome : 'Admin';
+    await salvarHistorico('maritimo', payload, 'sucesso', updateId, null, usuario);
     return res.status(result.statusCode || 200).json(envelope(true, result.data || {}, [], []));
   } catch (error) {
     const statusCode = error.response?.status || 500;
     const errorData = error.response?.data || error.message;
 
     logger.error('Falha no PUT Marítimo', { statusCode, error: errorData });
-    await salvarHistorico('maritimo', payload, 'erro', updateId);
+    const usuario = req.user ? req.user.nome : 'Admin';
+    await salvarHistorico('maritimo', payload, 'erro', updateId, null, usuario);
     const errors = [];
     if (errorData && typeof errorData === 'object') {
       if (errorData.message) errors.push(String(errorData.message));
@@ -187,14 +189,16 @@ app.post('/api/aereo/put', async (req, res) => {
 
   try {
     const result = await aereoApiService.sendAereoPut(payload);
-    await salvarHistorico('aereo', payload, 'sucesso', updateId);
+    const usuario = req.user ? req.user.nome : 'Admin';
+    await salvarHistorico('aereo', payload, 'sucesso', updateId, null, usuario);
     return res.status(result.statusCode || 200).json(envelope(true, result.data || {}, [], []));
   } catch (error) {
     const statusCode = error.response?.status || 500;
     const errorData = error.response?.data || error.message;
 
     logger.error('Falha no PUT Aéreo', { statusCode, error: errorData });
-    await salvarHistorico('aereo', payload, 'erro', updateId);
+    const usuario = req.user ? req.user.nome : 'Admin';
+    await salvarHistorico('aereo', payload, 'erro', updateId, null, usuario);
     const errors = [];
     if (errorData && typeof errorData === 'object') {
       if (errorData.message) errors.push(String(errorData.message));
@@ -339,7 +343,8 @@ app.post('/api/processos/manual', async (req, res) => {
       numeroProcesso,
       referenciaCliente
     };
-    await salvarHistorico(tipo, payload, 'registro_manual');
+    const usuario = req.user ? req.user.nome : 'Admin';
+    await salvarHistorico(tipo, payload, 'registro_manual', null, null, usuario);
     return res.json(envelope(true, { message: 'Processo cadastrado manualmente no painel local!' }, [], []));
   } catch (error) {
     logger.error('Erro ao salvar processo manual', { error: error.message });
@@ -402,12 +407,13 @@ app.post('/api/processos/anexos', async (req, res) => {
         if (sizeInBytes > 1024 * 1024) sizeStr = (sizeInBytes / (1024 * 1024)).toFixed(1) + ' MB';
 
         const tipoProcesso = idProcesso && idProcesso.startsWith('aereo-') ? 'aereo' : 'maritimo';
+        const usuario = req.user ? req.user.nome : 'Admin';
         await salvarHistorico(tipoProcesso, {
           referenciaCliente,
           nomeAnexo: nome,
           tamanhoAnexo: sizeStr,
           categoria: response.data.data?.categoriaAnexo || `${categoriaAnexo} - Anexo`
-        }, 'sucesso', null, 'Inclusão de Anexo');
+        }, 'sucesso', null, 'Inclusão de Anexo', usuario);
       } catch (errLog) {
         logger.error('Erro ao salvar log de inclusão de anexo no histórico', { error: errLog.message });
       }
@@ -459,10 +465,11 @@ app.delete('/api/processos/anexos/:id', async (req, res) => {
       // Salvar entrada de log no histórico
       try {
         const tipoProcesso = idProcesso && idProcesso.startsWith('aereo-') ? 'aereo' : 'maritimo';
+        const usuario = req.user ? req.user.nome : 'Admin';
         await salvarHistorico(tipoProcesso, {
           referenciaCliente,
           anexoId: id
-        }, 'sucesso', null, 'Exclusão de Anexo');
+        }, 'sucesso', null, 'Exclusão de Anexo', usuario);
       } catch (errLog) {
         logger.error('Erro ao salvar log de exclusão de anexo no histórico', { error: errLog.message });
       }
@@ -518,10 +525,11 @@ app.post('/api/processos/follow-up', async (req, res) => {
       // Salvar entrada de log no histórico
       try {
         const tipoProcesso = idProcesso && idProcesso.startsWith('aereo-') ? 'aereo' : 'maritimo';
+        const usuario = req.user ? req.user.nome : 'Admin';
         await salvarHistorico(tipoProcesso, {
           referenciaCliente,
           mensagem: descricao
-        }, 'sucesso', null, 'Lançamento de Follow Up');
+        }, 'sucesso', null, 'Lançamento de Follow Up', usuario);
       } catch (errLog) {
         logger.error('Erro ao salvar log de follow-up no histórico', { error: errLog.message });
       }
@@ -655,13 +663,14 @@ app.post('/api/processos/despesas', async (req, res) => {
         else if (parseInt(moeda, 10) === 220) moedaNick = 'USD';
         else if (parseInt(moeda, 10) === 978) moedaNick = 'EUR';
 
+        const usuario = req.user ? req.user.nome : 'Admin';
         await salvarHistorico(tipoProcesso, {
           referenciaCliente,
           categoriaId,
           categoriaNome: categoriaNome || `Categoria ${categoriaId}`,
           valor: parseFloat(valor),
           moeda: moedaNick
-        }, 'sucesso', null, 'Lançamento de Despesa');
+        }, 'sucesso', null, 'Lançamento de Despesa', usuario);
       } catch (errLog) {
         logger.error('Erro ao salvar log de despesa no histórico', { error: errLog.message });
       }
@@ -1083,7 +1092,12 @@ app.post('/api/auth/login', async (req, res) => {
   try {
     const userRes = await db.query(
       `SELECT id, nome, email, senha, ativo, papel_id, tentativas_erradas, bloqueado_ate, bloqueios_consecutivos 
-       FROM usuarios WHERE LOWER(email) = LOWER($1) LIMIT 1`,
+       FROM usuarios 
+       WHERE LOWER(email) = LOWER($1) 
+          OR LOWER(nome) = LOWER($1) 
+          OR LOWER(SPLIT_PART(nome, ' ', 1)) = LOWER($1)
+          OR (LOWER(nome) = 'administrador' AND LOWER($1) = 'admin') 
+       LIMIT 1`,
       [email.trim()]
     );
 
