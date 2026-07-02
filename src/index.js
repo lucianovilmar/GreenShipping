@@ -6,12 +6,52 @@ const logger = require('./config/logger');
 const maritimoApiService = require('./services/maritimoApiService');
 const aereoApiService = require('./services/aereoApiService');
 const db = require('./config/db');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+const nodemailer = require('nodemailer');
 
 const app = express();
 const port = parseInt(process.env.PORT, 10) || 3000;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+const JWT_SECRET = process.env.JWT_SECRET || 'green-shipping-super-secret-key';
+
+// Middleware de Autenticação JWT para API
+function authMiddleware(req, res, next) {
+  if (req.path.startsWith('/auth/')) {
+    return next();
+  }
+  
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  
+  if (!token) {
+    return res.status(401).json({
+      success: false,
+      data: {},
+      errors: ['Acesso negado. Token não fornecido.'],
+      warnings: []
+    });
+  }
+  
+  try {
+    const verified = jwt.verify(token, JWT_SECRET);
+    req.user = verified;
+    next();
+  } catch (err) {
+    return res.status(401).json({
+      success: false,
+      data: {},
+      errors: ['Token inválido ou expirado.'],
+      warnings: []
+    });
+  }
+}
+
+app.use('/api', authMiddleware);
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Helper: formata resposta conforme especificação DA TI
@@ -983,6 +1023,285 @@ app.get('/api/config-info', (req, res) => {
   } catch (error) {
     logger.error('Erro ao ler putApiConfig', { error: error.message });
     return res.status(500).json(envelope(false, {}, [String(error.message)]));
+  }
+});
+
+// =======================
+// AUTHENTICATION ENDPOINTS
+// =======================
+
+async function enviarEmail(destinatario, assunto, textoHtml, textoSimples) {
+  const host = process.env.SMTP_HOST;
+  const port = parseInt(process.env.SMTP_PORT, 10);
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASS;
+
+  if (!host || !user || !pass) {
+    logger.warn('Envio de e-mail simulado (dados de SMTP ausentes no .env)', { destinatario, assunto });
+    console.log('\n--- SIMULADOR DE E-MAIL ---');
+    console.log(`Para: ${destinatario}`);
+    console.log(`Assunto: ${assunto}`);
+    console.log(`Mensagem:\n${textoSimples}`);
+    console.log('---------------------------\n');
+    return true;
+  }
+
+  try {
+    const transporter = nodemailer.createTransport({
+      host,
+      port,
+      secure: port === 465,
+      auth: {
+        user,
+        pass
+      }
+    });
+
+    await transporter.sendMail({
+      from: `"Green Shipping" <${user}>`,
+      to: destinatario,
+      subject: assunto,
+      text: textoSimples,
+      html: textoHtml
+    });
+    
+    logger.info('E-mail enviado com sucesso', { destinatario, assunto });
+    return true;
+  } catch (err) {
+    logger.error('Erro ao enviar e-mail', { error: err.message, destinatario });
+    return false;
+  }
+}
+
+// 1. Rota de Login
+app.post('/api/auth/login', async (req, res) => {
+  const { email, senha } = req.body;
+  if (!email || !senha) {
+    return res.status(400).json(envelope(false, {}, ['E-mail e senha são obrigatórios.']));
+  }
+
+  try {
+    const userRes = await db.query(
+      `SELECT id, nome, email, senha, ativo, papel_id, tentativas_erradas, bloqueado_ate, bloqueios_consecutivos 
+       FROM usuarios WHERE LOWER(email) = LOWER($1) LIMIT 1`,
+      [email.trim()]
+    );
+
+    if (userRes.rows.length === 0) {
+      return res.status(401).json(envelope(false, {}, ['E-mail ou senha incorretos.']));
+    }
+
+    const user = userRes.rows[0];
+
+    if (!user.ativo) {
+      return res.status(403).json(envelope(false, {}, ['Esta conta está inativa. Contate o suporte.']));
+    }
+
+    // Verificar bloqueio ativo
+    if (user.bloqueado_ate) {
+      const lockDate = new Date(user.bloqueado_ate);
+      const now = new Date();
+      if (lockDate > now) {
+        const diff = lockDate - now;
+        const minutos = Math.ceil(diff / (60 * 1000));
+        return res.status(403).json(envelope(false, {}, [`Sua conta está bloqueada devido a tentativas incorretas. Tente novamente em ${minutos} minuto(s).`]));
+      }
+    }
+
+    // Verificar senha
+    const isSenhaValida = bcrypt.compareSync(senha, user.senha);
+
+    if (!isSenhaValida) {
+      const novasTentativas = user.tentativas_erradas + 1;
+      
+      if (novasTentativas >= 3) {
+        const novosBloqueios = user.bloqueios_consecutivos + 1;
+        const minutosBloqueio = 3 * Math.pow(3, novosBloqueios - 1);
+        const bloqueadoAte = new Date(Date.now() + minutosBloqueio * 60 * 1000);
+
+        await db.query(
+          `UPDATE usuarios 
+           SET tentativas_erradas = 0, bloqueado_ate = $1, bloqueios_consecutivos = $2 
+           WHERE id = $3`,
+          [bloqueadoAte, novosBloqueios, user.id]
+        );
+
+        // Disparar e-mail de alerta
+        const subject = 'Alerta de Segurança - Tentativas de Acesso Excessivas';
+        const textHtml = `
+          <div style="font-family: sans-serif; padding: 20px; color: #334155; line-height: 1.6;">
+            <h2 style="color: #ef4444; margin-top: 0;">Alerta de Segurança</h2>
+            <p>Olá, <strong>${user.nome}</strong>.</p>
+            <p>Detectamos <strong>3 tentativas consecutivas de login incorretas</strong> na sua conta em <strong>${new Date().toLocaleString('pt-BR')}</strong>.</p>
+            <p>Por medida de segurança, sua conta foi temporariamente bloqueada por <strong>${minutosBloqueio} minutos</strong>.</p>
+            <p>Se você esqueceu sua senha, você pode usar a opção de redefinição de senha no site.</p>
+            <p style="font-size: 13px; color: #64748b; margin-top: 30px; border-top: 1px solid #e2e8f0; padding-top: 15px;">Se você não reconhece estas tentativas, por favor entre em contato com o administrador imediatamente.</p>
+          </div>
+        `;
+        const textSimple = `Olá, ${user.nome}.\n\nDetectamos 3 tentativas consecutivas de login incorretas na sua conta em ${new Date().toLocaleString('pt-BR')}.\n\nPor medida de segurança, sua conta foi temporariamente bloqueada por ${minutosBloqueio} minutos.\n\nSe você não reconhece estas tentativas, por favor entre em contato com o administrador imediatamente.`;
+        
+        enviarEmail(user.email, subject, textHtml, textSimple);
+
+        return res.status(403).json(envelope(false, {}, [`Sua conta foi bloqueada por ${minutosBloqueio} minutos devido a 3 erros seguidos.`]));
+      } else {
+        await db.query(
+          `UPDATE usuarios SET tentativas_erradas = $1 WHERE id = $2`,
+          [novasTentativas, user.id]
+        );
+        return res.status(401).json(envelope(false, {}, [`E-mail ou senha incorretos. Tentativa ${novasTentativas} de 3 antes do bloqueio.`]));
+      }
+    }
+
+    // Login com sucesso, zerar bloqueios
+    await db.query(
+      `UPDATE usuarios 
+       SET tentativas_erradas = 0, bloqueado_ate = NULL, bloqueios_consecutivos = 0 
+       WHERE id = $1`,
+      [user.id]
+    );
+
+    const token = jwt.sign(
+      { id: user.id, nome: user.nome, email: user.email, papelId: user.papel_id },
+      JWT_SECRET,
+      { expiresIn: '12h' }
+    );
+
+    return res.json(envelope(true, {
+      token,
+      user: {
+        id: user.id,
+        nome: user.nome,
+        email: user.email,
+        papelId: user.papel_id
+      }
+    }, [], []));
+
+  } catch (error) {
+    logger.error('Erro na rota de login', { error: error.message });
+    return res.status(500).json(envelope(false, {}, ['Erro ao processar login.']));
+  }
+});
+
+// 2. Rota de Esqueci a Senha (Forgot Password)
+app.post('/api/auth/forgot-password', async (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    return res.status(400).json(envelope(false, {}, ['E-mail é obrigatório.']));
+  }
+
+  try {
+    const userRes = await db.query(
+      `SELECT id, nome, email, ativo FROM usuarios WHERE LOWER(email) = LOWER($1) LIMIT 1`,
+      [email.trim()]
+    );
+
+    // Proteção de Enumeração de Usuários (sempre retornar sucesso, mas enviar e-mail somente se existir)
+    if (userRes.rows.length === 0 || !userRes.rows[0].ativo) {
+      return res.json(envelope(true, { message: 'Se o e-mail estiver cadastrado, um código foi enviado para recuperação.' }, [], []));
+    }
+
+    const user = userRes.rows[0];
+    const codigo = Math.floor(100000 + Math.random() * 900000).toString(); // Código numérico de 6 dígitos
+    const expiraEm = new Date(Date.now() + 15 * 60 * 1000); // Expira em 15 minutos
+
+    await db.query(
+      `INSERT INTO recuperacao_senha (email, codigo, expira_em) VALUES ($1, $2, $3)`,
+      [user.email, codigo, expiraEm]
+    );
+
+    const subject = 'Código de Recuperação de Senha - Green Shipping';
+    const textHtml = `
+      <div style="font-family: sans-serif; padding: 20px; color: #334155; line-height: 1.6;">
+        <h2 style="color: #6366f1; margin-top: 0;">Recuperação de Senha</h2>
+        <p>Olá, <strong>${user.nome}</strong>.</p>
+        <p>Recebemos uma solicitação para redefinir a senha da sua conta no Green Shipping.</p>
+        <p>Use o código de verificação de 6 dígitos abaixo para prosseguir com a redefinição (este código expira em 15 minutos):</p>
+        <div style="font-size: 32px; font-weight: bold; color: #1e1b4b; background: #e0e7ff; padding: 15px; border-radius: 8px; text-align: center; letter-spacing: 5px; margin: 20px 0; max-width: 250px; border: 1px solid #c7d2fe;">
+          ${codigo}
+        </div>
+        <p>Se você não solicitou esta alteração, por favor ignore este e-mail.</p>
+      </div>
+    `;
+    const textSimple = `Olá, ${user.nome}.\n\nRecebemos uma solicitação para redefinir a senha da sua conta no Green Shipping.\n\nUse o código de verificação de 6 dígitos abaixo para redefinir sua senha (válido por 15 minutos):\n\n${codigo}\n\nSe você não solicitou esta alteração, por favor ignore este e-mail.`;
+
+    await enviarEmail(user.email, subject, textHtml, textSimple);
+
+    return res.json(envelope(true, { message: 'Código de recuperação enviado por e-mail com sucesso.' }, [], []));
+
+  } catch (error) {
+    logger.error('Erro na rota de recuperar senha', { error: error.message });
+    return res.status(500).json(envelope(false, {}, ['Erro ao solicitar recuperação de senha.']));
+  }
+});
+
+// 3. Rota de Redefinir a Senha (Reset Password)
+app.post('/api/auth/reset-password', async (req, res) => {
+  const { email, codigo, novaSenha } = req.body;
+  if (!email || !codigo || !novaSenha) {
+    return res.status(400).json(envelope(false, {}, ['Campos obrigatórios: email, codigo, novaSenha.']));
+  }
+
+  const senhaLimpa = String(novaSenha).trim();
+  if (senhaLimpa.length < 6 || senhaLimpa.length > 15) {
+    return res.status(400).json(envelope(false, {}, ['A senha deve conter de 6 a 15 caracteres.']));
+  }
+
+  try {
+    const codeRes = await db.query(
+      `SELECT id, expira_em, usado FROM recuperacao_senha 
+       WHERE LOWER(email) = LOWER($1) AND codigo = $2 AND usado = FALSE 
+       ORDER BY created_at DESC LIMIT 1`,
+      [email.trim(), codigo.trim()]
+    );
+
+    if (codeRes.rows.length === 0) {
+      return res.status(400).json(envelope(false, {}, ['Código de verificação inválido ou inexistente.']));
+    }
+
+    const codeRec = codeRes.rows[0];
+    if (new Date(codeRec.expira_em) < new Date()) {
+      return res.status(400).json(envelope(false, {}, ['Este código de verificação já expirou.']));
+    }
+
+    // Marcar código como usado
+    await db.query(
+      `UPDATE recuperacao_senha SET usado = TRUE WHERE id = $1`,
+      [codeRec.id]
+    );
+
+    // Hash da nova senha
+    const hash = bcrypt.hashSync(senhaLimpa, 10);
+
+    // Atualizar senha do usuário AND zerar todos os bloqueios e tentativas consecutivas
+    await db.query(
+      `UPDATE usuarios 
+       SET senha = $1, tentativas_erradas = 0, bloqueado_ate = NULL, bloqueios_consecutivos = 0 
+       WHERE LOWER(email) = LOWER($2)`,
+      [hash, email.trim()]
+    );
+
+    return res.json(envelope(true, { message: 'Senha redefinida com sucesso! Bloqueio de conta removido.' }, [], []));
+
+  } catch (error) {
+    logger.error('Erro na rota de redefinir senha', { error: error.message });
+    return res.status(500).json(envelope(false, {}, ['Erro ao redefinir a senha.']));
+  }
+});
+
+// 4. Validação rápida de token
+app.get('/api/auth/validate-token', (req, res) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  
+  if (!token) {
+    return res.status(401).json(envelope(false, {}, ['Token não fornecido.']));
+  }
+  
+  try {
+    const verified = jwt.verify(token, JWT_SECRET);
+    return res.json(envelope(true, { user: verified }, [], []));
+  } catch (err) {
+    return res.status(401).json(envelope(false, {}, ['Token inválido ou expirado.']));
   }
 });
 

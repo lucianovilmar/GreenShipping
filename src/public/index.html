@@ -435,9 +435,283 @@
       display: flex; gap: 6px; justify-content: center; align-items: center;
       flex-wrap: wrap;
     }
+
+    /* Estilos Premium de Login */
+    #login-wrapper {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(135deg, #1b3d36 0%, #0d1e1a 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      padding: 20px;
+      backdrop-filter: blur(10px);
+      transition: all 0.5s ease;
+    }
+    #login-wrapper.hidden {
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(1.05);
+    }
+    .login-card {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 20px;
+      padding: 40px 32px;
+      width: 100%;
+      max-width: 440px;
+      box-shadow: 0 30px 70px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(20px);
+      color: white;
+      text-align: center;
+      animation: cardEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    @keyframes cardEntrance {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .login-header {
+      margin-bottom: 30px;
+    }
+    .login-logo {
+      max-height: 50px;
+      margin-bottom: 20px;
+      filter: drop-shadow(0 2px 8px rgba(255, 255, 255, 0.15));
+    }
+    .login-header h2 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #55ffd2;
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+    .login-header p {
+      font-size: 13px;
+      color: #9cdac8;
+      opacity: 0.85;
+    }
+    .auth-view {
+      display: none;
+      text-align: left;
+    }
+    .auth-view.active {
+      display: block;
+      animation: viewFade 0.4s ease;
+    }
+    @keyframes viewFade {
+      from { opacity: 0; transform: scale(0.98); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .auth-group {
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .auth-group label {
+      color: #9cdac8;
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .auth-group input {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      padding: 14px;
+      border-radius: 10px;
+      font-size: 14px;
+      transition: all 0.3s ease;
+    }
+    .auth-group input:focus {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: #55ffd2;
+      box-shadow: 0 0 0 3px rgba(85, 255, 210, 0.15);
+      color: white;
+    }
+    .auth-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 24px;
+    }
+    .forgot-link {
+      font-size: 13px;
+      color: #9cdac8;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .forgot-link:hover {
+      color: #55ffd2;
+      text-decoration: underline;
+    }
+    .auth-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #38c8a6 0%, #22997d 100%);
+      color: white;
+      border: none;
+      box-shadow: 0 8px 24px rgba(34, 153, 125, 0.3);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .auth-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(34, 153, 125, 0.45);
+    }
+    .btn-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 10px;
+    }
+    .btn-row .btn-reset {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #9cdac8;
+      border-radius: 10px;
+      font-weight: 600;
+      padding: 12px;
+    }
+    .btn-row .btn-reset:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+    }
+    .btn-row .auth-btn {
+      flex: 2;
+    }
+    .auth-error {
+      background: rgba(239, 68, 68, 0.15);
+      border-left: 4px solid #ef4444;
+      color: #fca5a5;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      margin-bottom: 20px;
+      display: none;
+      animation: shake 0.3s ease;
+    }
+    .auth-success {
+      background: rgba(16, 185, 129, 0.15);
+      border-left: 4px solid #10b981;
+      color: #a7f3d0;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      margin-bottom: 20px;
+      display: none;
+    }
+    .auth-desc {
+      font-size: 13px;
+      color: #cbd5e1;
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      75% { transform: translateX(6px); }
+    }
+    /* Estilo para Botão de Sair no Menu do Site */
+    .btn-logout {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      color: #fca5a5;
+      padding: 12px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+      margin-top: auto;
+      border: none;
+      width: 100%;
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.5px;
+    }
+    .btn-logout:hover {
+      background: #ef4444;
+      color: white;
+      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+    }
   </style>
 </head>
 <body>
+  <!-- Tela de Login Glassmorphic -->
+  <div id="login-wrapper">
+    <div class="login-card">
+      <div class="login-header">
+        <h2 style="font-size: 26px; color: #55ffd2; font-weight: 800; margin-bottom: 5px;">GREEN SHIPPING</h2>
+        <p style="color: #9cdac8; font-size: 13px;">Painel de Integração API Dati</p>
+      </div>
+      
+      <!-- View 1: Login -->
+      <div id="view-login" class="auth-view active">
+        <form id="form-login" onsubmit="handleLoginSubmit(event)">
+          <div class="auth-group">
+            <label>E-mail Corporativo</label>
+            <input type="email" id="login-email" placeholder="nome@greenshipping.com.br" required>
+          </div>
+          <div class="auth-group">
+            <label>Senha de Acesso</label>
+            <input type="password" id="login-senha" placeholder="Sua senha" required>
+          </div>
+          <div class="auth-actions">
+            <a href="#" onclick="switchAuthView('forgot')" class="forgot-link">Esqueceu sua senha?</a>
+          </div>
+          <div id="login-error" class="auth-error"></div>
+          <button type="submit" class="auth-btn">Entrar</button>
+        </form>
+      </div>
+      
+      <!-- View 2: Esqueci a Senha -->
+      <div id="view-forgot" class="auth-view">
+        <p class="auth-desc">Informe seu e-mail cadastrado. Enviaremos um código de verificação de 6 dígitos para você redefinir sua senha.</p>
+        <form id="form-forgot" onsubmit="handleForgotSubmit(event)">
+          <div class="auth-group">
+            <label>E-mail Corporativo</label>
+            <input type="email" id="forgot-email" placeholder="nome@greenshipping.com.br" required>
+          </div>
+          <div id="forgot-error" class="auth-error"></div>
+          <div id="forgot-success" class="auth-success"></div>
+          <div class="btn-row">
+            <button type="button" onclick="switchAuthView('login')" class="btn-reset">Voltar</button>
+            <button type="submit" class="auth-btn">Enviar Código</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- View 3: Redefinir Senha -->
+      <div id="view-reset" class="auth-view">
+        <p class="auth-desc">Um código de 6 dígitos foi enviado para o seu e-mail. Digite o código e escolha sua nova senha (entre 6 e 15 caracteres).</p>
+        <form id="form-reset" onsubmit="handleResetSubmit(event)">
+          <div class="auth-group">
+            <label>Código de Verificação</label>
+            <input type="text" id="reset-codigo" placeholder="Digite os 6 dígitos" maxlength="6" required>
+          </div>
+          <div class="auth-group">
+            <label>Nova Senha</label>
+            <input type="password" id="reset-senha" placeholder="Nova senha (6 a 15 caracteres)" required>
+          </div>
+          <div id="reset-error" class="auth-error"></div>
+          <div id="reset-success" class="auth-success"></div>
+          <div class="btn-row">
+            <button type="button" onclick="switchAuthView('forgot')" class="btn-reset">Voltar</button>
+            <button type="submit" class="auth-btn">Redefinir Senha</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <div class="container">
     <div class="header">
       <h1>🚢 ✈️ Integração Dati</h1>
@@ -457,6 +731,10 @@
         <button class="sidebar-menu-btn" id="btn-processos-menu" onclick="switchMainMenu('processos')">
           <span>⚙️</span>
           Gestão de Processos
+        </button>
+        <button class="btn-logout" id="btn-logout-menu" onclick="logoutUser()">
+          <span>🚪</span>
+          Sair do Painel
         </button>
       </aside>
 
@@ -3293,6 +3571,193 @@ const fallbackValoresPadrao = {
   ]
 };
 
+    // Interceptar requisições fetch para adicionar token de autenticação
+    const originalFetch = window.fetch;
+    window.fetch = async function(resource, config = {}) {
+      const token = localStorage.getItem('green_shipping_token');
+      if (token) {
+        config.headers = {
+          ...config.headers,
+          'Authorization': `Bearer ${token}`
+        };
+      }
+      const response = await originalFetch(resource, config);
+      // Se der 401 não autorizado de qualquer API, força logout
+      if (response.status === 401 && !resource.toString().includes('/api/auth/')) {
+        logoutUser();
+      }
+      return response;
+    };
+
+    function switchAuthView(viewName) {
+      document.querySelectorAll('.auth-view').forEach(v => v.classList.remove('active'));
+      document.querySelectorAll('.auth-error').forEach(e => { e.style.display = 'none'; e.textContent = ''; });
+      document.querySelectorAll('.auth-success').forEach(s => { s.style.display = 'none'; s.textContent = ''; });
+      document.getElementById(`view-${viewName}`).classList.add('active');
+    }
+
+    async function handleLoginSubmit(event) {
+      event.preventDefault();
+      const email = document.getElementById('login-email').value;
+      const senha = document.getElementById('login-senha').value;
+      const errorDiv = document.getElementById('login-error');
+      const submitBtn = event.target.querySelector('button');
+      
+      errorDiv.style.display = 'none';
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Carregando...';
+      
+      try {
+        const res = await originalFetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, senha })
+        });
+        
+        const result = await res.json();
+        if (result.success && result.data && result.data.token) {
+          localStorage.setItem('green_shipping_token', result.data.token);
+          localStorage.setItem('green_shipping_user', JSON.stringify(result.data.user));
+          
+          document.getElementById('login-wrapper').classList.add('hidden');
+          await carregarValoresPadrao();
+          await carregarConfigInfo();
+        } else {
+          errorDiv.textContent = result.errors ? result.errors[0] : 'Falha na autenticação.';
+          errorDiv.style.display = 'block';
+        }
+      } catch (err) {
+        errorDiv.textContent = 'Erro de conexão com o servidor.';
+        errorDiv.style.display = 'block';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Entrar';
+      }
+    }
+
+    async function handleForgotSubmit(event) {
+      event.preventDefault();
+      const email = document.getElementById('forgot-email').value;
+      const errorDiv = document.getElementById('forgot-error');
+      const successDiv = document.getElementById('forgot-success');
+      const submitBtn = event.target.querySelector('button[type="submit"]');
+      
+      errorDiv.style.display = 'none';
+      successDiv.style.display = 'none';
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Enviando...';
+      
+      try {
+        const res = await originalFetch('/api/auth/forgot-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        
+        const result = await res.json();
+        if (result.success) {
+          successDiv.textContent = 'Código enviado! Redirecionando...';
+          successDiv.style.display = 'block';
+          
+          setTimeout(() => {
+            switchAuthView('reset');
+          }, 1500);
+        } else {
+          errorDiv.textContent = result.errors ? result.errors[0] : 'Erro ao enviar código.';
+          errorDiv.style.display = 'block';
+        }
+      } catch (err) {
+        errorDiv.textContent = 'Erro de conexão.';
+        errorDiv.style.display = 'block';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Enviar Código';
+      }
+    }
+
+    async function handleResetSubmit(event) {
+      event.preventDefault();
+      const email = document.getElementById('forgot-email').value || document.getElementById('login-email').value;
+      const codigo = document.getElementById('reset-codigo').value;
+      const novaSenha = document.getElementById('reset-senha').value;
+      const errorDiv = document.getElementById('reset-error');
+      const successDiv = document.getElementById('reset-success');
+      const submitBtn = event.target.querySelector('button[type="submit"]');
+      
+      if (!email) {
+        errorDiv.textContent = 'E-mail não identificado. Volte e digite seu e-mail novamente.';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      errorDiv.style.display = 'none';
+      successDiv.style.display = 'none';
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Redefinindo...';
+      
+      try {
+        const res = await originalFetch('/api/auth/reset-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, codigo, novaSenha })
+        });
+        
+        const result = await res.json();
+        if (result.success) {
+          successDiv.textContent = 'Senha alterada com sucesso! Redirecionando para login...';
+          successDiv.style.display = 'block';
+          
+          setTimeout(() => {
+            switchAuthView('login');
+            document.getElementById('reset-codigo').value = '';
+            document.getElementById('reset-senha').value = '';
+          }, 2000);
+        } else {
+          errorDiv.textContent = result.errors ? result.errors[0] : 'Erro ao redefinir senha.';
+          errorDiv.style.display = 'block';
+        }
+      } catch (err) {
+        errorDiv.textContent = 'Erro de conexão.';
+        errorDiv.style.display = 'block';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Redefinir Senha';
+      }
+    }
+
+    function logoutUser() {
+      localStorage.removeItem('green_shipping_token');
+      localStorage.removeItem('green_shipping_user');
+      document.getElementById('login-wrapper').classList.remove('hidden');
+      switchAuthView('login');
+      document.getElementById('login-senha').value = '';
+    }
+
+    async function verificarSessaoInicial() {
+      const token = localStorage.getItem('green_shipping_token');
+      if (!token) {
+        logoutUser();
+        return;
+      }
+      
+      try {
+        const res = await originalFetch('/api/auth/validate-token', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const result = await res.json();
+        
+        if (result.success) {
+          document.getElementById('login-wrapper').classList.add('hidden');
+          await carregarValoresPadrao();
+          await carregarConfigInfo();
+        } else {
+          logoutUser();
+        }
+      } catch (err) {
+        console.warn('Erro ao validar sessão, mantendo estado:', err);
+      }
+    }
+
     let configInfo = {
       url: '{{url}}',
       token: '{{token}}',
@@ -3330,9 +3795,8 @@ const fallbackValoresPadrao = {
       recriarItensIniciais();
     }
 
-    // Dispara a carga das tabelas e renderização inicial
-    carregarValoresPadrao();
-    carregarConfigInfo();
+    // Inicialização do aplicativo verificando a sessão
+    verificarSessaoInicial();
 
     // Auxiliar para formatar datas com hora do input datetime-local para o formato da API (AAAA-MM-DD HH:MM)
     function formatToApiDateTime(val) {
