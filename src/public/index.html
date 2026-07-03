@@ -1267,10 +1267,10 @@
       <table class="data-table">
         <thead>
           <tr>
-            <th style="width: 50px;">ID</th>
+            <th style="width: 50px; text-align: center;">ID</th>
             <th style="width: 250px;">Nome</th>
-            <th style="width: 150px;">Perfil</th>
-            <th style="width: 100px;">Status</th>
+            <th style="width: 150px; text-align: center;">Perfil</th>
+            <th style="width: 100px; text-align: center;">Status</th>
             <th style="text-align: center; width: 220px;">Ações</th>
           </tr>
         </thead>
@@ -5516,10 +5516,10 @@ const fallbackValoresPadrao = {
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
-              <td>${user.id}</td>
+              <td style="text-align: center;">${user.id}</td>
               <td style="font-weight: 600; color: #1e293b; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${user.nome}</td>
-              <td><span style="font-size: 12px; padding: 4px 8px; border-radius: 6px; background: #e2e8f0; color: #475569; font-weight: 500;">${user.papelNome || 'Nenhum'}</span></td>
-              <td>
+              <td style="text-align: center;"><span style="font-size: 12px; padding: 4px 8px; border-radius: 6px; background: #e2e8f0; color: #475569; font-weight: 500;">${user.papelNome || 'Nenhum'}</span></td>
+              <td style="text-align: center;">
                 <span style="font-size: 12px; padding: 4px 8px; border-radius: 6px; font-weight: 600; ${user.ativo ? 'background: #d1fae5; color: #065f46;' : 'background: #fee2e2; color: #991b1b;'}">
                   ${user.ativo ? 'Ativo' : 'Inativo'}
                 </span>
