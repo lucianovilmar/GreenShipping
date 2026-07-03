@@ -1410,12 +1410,13 @@
               <th>Data Upload</th>
               <th>Nome do Arquivo</th>
               <th>Categoria</th>
+              <th style="text-align: center; width: 100px;">Usuário</th>
               <th style="text-align: center; width: 80px;">Ação</th>
             </tr>
           </thead>
           <tbody id="lista-anexos-body">
             <tr>
-              <td colspan="4" style="text-align: center; color: #94a3b8; padding: 15px;">Nenhum anexo enviado.</td>
+              <td colspan="5" style="text-align: center; color: #94a3b8; padding: 15px;">Nenhum anexo enviado.</td>
             </tr>
           </tbody>
         </table>
@@ -4443,7 +4444,7 @@ const fallbackValoresPadrao = {
 
       const anexos = item?.anexos || [];
       if (anexos.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #94a3b8; padding: 15px;">Nenhum anexo enviado.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #94a3b8; padding: 15px;">Nenhum anexo enviado.</td></tr>';
         return;
       }
 
@@ -4453,6 +4454,7 @@ const fallbackValoresPadrao = {
           <td>${formatarDataLocal(anexo.dataUpload)}</td>
           <td style="font-weight: 500;">${anexo.nome}</td>
           <td>${anexo.categoriaNome || anexo.categoriaAnexo}</td>
+          <td style="text-align: center; font-size: 12px; color: #475569;">${anexo.usuario || 'Sistema'}</td>
           <td style="text-align: center;">
             <button type="button" class="btn-reset" onclick="deletarAnexo('${anexo.id}', '${idProcesso}', '${referenciaCliente}')" style="background: #ffebee; color: #c62828; border: 1px solid #ef5350; padding: 3px 8px; font-size: 11px; min-width: auto; margin: 0;">Excluir</button>
           </td>
@@ -4584,7 +4586,7 @@ const fallbackValoresPadrao = {
         card.innerHTML = `
           <div style="display: flex; justify-content: space-between; font-size: 11px; color: #64748b; margin-bottom: 6px;">
             <span>🕒 ${formatarDataLocal(f.data)}</span>
-            <span style="color: #8b5cf6; font-weight: 600;">Registrado</span>
+            <span style="color: #8b5cf6; font-weight: 600;">Por: ${f.usuario || 'Sistema'}</span>
           </div>
           <div style="font-size: 13px; color: #334155; white-space: pre-wrap; font-weight: 500;">${f.descricao}</div>
         `;

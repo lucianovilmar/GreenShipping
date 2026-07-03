@@ -280,17 +280,19 @@ app.get('/api/processos/unificados', async (req, res) => {
         COALESCE((
           SELECT json_agg(json_build_object(
             'id', a.id,
-            'nomeAnexo', a.nome,
+            'nome', a.nome,
             'categoria', a.categoria_anexo,
             'categoriaNome', a.categoria_nome,
-            'dataUpload', TO_CHAR(a.data_upload, 'YYYY-MM-DD HH24:MI:SS')
+            'dataUpload', TO_CHAR(a.data_upload, 'YYYY-MM-DD HH24:MI:SS'),
+            'usuario', a.usuario
           )) FROM anexos a WHERE a.processo_id = p.id
         ), '[]'::json) as "anexosList",
         COALESCE((
           SELECT json_agg(json_build_object(
             'id', f.id,
-            'mensagem', f.descricao,
-            'data', TO_CHAR(f.data_cadastro, 'YYYY-MM-DD HH24:MI:SS')
+            'descricao', f.descricao,
+            'data', TO_CHAR(f.data_cadastro, 'YYYY-MM-DD HH24:MI:SS'),
+            'usuario', f.usuario
           )) FROM follow_ups f WHERE f.processo_id = p.id
         ), '[]'::json) as "followUpsList",
         COALESCE((
@@ -390,21 +392,24 @@ app.post('/api/processos/anexos', async (req, res) => {
       
       // Salvar no banco relacional
       try {
+        const usuario = req.user ? req.user.nome : 'Admin';
         await db.query(
-          `INSERT INTO anexos (id, processo_id, nome, categoria_anexo, categoria_nome, data_upload)
-           VALUES ($1, (SELECT id FROM processos WHERE referencia_cliente = $2 LIMIT 1), $3, $4, $5, $6)
+          `INSERT INTO anexos (id, processo_id, nome, categoria_anexo, categoria_nome, data_upload, usuario)
+           VALUES ($1, (SELECT id FROM processos WHERE referencia_cliente = $2 LIMIT 1), $3, $4, $5, $6, $7)
            ON CONFLICT (id) DO UPDATE SET
              nome = EXCLUDED.nome,
              categoria_anexo = EXCLUDED.categoria_anexo,
              categoria_nome = EXCLUDED.categoria_nome,
-             data_upload = EXCLUDED.data_upload`,
+             data_upload = EXCLUDED.data_upload,
+             usuario = EXCLUDED.usuario`,
           [
             String(codigoAnexo),
             referenciaCliente,
             nome,
             categoriaAnexo,
             response.data.data?.categoriaAnexo || `${categoriaAnexo} - Anexo`,
-            new Date()
+            new Date(),
+            usuario
           ]
         );
       } catch (errDb) {
@@ -525,10 +530,11 @@ app.post('/api/processos/follow-up', async (req, res) => {
     if (response.data && response.data.success !== false) {
       // Salvar no banco relacional
       try {
+        const usuario = req.user ? req.user.nome : 'Admin';
         await db.query(
-          `INSERT INTO follow_ups (processo_id, descricao, data_cadastro)
-           VALUES ((SELECT id FROM processos WHERE referencia_cliente = $1 LIMIT 1), $2, $3)`,
-          [referenciaCliente, descricao, new Date()]
+          `INSERT INTO follow_ups (processo_id, descricao, data_cadastro, usuario)
+           VALUES ((SELECT id FROM processos WHERE referencia_cliente = $1 LIMIT 1), $2, $3, $4)`,
+          [referenciaCliente, descricao, new Date(), usuario]
         );
       } catch (errDb) {
         logger.error('Erro ao salvar follow-up no banco de dados', { error: errDb.message });
