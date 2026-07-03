@@ -301,7 +301,9 @@ app.get('/api/processos/unificados', async (req, res) => {
             'valor', d.valor,
             'moeda', d.moeda,
             'dataCadastro', TO_CHAR(d.data_cadastro, 'YYYY-MM-DD HH24:MI:SS'),
-            'usuario', d.usuario
+            'usuario', d.usuario,
+            'datiIntegrado', d.dati_integrado,
+            'datiErro', d.dati_erro
           )) FROM despesas d WHERE d.processo_id = p.id
         ), '[]'::json) as "despesasList"
       FROM processos p
@@ -627,107 +629,82 @@ app.post('/api/processos/despesas', async (req, res) => {
     };
     
     logger.info('Cadastrando despesa na Dati', { referenciaCliente, categoriaId, valor, moeda });
-    let success = false;
     let datiResponse = null;
-    let errors = [];
+    let datiIntegrado = true;
+    let datiErroMsg = null;
     
     try {
       const response = await putApiClient.post(endpoint, datiPayload);
       datiResponse = response.data;
-      success = Array.isArray(response.data) || (response.data && response.data.success !== false);
+      const success = Array.isArray(response.data) || (response.data && response.data.success !== false);
       if (!success) {
-        errors = response.data?.errors || [response.data?.message || 'Erro ao cadastrar despesa'];
-        
-        // Se retornar erro de PHP em ambiente de testes da Dati Sandbox, também simulamos sucesso local
-        const errorMsg = errors.join(' ');
-        const isPhpCrash = errorMsg.includes('Trying to access array offset') || errorMsg.includes('offset on value of type null');
-        const isStagingSandbox = endpoint.includes('/teste') || (process.env.API_BASE_URL && process.env.API_BASE_URL.includes('/teste'));
-        if (isPhpCrash && isStagingSandbox) {
-          logger.warn('Cadastrar despesa retornou erro de PHP (200 success=false). Simulando gravação local.');
-          success = true;
-          datiResponse = { message: 'Despesa gravada com sucesso (Simulado localmente devido a instabilidade na Dati)' };
-        }
+        const errors = response.data?.errors || [response.data?.message || 'Erro ao cadastrar despesa'];
+        datiErroMsg = errors.join(' ');
+        datiIntegrado = false;
       }
     } catch (apiError) {
       const isSandboxMock = apiError.response?.status === 403 || apiError.response?.status === 404;
       const errorData = apiError.response?.data;
-      const errorMsg = errorData?.message || (errorData?.errors && errorData.errors.join(' ')) || apiError.message || '';
-      const isPhpCrash = errorMsg.includes('Trying to access array offset') || errorMsg.includes('offset on value of type null');
-      const isStagingSandbox = endpoint.includes('/teste') || (process.env.API_BASE_URL && process.env.API_BASE_URL.includes('/teste'));
+      datiErroMsg = errorData?.message || (errorData?.errors && errorData.errors.join(' ')) || apiError.message || 'Erro de conexão com a Dati';
       
-      if (isSandboxMock || (isPhpCrash && isStagingSandbox)) {
-        logger.warn('Cadastrar despesa deu erro na API Dati Sandbox. Simulando gravação local por estar em testes.', {
-          status: apiError.response?.status,
-          errorMsg
-        });
-        success = true;
-        datiResponse = { message: 'Despesa gravada com sucesso (Simulado localmente devido a instabilidade na Dati)' };
-      } else {
-        throw apiError;
-      }
+      // Se for 403/404 da Dati Sandbox, é porque a rota do endpoint não existe lá. Tratamos como erro de integração sem travar local.
+      datiIntegrado = false;
     }
     
-    if (success) {
-      // Salvar no banco relacional
-      try {
-        const usuario = req.user ? req.user.nome : 'Admin';
-        await db.query(
-          `INSERT INTO despesas (processo_id, categoria_id, categoria_nome, valor, moeda, data_cadastro, usuario)
-           VALUES ((SELECT id FROM processos WHERE referencia_cliente = $1 LIMIT 1), $2, $3, $4, $5, $6, $7)`,
-          [
-            referenciaCliente, 
-            categoriaId, 
-            categoriaNome || `Categoria ${categoriaId}`, 
-            parseFloat(valor), 
-            String(moeda), 
-            new Date(),
-            usuario
-          ]
-        );
-      } catch (errDb) {
-        logger.error('Erro ao salvar despesa no banco de dados', { error: errDb.message });
-      }
+    // 1. Sempre salvar no banco relacional local
+    try {
+      const usuario = req.user ? req.user.nome : 'Admin';
+      await db.query(
+        `INSERT INTO despesas (processo_id, categoria_id, categoria_nome, valor, moeda, data_cadastro, usuario, dati_integrado, dati_erro)
+         VALUES ((SELECT id FROM processos WHERE referencia_cliente = $1 LIMIT 1), $2, $3, $4, $5, $6, $7, $8, $9)`,
+        [
+          referenciaCliente, 
+          categoriaId, 
+          categoriaNome || `Categoria ${categoriaId}`, 
+          parseFloat(valor), 
+          String(moeda), 
+          new Date(),
+          usuario,
+          datiIntegrado,
+          datiErroMsg
+        ]
+      );
+    } catch (errDb) {
+      logger.error('Erro ao salvar despesa no banco de dados', { error: errDb.message });
+    }
 
-      // Salvar entrada de log no histórico
-      try {
-        const tipoProcesso = idProcesso && idProcesso.startsWith('aereo-') ? 'aereo' : 'maritimo';
-        
-        // Mapear código da moeda para exibição
-        let moedaNick = 'USD';
-        const moedaVal = parseInt(moeda, 10);
-        if (moedaVal === 1 || moedaVal === 2 || moedaVal === 790) moedaNick = 'BRL';
-        else if (moedaVal === 220) moedaNick = 'USD';
-        else if (moedaVal === 3 || moedaVal === 978) moedaNick = 'EUR';
-
-        const usuario = req.user ? req.user.nome : 'Admin';
-        await salvarHistorico(tipoProcesso, {
-          referenciaCliente,
-          categoriaId,
-          categoriaNome: categoriaNome || `Categoria ${categoriaId}`,
-          valor: parseFloat(valor),
-          moeda: moedaNick
-        }, 'sucesso', null, 'Lançamento de Despesa', usuario);
-      } catch (errLog) {
-        logger.error('Erro ao salvar log de despesa no histórico', { error: errLog.message });
-      }
+    // 2. Salvar entrada de log no histórico
+    try {
+      const tipoProcesso = idProcesso && idProcesso.startsWith('aereo-') ? 'aereo' : 'maritimo';
       
-      return res.json(envelope(true, datiResponse || { message: 'Despesa cadastrada!' }, [], []));
-    } else {
-      return res.status(422).json(envelope(false, {}, errors, []));
+      // Mapear código da moeda para exibição
+      let moedaNick = 'USD';
+      const moedaVal = parseInt(moeda, 10);
+      if (moedaVal === 1 || moedaVal === 2 || moedaVal === 790) moedaNick = 'BRL';
+      else if (moedaVal === 220) moedaNick = 'USD';
+      else if (moedaVal === 3 || moedaVal === 978) moedaNick = 'EUR';
+
+      const usuario = req.user ? req.user.nome : 'Admin';
+      const logOp = datiIntegrado ? 'Lançamento de Despesa' : 'Lançamento de Despesa (Falha Integração Dati)';
+      
+      await salvarHistorico(tipoProcesso, {
+        referenciaCliente,
+        categoriaId,
+        categoriaNome: categoriaNome || `Categoria ${categoriaId}`,
+        valor: parseFloat(valor),
+        moeda: moedaNick,
+        datiErro: datiErroMsg
+      }, 'sucesso', null, logOp, usuario);
+    } catch (errLog) {
+      logger.error('Erro ao salvar log de despesa no histórico', { error: errLog.message });
     }
+    
+    // 3. Retornar resposta
+    const warnings = datiIntegrado ? [] : [datiErroMsg || 'A integração com a Dati falhou'];
+    return res.json(envelope(true, datiResponse || { message: 'Despesa cadastrada localmente.' }, [], warnings));
   } catch (error) {
-    const statusCode = error.response?.status || 500;
-    const errorData = error.response?.data || error.message;
-    logger.error('Erro ao cadastrar despesa na Dati', { statusCode, error: errorData });
-    const errors = [];
-    if (errorData && typeof errorData === 'object') {
-      if (errorData.errors) errors.push(...errorData.errors);
-      else if (errorData.message) errors.push(errorData.message);
-      else errors.push(JSON.stringify(errorData));
-    } else {
-      errors.push(String(errorData));
-    }
-    return res.status(statusCode).json(envelope(false, {}, errors));
+    logger.error('Erro geral ao processar cadastro de despesa', { error: error.message });
+    return res.status(500).json(envelope(false, {}, [error.message], []));
   }
 });
 

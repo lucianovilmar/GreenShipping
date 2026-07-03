@@ -4690,12 +4690,24 @@ const fallbackValoresPadrao = {
       despesas.forEach(desp => {
         const moedasStr = { 1: 'USD', 2: 'BRL', 3: 'EUR', 220: 'USD', 790: 'BRL', 978: 'EUR' };
         const tr = document.createElement('tr');
+        
+        if (desp.datiIntegrado === false) {
+          tr.style.background = '#fef2f2';
+          tr.style.color = '#b91c1c';
+          tr.title = `Falha na Dati: ${desp.datiErro || 'Erro desconhecido'}`;
+        }
+        
+        const valorColor = desp.datiIntegrado === false ? '#b91c1c' : '#047857';
+        const categoriaDisplay = desp.datiIntegrado === false 
+          ? `${desp.categoriaNome} <span style="cursor: help; font-size: 14px;" title="Falha de integração com a Dati: ${desp.datiErro || 'Erro desconhecido'}">⚠️</span>` 
+          : desp.categoriaNome;
+          
         tr.innerHTML = `
           <td>${formatarDataLocal(desp.dataCadastro)}</td>
-          <td style="font-weight: 500;">${desp.categoriaNome}</td>
+          <td style="font-weight: 500;">${categoriaDisplay}</td>
           <td>${moedasStr[desp.moeda] || desp.moeda}</td>
-          <td style="text-align: right; font-weight: 600; color: #047857;">${desp.valor.toFixed(2)}</td>
-          <td style="text-align: center; font-size: 12px; color: #475569;">${desp.usuario || 'Sistema'}</td>
+          <td style="text-align: right; font-weight: 600; color: ${valorColor};">${desp.valor.toFixed(2)}</td>
+          <td style="text-align: center; font-size: 12px; ${desp.datiIntegrado === false ? '' : 'color: #475569;'}">${desp.usuario || 'Sistema'}</td>
         `;
         tbody.appendChild(tr);
       });
@@ -4740,7 +4752,11 @@ const fallbackValoresPadrao = {
         });
         const result = await response.json();
         if (response.ok && result.success) {
-          alert('✅ Despesa cadastrada com sucesso!');
+          if (result.warnings && result.warnings.length > 0) {
+            alert('⚠️ Despesa salva localmente, mas a integração com a Dati falhou:\n' + result.warnings.join('\n'));
+          } else {
+            alert('✅ Despesa cadastrada com sucesso e integrada com a Dati!');
+          }
           document.getElementById('despesa-valor').value = '';
           await carregarPainelProcessos(false);
           carregarListaDespesas(idProcesso);
