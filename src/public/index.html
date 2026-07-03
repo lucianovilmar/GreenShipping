@@ -1267,10 +1267,10 @@
       <table class="data-table">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Nome</th>
-            <th>Perfil</th>
-            <th>Status</th>
+            <th style="width: 50px;">ID</th>
+            <th style="width: 250px;">Nome</th>
+            <th style="width: 150px;">Perfil</th>
+            <th style="width: 100px;">Status</th>
             <th style="text-align: center; width: 220px;">Ações</th>
           </tr>
         </thead>
@@ -5489,6 +5489,8 @@ const fallbackValoresPadrao = {
       const tbody = document.getElementById('admin-usuarios-body');
       tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 30px;"><div class="spinner" style="width: 20px; height: 20px;"></div> Carregando usuários...</td></tr>';
       
+      const loggedInUser = JSON.parse(localStorage.getItem('green_shipping_user'));
+
       try {
         const res = await fetch('/api/admin/users');
         const result = await res.json();
@@ -5499,10 +5501,23 @@ const fallbackValoresPadrao = {
             return;
           }
           result.data.forEach(user => {
+            const specialEmails = ['admin@greenshipping.com', 'luiggi.lechinski@greenshipping.com.br', 'lucianovs.lpl@gmail.com'];
+            const isSpecialAdmin = user.email && specialEmails.includes(user.email.toLowerCase());
+            const isSelf = loggedInUser && loggedInUser.email && user.email && loggedInUser.email.toLowerCase() === user.email.toLowerCase();
+            const canModify = !isSpecialAdmin || isSelf;
+
+            const editBtnHtml = canModify
+              ? `<button class="btn-action" onclick='abrirModalUsuario(${JSON.stringify(user)})' style="padding: 6px 12px; font-size: 12px; font-weight: 600; border-radius: 6px; border: 1.5px solid #cbd5e1; background: white; cursor: pointer; color: #475569; transition: all 0.2s; box-shadow: none; height: auto; width: auto; min-width: auto;">Editar</button>`
+              : `<button class="btn-action" style="padding: 6px 12px; font-size: 12px; font-weight: 600; border-radius: 6px; border: 1.5px solid #e2e8f0; background: #f8fafc; color: #94a3b8; cursor: not-allowed; opacity: 0.6; box-shadow: none; height: auto; width: auto; min-width: auto;" disabled title="Original Admin: Apenas ele mesmo pode se editar">Editar</button>`;
+
+            const resetBtnHtml = canModify
+              ? `<button class="btn-action" onclick='resetarSenhaUsuario(${user.id}, "${user.nome}")' style="padding: 6px 12px; font-size: 12px; font-weight: 600; border-radius: 6px; border: 1.5px solid #ef4444; background: white; cursor: pointer; color: #ef4444; transition: all 0.2s; margin-left: 6px; width: auto; min-width: auto; height: auto; box-shadow: none;">Reset Senha</button>`
+              : `<button class="btn-action" style="padding: 6px 12px; font-size: 12px; font-weight: 600; border-radius: 6px; border: 1.5px solid #fecaca; background: #f8fafc; color: #fca5a5; cursor: not-allowed; opacity: 0.6; margin-left: 6px; width: auto; min-width: auto; height: auto; box-shadow: none;" disabled title="Original Admin: Apenas ele mesmo pode resetar">Reset Senha</button>`;
+
             const tr = document.createElement('tr');
             tr.innerHTML = `
               <td>${user.id}</td>
-              <td style="font-weight: 600; color: #1e293b;">${user.nome}</td>
+              <td style="font-weight: 600; color: #1e293b; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${user.nome}</td>
               <td><span style="font-size: 12px; padding: 4px 8px; border-radius: 6px; background: #e2e8f0; color: #475569; font-weight: 500;">${user.papelNome || 'Nenhum'}</span></td>
               <td>
                 <span style="font-size: 12px; padding: 4px 8px; border-radius: 6px; font-weight: 600; ${user.ativo ? 'background: #d1fae5; color: #065f46;' : 'background: #fee2e2; color: #991b1b;'}">
@@ -5510,8 +5525,8 @@ const fallbackValoresPadrao = {
                 </span>
               </td>
               <td style="text-align: center;">
-                <button class="btn-action" onclick='abrirModalUsuario(${JSON.stringify(user)})' style="padding: 6px 12px; font-size: 12px; font-weight: 600; border-radius: 6px; border: 1.5px solid #cbd5e1; background: white; cursor: pointer; color: #475569; transition: all 0.2s;">Editar</button>
-                <button class="btn-action" onclick='resetarSenhaUsuario(${user.id}, "${user.nome}")' style="padding: 6px 12px; font-size: 12px; font-weight: 600; border-radius: 6px; border: 1.5px solid #ef4444; background: white; cursor: pointer; color: #ef4444; transition: all 0.2s; margin-left: 6px; width: auto; min-width: auto; height: auto; box-shadow: none;">Reset Senha</button>
+                ${editBtnHtml}
+                ${resetBtnHtml}
               </td>
             `;
             tbody.appendChild(tr);
