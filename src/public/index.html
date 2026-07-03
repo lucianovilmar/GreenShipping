@@ -1475,9 +1475,9 @@
           <label style="flex: 1;">
             Moeda *
             <select id="despesa-moeda" required style="width: 100%; padding: 10px; border: 1.5px solid #ccd7e0; border-radius: 8px; font-size: 14px; background: white;">
-              <option value="1">USD (Dólar)</option>
-              <option value="2">BRL (Real)</option>
-              <option value="3">EUR (Euro)</option>
+              <option value="220">USD (Dólar)</option>
+              <option value="790">BRL (Real)</option>
+              <option value="978">EUR (Euro)</option>
             </select>
           </label>
           <label style="flex: 2;">
@@ -4673,7 +4673,7 @@ const fallbackValoresPadrao = {
       }
 
       despesas.forEach(desp => {
-        const moedasStr = { 1: 'USD', 2: 'BRL', 3: 'EUR' };
+        const moedasStr = { 1: 'USD', 2: 'BRL', 3: 'EUR', 220: 'USD', 790: 'BRL', 978: 'EUR' };
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td>${desp.dataCadastro || '-'}</td>

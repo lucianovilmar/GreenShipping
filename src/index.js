@@ -601,16 +601,22 @@ app.post('/api/processos/despesas', async (req, res) => {
   
   try {
     const { putApiClient } = require('./config/api');
-    const endpoint = process.env.EXPENSES_ENDPOINT || '/agent_destination/expenses';
+    const endpoint = process.env.EXPENSES_ENDPOINT || '/agent_destination/sas_transactions';
     
     const datiPayload = {
       referenciaCliente,
-      categoriaId: parseInt(categoriaId, 10),
-      valor: parseFloat(valor),
-      moeda: parseInt(moeda, 10)
+      statusPagamento: 'PENDENTE',
+      transactions: [
+        {
+          categoriaDespesa: parseInt(categoriaId, 10),
+          moeda: String(moeda),
+          taxaMoeda: 1.0,
+          valor: parseFloat(valor)
+        }
+      ]
     };
     
-    logger.info('Cadastrando despesa na Dati', { referenciaCliente, categoriaId, valor });
+    logger.info('Cadastrando despesa na Dati', { referenciaCliente, categoriaId, valor, moeda });
     let success = false;
     let datiResponse = null;
     let errors = [];
@@ -618,7 +624,7 @@ app.post('/api/processos/despesas', async (req, res) => {
     try {
       const response = await putApiClient.post(endpoint, datiPayload);
       datiResponse = response.data;
-      success = response.data && response.data.success !== false;
+      success = Array.isArray(response.data) || (response.data && response.data.success !== false);
       if (!success) {
         errors = response.data?.errors || [response.data?.message || 'Erro ao cadastrar despesa'];
       }
@@ -659,9 +665,10 @@ app.post('/api/processos/despesas', async (req, res) => {
         
         // Mapear código da moeda para exibição
         let moedaNick = 'USD';
-        if (parseInt(moeda, 10) === 1) moedaNick = 'BRL';
-        else if (parseInt(moeda, 10) === 220) moedaNick = 'USD';
-        else if (parseInt(moeda, 10) === 978) moedaNick = 'EUR';
+        const moedaVal = parseInt(moeda, 10);
+        if (moedaVal === 1 || moedaVal === 2 || moedaVal === 790) moedaNick = 'BRL';
+        else if (moedaVal === 220) moedaNick = 'USD';
+        else if (moedaVal === 3 || moedaVal === 978) moedaNick = 'EUR';
 
         const usuario = req.user ? req.user.nome : 'Admin';
         await salvarHistorico(tipoProcesso, {
