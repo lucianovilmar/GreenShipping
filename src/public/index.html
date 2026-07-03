@@ -1500,11 +1500,12 @@
               <th>Categoria</th>
               <th>Moeda</th>
               <th style="text-align: right;">Valor</th>
+              <th style="text-align: center; width: 100px;">Usuário</th>
             </tr>
           </thead>
           <tbody id="lista-despesas-body">
             <tr>
-              <td colspan="4" style="text-align: center; color: #94a3b8; padding: 15px;">Nenhuma despesa lançada.</td>
+              <td colspan="5" style="text-align: center; color: #94a3b8; padding: 15px;">Nenhuma despesa lançada.</td>
             </tr>
           </tbody>
         </table>
@@ -4668,7 +4669,7 @@ const fallbackValoresPadrao = {
 
       const despesas = item?.despesas || [];
       if (despesas.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #94a3b8; padding: 15px;">Nenhuma despesa lançada.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #94a3b8; padding: 15px;">Nenhuma despesa lançada.</td></tr>';
         return;
       }
 
@@ -4680,6 +4681,7 @@ const fallbackValoresPadrao = {
           <td style="font-weight: 500;">${desp.categoriaNome}</td>
           <td>${moedasStr[desp.moeda] || desp.moeda}</td>
           <td style="text-align: right; font-weight: 600; color: #047857;">${desp.valor.toFixed(2)}</td>
+          <td style="text-align: center; font-size: 12px; color: #475569;">${desp.usuario || 'Sistema'}</td>
         `;
         tbody.appendChild(tr);
       });
