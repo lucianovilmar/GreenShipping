@@ -3670,6 +3670,20 @@ const fallbackValoresPadrao = {
   ]
 };
 
+    function formatarDataLocal(dataStr) {
+      if (!dataStr) return '-';
+      try {
+        const str = dataStr.toString();
+        const hasTimezone = str.includes('Z') || str.includes('+') || (str.includes('-') && str.split('-').length > 3);
+        const d = new Date(hasTimezone ? str : str.replace(' ', 'T') + 'Z');
+        if (!isNaN(d.getTime())) {
+          const pad = (n) => String(n).padStart(2, '0');
+          return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+        }
+      } catch (e) {}
+      return dataStr;
+    }
+
     // Interceptar requisições fetch para adicionar token de autenticação
     const originalFetch = window.fetch;
     window.fetch = async function(resource, config = {}) {
@@ -4355,7 +4369,7 @@ const fallbackValoresPadrao = {
         const badgeText = p.status === 'sucesso' ? 'Sucesso' : (p.status === 'registro_manual' ? 'Manual' : 'Erro');
         
         // Formatar data
-        const dataStr = p.dataHoraEnvio || '-';
+        const dataStr = formatarDataLocal(p.dataHoraEnvio);
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
@@ -4436,7 +4450,7 @@ const fallbackValoresPadrao = {
       anexos.forEach(anexo => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td>${anexo.dataUpload || '-'}</td>
+          <td>${formatarDataLocal(anexo.dataUpload)}</td>
           <td style="font-weight: 500;">${anexo.nome}</td>
           <td>${anexo.categoriaNome || anexo.categoriaAnexo}</td>
           <td style="text-align: center;">
@@ -4569,7 +4583,7 @@ const fallbackValoresPadrao = {
         card.style.padding = '12px';
         card.innerHTML = `
           <div style="display: flex; justify-content: space-between; font-size: 11px; color: #64748b; margin-bottom: 6px;">
-            <span>🕒 ${f.data}</span>
+            <span>🕒 ${formatarDataLocal(f.data)}</span>
             <span style="color: #8b5cf6; font-weight: 600;">Registrado</span>
           </div>
           <div style="font-size: 13px; color: #334155; white-space: pre-wrap; font-weight: 500;">${f.descricao}</div>
@@ -4677,7 +4691,7 @@ const fallbackValoresPadrao = {
         const moedasStr = { 1: 'USD', 2: 'BRL', 3: 'EUR', 220: 'USD', 790: 'BRL', 978: 'EUR' };
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td>${desp.dataCadastro || '-'}</td>
+          <td>${formatarDataLocal(desp.dataCadastro)}</td>
           <td style="font-weight: 500;">${desp.categoriaNome}</td>
           <td>${moedasStr[desp.moeda] || desp.moeda}</td>
           <td style="text-align: right; font-weight: 600; color: #047857;">${desp.valor.toFixed(2)}</td>
@@ -5139,7 +5153,7 @@ const fallbackValoresPadrao = {
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td>${reg.dataHoraEnvio}</td>
+          <td>${formatarDataLocal(reg.dataHoraEnvio)}</td>
           <td style="font-weight: 600; color: #5c6bc0;">${operacao}</td>
           <td style="font-weight: 600;">${processo}</td>
           <td>${referencia}</td>
@@ -5183,7 +5197,7 @@ const fallbackValoresPadrao = {
           viewEventoAcao.style.display = 'block';
           document.getElementById('v-acao-titulo').textContent = operacao;
           document.getElementById('v-acao-usuario').textContent = item.usuario || 'Admin';
-          document.getElementById('v-acao-data').textContent = item.dataHoraEnvio || '-';
+          document.getElementById('v-acao-data').textContent = formatarDataLocal(item.dataHoraEnvio);
           document.getElementById('v-acao-referencia').textContent = payload.referenciaCliente || '-';
           
           let detalhesText = '';

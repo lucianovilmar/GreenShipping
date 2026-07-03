@@ -221,7 +221,7 @@ app.get('/api/historico', async (req, res) => {
   logger.info('Buscando histórico do banco', { tipo, processo, data });
 
   try {
-    let sql = `SELECT id, TO_CHAR(data_hora_envio AT TIME ZONE 'America/Sao_Paulo', 'YYYY-MM-DD HH24:MI:SS') as "dataHoraEnvio", status, operacao, usuario, payload 
+    let sql = `SELECT id, TO_CHAR(data_hora_envio, 'YYYY-MM-DD HH24:MI:SS') as "dataHoraEnvio", status, operacao, usuario, payload 
                FROM historico_logs 
                WHERE tipo = $1`;
     const params = [tipo];
@@ -270,7 +270,7 @@ app.get('/api/processos/unificados', async (req, res) => {
       SELECT 
         p.id, 
         p.tipo, 
-        TO_CHAR(p.data_hora_envio AT TIME ZONE 'America/Sao_Paulo', 'YYYY-MM-DD HH24:MI:SS') as "dataHoraEnvioLocal", 
+        TO_CHAR(p.data_hora_envio, 'YYYY-MM-DD HH24:MI:SS') as "dataHoraEnvioUTC", 
         p.status, 
         p.operacao, 
         p.usuario, 
@@ -283,14 +283,14 @@ app.get('/api/processos/unificados', async (req, res) => {
             'nomeAnexo', a.nome,
             'categoria', a.categoria_anexo,
             'categoriaNome', a.categoria_nome,
-            'dataUpload', TO_CHAR(a.data_upload AT TIME ZONE 'America/Sao_Paulo', 'YYYY-MM-DD HH24:MI:SS')
+            'dataUpload', TO_CHAR(a.data_upload, 'YYYY-MM-DD HH24:MI:SS')
           )) FROM anexos a WHERE a.processo_id = p.id
         ), '[]'::json) as "anexosList",
         COALESCE((
           SELECT json_agg(json_build_object(
             'id', f.id,
             'mensagem', f.descricao,
-            'data', TO_CHAR(f.data_cadastro AT TIME ZONE 'America/Sao_Paulo', 'YYYY-MM-DD HH24:MI:SS')
+            'data', TO_CHAR(f.data_cadastro, 'YYYY-MM-DD HH24:MI:SS')
           )) FROM follow_ups f WHERE f.processo_id = p.id
         ), '[]'::json) as "followUpsList",
         COALESCE((
@@ -300,7 +300,7 @@ app.get('/api/processos/unificados', async (req, res) => {
             'categoriaNome', d.categoria_nome,
             'valor', d.valor,
             'moeda', d.moeda,
-            'dataCadastro', TO_CHAR(d.data_cadastro AT TIME ZONE 'America/Sao_Paulo', 'YYYY-MM-DD HH24:MI:SS'),
+            'dataCadastro', TO_CHAR(d.data_cadastro, 'YYYY-MM-DD HH24:MI:SS'),
             'usuario', d.usuario
           )) FROM despesas d WHERE d.processo_id = p.id
         ), '[]'::json) as "despesasList"
@@ -313,7 +313,7 @@ app.get('/api/processos/unificados', async (req, res) => {
     const resultados = dbRes.rows.map(p => ({
       id: p.id,
       tipo: p.tipo,
-      dataHoraEnvio: p.dataHoraEnvioLocal || '',
+      dataHoraEnvio: p.dataHoraEnvioUTC || '',
       status: p.status,
       operacao: p.operacao,
       usuario: p.usuario,
