@@ -1482,7 +1482,7 @@
           </label>
           <label style="flex: 2;">
             Valor da Despesa *
-            <input type="number" id="despesa-valor" placeholder="0.00" step="0.01" required style="width: 100%; padding: 10px; border: 1.5px solid #ccd7e0; border-radius: 8px; font-size: 14px;" />
+            <input type="text" id="despesa-valor" placeholder="0,00" required style="width: 100%; padding: 10px; border: 1.5px solid #ccd7e0; border-radius: 8px; font-size: 14px;" />
           </label>
         </div>
         
@@ -4708,7 +4708,17 @@ const fallbackValoresPadrao = {
       const selectCat = document.getElementById('despesa-categoria-select');
       const categoriaId = selectCat.value;
       const categoriaNome = selectCat.options[selectCat.selectedIndex].text;
-      const valor = document.getElementById('despesa-valor').value;
+      
+      const valorRaw = document.getElementById('despesa-valor').value;
+      // Substitui vírgula por ponto para poder converter para número float padrão
+      const valorLimpo = valorRaw.replace(/\s/g, '').replace(',', '.');
+      const valor = parseFloat(valorLimpo);
+      
+      if (isNaN(valor) || valor <= 0) {
+        alert('❌ Por favor, digite um valor de despesa válido.');
+        return;
+      }
+      
       const moeda = document.getElementById('despesa-moeda').value;
 
       const btnSubmit = document.getElementById('btn-submit-despesa');
@@ -4997,6 +5007,19 @@ const fallbackValoresPadrao = {
     });
     document.getElementById('modalDespesas').addEventListener('click', (e) => {
       if (e.target.id === 'modalDespesas') fecharModalDespesas();
+    });
+
+    // Formatar e limpar campo de valor de despesa para aceitar apenas número e vírgula
+    document.getElementById('despesa-valor').addEventListener('input', function(e) {
+      let val = this.value;
+      val = val.replace(/\./g, ','); // Troca ponto por vírgula
+      val = val.replace(/[^0-9,]/g, ''); // Remove tudo exceto número e vírgula
+      
+      const parts = val.split(',');
+      if (parts.length > 2) {
+        val = parts[0] + ',' + parts.slice(1).join('');
+      }
+      this.value = val;
     });
 
     // Modal & Destinos Globais
