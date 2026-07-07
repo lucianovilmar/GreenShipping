@@ -1210,7 +1210,11 @@ app.post('/api/auth/login', async (req, res) => {
     }, [], []));
 
   } catch (error) {
-    logger.error('Erro na rota de login', { error: error.message });
+    logger.error('Erro na rota de login', { 
+      error: error.message || String(error), 
+      stack: error.stack, 
+      details: JSON.stringify(error) 
+    });
     return res.status(500).json(envelope(false, {}, ['Erro ao processar login.']));
   }
 });
