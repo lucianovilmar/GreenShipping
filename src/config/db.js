@@ -4,7 +4,7 @@ let pool;
 
 function getPool() {
   if (!pool) {
-    const connectionString = process.env.DATABASE_URL;
+    const connectionString = process.env.DATABASE_URL ? process.env.DATABASE_URL.trim() : undefined;
     if (!connectionString) {
       throw new Error('DATABASE_URL environment variable is missing.');
     }

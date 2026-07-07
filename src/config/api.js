@@ -3,9 +3,9 @@ require('dotenv').config();
 const logger = require('./logger');
 
 const apiConfig = {
-  baseURL: process.env.API_BASE_URL || 'https://external.dati-api.com/teste',
+  baseURL: (process.env.API_BASE_URL || 'https://external.dati-api.com/teste').trim(),
   timeout: parseInt(process.env.API_TIMEOUT) || 30000,
-  apiKey: process.env.API_KEY || ''
+  apiKey: (process.env.API_KEY || '').trim()
 };
 
 // Unificado para usar as mesmas configurações para GET e PUT
