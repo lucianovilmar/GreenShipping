@@ -13,8 +13,8 @@ const nodemailer = require('nodemailer');
 const app = express();
 const port = parseInt(process.env.PORT, 10) || 3000;
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.json({ limit: '15mb' }));
+app.use(express.urlencoded({ limit: '15mb', extended: false }));
 
 const JWT_SECRET = process.env.JWT_SECRET || 'green-shipping-super-secret-key';
 
