@@ -1182,19 +1182,13 @@
             <input type="checkbox" name="filtro-operacao" value="Registro Manual" checked onchange="buscarHistorico()" /> Reg. Manual
           </label>
           <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: #334155; background: #f8fafc; padding: 6px 12px; border: 1.5px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
-            <input type="checkbox" name="filtro-operacao" value="Inclusão de Anexo" checked onchange="buscarHistorico()" /> Inclusão de Anexo
-          </label>
-          <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: #334155; background: #f8fafc; padding: 6px 12px; border: 1.5px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
-            <input type="checkbox" name="filtro-operacao" value="Exclusão de Anexo" checked onchange="buscarHistorico()" /> Exclusão de Anexo
+            <input type="checkbox" name="filtro-operacao" value="anexos" checked onchange="buscarHistorico()" /> Anexo
           </label>
           <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: #334155; background: #f8fafc; padding: 6px 12px; border: 1.5px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
             <input type="checkbox" name="filtro-operacao" value="Lançamento de Follow Up" checked onchange="buscarHistorico()" /> Follow Up
           </label>
           <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: #334155; background: #f8fafc; padding: 6px 12px; border: 1.5px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
-            <input type="checkbox" name="filtro-operacao" value="Lançamento de Despesa" checked onchange="buscarHistorico()" /> Despesa
-          </label>
-          <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: #334155; background: #f8fafc; padding: 6px 12px; border: 1.5px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
-            <input type="checkbox" name="filtro-operacao" value="Lançamento de Despesa (Falha Integração Dati)" checked onchange="buscarHistorico()" /> Despesa (Falha Dati)
+            <input type="checkbox" name="filtro-operacao" value="despesas" checked onchange="buscarHistorico()" /> Despesa
           </label>
         </div>
       </div>
@@ -5229,7 +5223,13 @@ const fallbackValoresPadrao = {
       // Pegar operações marcadas
       const operacoesMarcadas = [];
       document.querySelectorAll('input[name="filtro-operacao"]:checked').forEach(cb => {
-        operacoesMarcadas.push(cb.value);
+        if (cb.value === 'anexos') {
+          operacoesMarcadas.push('Inclusão de Anexo', 'Exclusão de Anexo');
+        } else if (cb.value === 'despesas') {
+          operacoesMarcadas.push('Lançamento de Despesa', 'Lançamento de Despesa (Falha Integração Dati)');
+        } else {
+          operacoesMarcadas.push(cb.value);
+        }
       });
 
       try {
