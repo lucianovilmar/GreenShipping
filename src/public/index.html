@@ -4474,6 +4474,15 @@ const fallbackValoresPadrao = {
       }
 
       const file = fileInput.files[0];
+      
+      // Validar tamanho do arquivo (máximo 15MB)
+      const maxSizeBytes = 15 * 1024 * 1024;
+      if (file.size > maxSizeBytes) {
+        alert(`❌ O arquivo "${file.name}" excede o tamanho máximo permitido de 15 MB.\nPor favor, escolha um arquivo menor.`);
+        fileInput.value = '';
+        return;
+      }
+
       const btnSubmit = document.getElementById('btn-submit-anexo');
       btnSubmit.disabled = true;
       btnSubmit.textContent = 'Enviando...';
@@ -5036,6 +5045,18 @@ const fallbackValoresPadrao = {
         val = parts[0] + ',' + parts.slice(1).join('');
       }
       this.value = val;
+    });
+
+    // Validar tamanho máximo de arquivo (15MB) no momento da escolha
+    document.getElementById('anexo-arquivo-input').addEventListener('change', function() {
+      if (this.files && this.files.length > 0) {
+        const file = this.files[0];
+        const maxSizeBytes = 15 * 1024 * 1024;
+        if (file.size > maxSizeBytes) {
+          alert(`❌ O arquivo "${file.name}" excede o tamanho máximo permitido de 15 MB.\nPor favor, escolha um arquivo menor.`);
+          this.value = ''; // Limpa a seleção
+        }
+      }
     });
 
     // Modal & Destinos Globais
