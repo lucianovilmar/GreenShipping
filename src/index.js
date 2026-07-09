@@ -212,13 +212,13 @@ app.post('/api/aereo/put', async (req, res) => {
 });
 
 app.get('/api/historico', async (req, res) => {
-  const { tipo, processo, data } = req.query;
+  const { tipo, processo, dataInicio, dataFim, operacoes } = req.query;
 
   if (!tipo || (tipo !== 'maritimo' && tipo !== 'aereo')) {
     return res.status(400).json(envelope(false, {}, ['O parâmetro "tipo" (maritimo ou aereo) é obrigatório.']));
   }
 
-  logger.info('Buscando histórico do banco', { tipo, processo, data });
+  logger.info('Buscando histórico do banco', { tipo, processo, dataInicio, dataFim, operacoes });
 
   try {
     let sql = `SELECT id, TO_CHAR(data_hora_envio, 'YYYY-MM-DD HH24:MI:SS') as "dataHoraEnvio", status, operacao, usuario, payload 
@@ -230,9 +230,26 @@ app.get('/api/historico', async (req, res) => {
       params.push(`%${processo.toLowerCase().trim()}%`);
       sql += ` AND (LOWER(numero_processo) LIKE $${params.length} OR LOWER(referencia_cliente) LIKE $${params.length})`;
     }
-    if (data && data.trim()) {
-      params.push(`${data.trim()}%`);
-      sql += ` AND TO_CHAR(data_hora_envio, 'YYYY-MM-DD') LIKE $${params.length}`;
+
+    if (dataInicio && dataInicio.trim()) {
+      params.push(dataInicio.trim());
+      sql += ` AND (data_hora_envio AT TIME ZONE 'America/Sao_Paulo')::date >= $${params.length}::date`;
+    }
+
+    if (dataFim && dataFim.trim()) {
+      params.push(dataFim.trim());
+      sql += ` AND (data_hora_envio AT TIME ZONE 'America/Sao_Paulo')::date <= $${params.length}::date`;
+    }
+
+    if (operacoes && operacoes.trim()) {
+      const ops = operacoes.split(',').map(o => o.trim()).filter(Boolean);
+      if (ops.length > 0) {
+        params.push(ops);
+        sql += ` AND operacao = ANY($${params.length})`;
+      } else {
+        // Se as operacoes vierem vazias (nenhuma marcada), forçamos retorno vazio
+        sql += ` AND 1 = 0`;
+      }
     }
 
     sql += ' ORDER BY data_hora_envio DESC';

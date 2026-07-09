@@ -1143,27 +1143,65 @@
 
   <!-- Container do Histórico -->
   <div id="historico-container" style="display: none; padding: 32px 24px;">
-    <div class="history-filters">
-      <div style="display: grid; gap: 8px;">
-        <span style="font-weight: 600; font-size: 14px; color: #22303f;">Tipo de Transporte</span>
-        <div class="history-type-toggle">
-          <button type="button" class="type-toggle-btn active" id="toggle-tipo-maritimo" onclick="setHistoryType('maritimo')">🚢 Marítimo</button>
-          <button type="button" class="type-toggle-btn" id="toggle-tipo-aereo" onclick="setHistoryType('aereo')">✈️ Aéreo</button>
+    <div class="history-filters" style="display: grid; gap: 20px;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+        <div style="display: grid; gap: 8px;">
+          <span style="font-weight: 600; font-size: 14px; color: #22303f;">Tipo de Transporte</span>
+          <div class="history-type-toggle" style="display: flex; gap: 8px;">
+            <button type="button" class="type-toggle-btn active" id="toggle-tipo-maritimo" onclick="setHistoryType('maritimo')">🚢 Marítimo</button>
+            <button type="button" class="type-toggle-btn" id="toggle-tipo-aereo" onclick="setHistoryType('aereo')">✈️ Aéreo</button>
+          </div>
+        </div>
+        <div style="display: grid; gap: 8px;">
+          <span style="font-weight: 600; font-size: 14px; color: #22303f;">Buscar Processo/Referência</span>
+          <input type="text" id="filtro-processo" placeholder="Digite número do processo ou ref. cliente" oninput="buscarHistorico()" style="width: 100%; padding: 10px; border: 1.5px solid #ccd7e0; border-radius: 8px; font-size: 14px;" />
         </div>
       </div>
-      <div class="row">
-        <label>
-          Número do Processo
-          <input type="text" id="filtro-processo" placeholder="Digite o número do processo" oninput="buscarHistorico()" />
-        </label>
-        <label>
-          Data de Envio
-          <input type="date" id="filtro-data" onchange="buscarHistorico()" />
-        </label>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+        <div style="display: grid; gap: 8px;">
+          <span style="font-weight: 600; font-size: 14px; color: #22303f;">Data Início</span>
+          <input type="date" id="filtro-data-inicio" onchange="buscarHistorico()" style="width: 100%; padding: 10px; border: 1.5px solid #ccd7e0; border-radius: 8px; font-size: 14px;" />
+        </div>
+        <div style="display: grid; gap: 8px;">
+          <span style="font-weight: 600; font-size: 14px; color: #22303f;">Data Fim</span>
+          <input type="date" id="filtro-data-fim" onchange="buscarHistorico()" style="width: 100%; padding: 10px; border: 1.5px solid #ccd7e0; border-radius: 8px; font-size: 14px;" />
+        </div>
       </div>
-      <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 8px;">
-        <button type="button" class="btn-reset" onclick="limparFiltrosHistorico()" style="min-width: 100px; padding: 10px 16px;">Limpar</button>
-        <button type="button" class="btn-submit" onclick="buscarHistorico()" style="min-width: 120px; padding: 10px 16px;">🔍 Buscar</button>
+
+      <div style="display: grid; gap: 8px;">
+        <span style="font-weight: 600; font-size: 14px; color: #22303f;">Filtrar por Operações</span>
+        <div style="display: flex; flex-wrap: wrap; gap: 10px;" id="operacoes-checklist-container">
+          <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: #334155; background: #f8fafc; padding: 6px 12px; border: 1.5px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+            <input type="checkbox" name="filtro-operacao" value="Novo Envio" checked onchange="buscarHistorico()" /> Novo Envio
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: #334155; background: #f8fafc; padding: 6px 12px; border: 1.5px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+            <input type="checkbox" name="filtro-operacao" value="Atualização" checked onchange="buscarHistorico()" /> Atualização
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: #334155; background: #f8fafc; padding: 6px 12px; border: 1.5px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+            <input type="checkbox" name="filtro-operacao" value="Registro Manual" checked onchange="buscarHistorico()" /> Reg. Manual
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: #334155; background: #f8fafc; padding: 6px 12px; border: 1.5px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+            <input type="checkbox" name="filtro-operacao" value="Inclusão de Anexo" checked onchange="buscarHistorico()" /> Inclusão de Anexo
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: #334155; background: #f8fafc; padding: 6px 12px; border: 1.5px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+            <input type="checkbox" name="filtro-operacao" value="Exclusão de Anexo" checked onchange="buscarHistorico()" /> Exclusão de Anexo
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: #334155; background: #f8fafc; padding: 6px 12px; border: 1.5px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+            <input type="checkbox" name="filtro-operacao" value="Lançamento de Follow Up" checked onchange="buscarHistorico()" /> Follow Up
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: #334155; background: #f8fafc; padding: 6px 12px; border: 1.5px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+            <input type="checkbox" name="filtro-operacao" value="Lançamento de Despesa" checked onchange="buscarHistorico()" /> Despesa
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: #334155; background: #f8fafc; padding: 6px 12px; border: 1.5px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+            <input type="checkbox" name="filtro-operacao" value="Lançamento de Despesa (Falha Integração Dati)" checked onchange="buscarHistorico()" /> Despesa (Falha Dati)
+          </label>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 12px; border-top: 1.5px solid #f1f5f9; padding-top: 16px;">
+        <button type="button" class="btn-reset" onclick="limparFiltrosHistorico()" style="min-width: 100px; padding: 10px 16px; margin: 0;">Limpar</button>
+        <button type="button" class="btn-submit" onclick="buscarHistorico()" style="min-width: 120px; padding: 10px 16px; margin: 0;">🔍 Buscar</button>
       </div>
     </div>
 
@@ -5120,11 +5158,20 @@ const fallbackValoresPadrao = {
         btnHistorico.classList.add('active');
         containerHistorico.style.display = 'block';
         
-        // Define a data de envio como hoje (formato YYYY-MM-DD)
+        // Define as datas padrão: hoje e 5 dias atrás
         const hoje = new Date();
+        const cincoDiasAtras = new Date();
+        cincoDiasAtras.setDate(hoje.getDate() - 5);
+        
         const pad = (num) => String(num).padStart(2, '0');
         const hojeStr = `${hoje.getFullYear()}-${pad(hoje.getMonth() + 1)}-${pad(hoje.getDate())}`;
-        document.getElementById('filtro-data').value = hojeStr;
+        const cincoDiasAtrasStr = `${cincoDiasAtras.getFullYear()}-${pad(cincoDiasAtras.getMonth() + 1)}-${pad(cincoDiasAtras.getDate())}`;
+        
+        document.getElementById('filtro-data-inicio').value = cincoDiasAtrasStr;
+        document.getElementById('filtro-data-fim').value = hojeStr;
+
+        // Marcar todas as operações por padrão
+        document.querySelectorAll('input[name="filtro-operacao"]').forEach(cb => cb.checked = true);
         
         buscarHistorico();
       } else if (menu === 'processos') {
@@ -5153,7 +5200,21 @@ const fallbackValoresPadrao = {
 
     function limparFiltrosHistorico() {
       document.getElementById('filtro-processo').value = '';
-      document.getElementById('filtro-data').value = '';
+      
+      const hoje = new Date();
+      const cincoDiasAtras = new Date();
+      cincoDiasAtras.setDate(hoje.getDate() - 5);
+      
+      const pad = (num) => String(num).padStart(2, '0');
+      const hojeStr = `${hoje.getFullYear()}-${pad(hoje.getMonth() + 1)}-${pad(hoje.getDate())}`;
+      const cincoDiasAtrasStr = `${cincoDiasAtras.getFullYear()}-${pad(cincoDiasAtras.getMonth() + 1)}-${pad(cincoDiasAtras.getDate())}`;
+      
+      document.getElementById('filtro-data-inicio').value = cincoDiasAtrasStr;
+      document.getElementById('filtro-data-fim').value = hojeStr;
+
+      // Marcar todas as operações
+      document.querySelectorAll('input[name="filtro-operacao"]').forEach(cb => cb.checked = true);
+
       buscarHistorico();
     }
 
@@ -5162,12 +5223,25 @@ const fallbackValoresPadrao = {
       tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 30px;"><div class="spinner" style="width: 20px; height: 20px;"></div> Carregando histórico...</td></tr>';
 
       const processo = document.getElementById('filtro-processo').value;
-      const data = document.getElementById('filtro-data').value;
+      const dataInicio = document.getElementById('filtro-data-inicio').value;
+      const dataFim = document.getElementById('filtro-data-fim').value;
+
+      // Pegar operações marcadas
+      const operacoesMarcadas = [];
+      document.querySelectorAll('input[name="filtro-operacao"]:checked').forEach(cb => {
+        operacoesMarcadas.push(cb.value);
+      });
 
       try {
         let url = `/api/historico?tipo=${currentHistoryType}`;
         if (processo) url += `&processo=${encodeURIComponent(processo)}`;
-        if (data) url += `&data=${encodeURIComponent(data)}`;
+        if (dataInicio) url += `&dataInicio=${encodeURIComponent(dataInicio)}`;
+        if (dataFim) url += `&dataFim=${encodeURIComponent(dataFim)}`;
+        if (operacoesMarcadas.length > 0) {
+          url += `&operacoes=${encodeURIComponent(operacoesMarcadas.join(','))}`;
+        } else {
+          url += `&operacoes=nenhuma`;
+        }
 
         const response = await fetch(url);
         const result = await response.json();
@@ -5267,9 +5341,12 @@ const fallbackValoresPadrao = {
             detalhesText = `Arquivo deletado:\nID do Anexo: ${payload.anexoId || '-'}`;
           } else if (operacao === 'Lançamento de Follow Up') {
             detalhesText = `Mensagem enviada:\n"${payload.mensagem || '-'}"`;
-          } else if (operacao === 'Lançamento de Despesa') {
+          } else if (operacao === 'Lançamento de Despesa' || operacao === 'Lançamento de Despesa (Falha Integração Dati)') {
             const valFormt = parseFloat(payload.valor || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
             detalhesText = `Despesa cadastrada:\nValor: ${payload.moeda || ''} ${valFormt}\nCategoria: ${payload.categoriaNome || `Categoria ID ${payload.categoriaId}`}`;
+            if (payload.datiErro) {
+              detalhesText += `\n\n⚠️ Falha na Integração Dati:\n"${payload.datiErro}"`;
+            }
           } else {
             detalhesText = JSON.stringify(payload, null, 2);
           }
