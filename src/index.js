@@ -86,6 +86,26 @@ async function salvarHistorico(tipo, payload, status, updateId = null, operacao 
     const opFinal = operacao || (status === 'registro_manual' ? 'Registro Manual' : (updateId ? 'Atualização' : 'Novo Envio'));
     const isProcessoOp = opFinal === 'Novo Envio' || opFinal === 'Atualização' || opFinal === 'Registro Manual';
     
+    let numProcesso = payload?.numeroProcesso || null;
+    const refCliente = payload?.referenciaCliente || null;
+
+    if (!numProcesso && refCliente) {
+      try {
+        const procRes = await db.query(
+          'SELECT numero_processo FROM processos WHERE referencia_cliente = $1 LIMIT 1',
+          [refCliente.trim()]
+        );
+        if (procRes.rows.length > 0) {
+          numProcesso = procRes.rows[0].numero_processo;
+          if (payload) {
+            payload.numeroProcesso = numProcesso;
+          }
+        }
+      } catch (dbErr) {
+        logger.error('Erro ao buscar numero_processo no salvarHistorico', { error: dbErr.message });
+      }
+    }
+
     // Inserir log de auditoria na tabela historico_logs
     await db.query(
       `INSERT INTO historico_logs (status, operacao, usuario, referencia_cliente, numero_processo, tipo, payload)
@@ -94,8 +114,8 @@ async function salvarHistorico(tipo, payload, status, updateId = null, operacao 
         status, 
         opFinal, 
         usuario, 
-        payload?.referenciaCliente || null, 
-        payload?.numeroProcesso || null, 
+        refCliente, 
+        numProcesso, 
         tipo, 
         payload
       ]
