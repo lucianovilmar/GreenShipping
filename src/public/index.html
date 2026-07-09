@@ -5285,6 +5285,11 @@ const fallbackValoresPadrao = {
           badgeText = 'Manual';
         }
 
+        const isProcessoOp = operacao === 'Novo Envio' || operacao === 'Atualização' || operacao === 'Registro Manual';
+        const botaoVisualizar = isProcessoOp 
+          ? `<button type="button" class="btn-view-history" onclick="visualizarDetalhesItem('${reg.id}')">👁️ Visualizar</button>` 
+          : '-';
+
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td>${formatarDataLocal(reg.dataHoraEnvio)}</td>
@@ -5294,7 +5299,7 @@ const fallbackValoresPadrao = {
           <td><span class="badge ${badgeClass}">${badgeText}</span></td>
           <td style="font-weight: 500; color: #64748b;">${usuario}</td>
           <td style="text-align: center;">
-            <button type="button" class="btn-view-history" onclick="visualizarDetalhesItem('${reg.id}')">👁️ Visualizar</button>
+            ${botaoVisualizar}
           </td>
         `;
         tableBody.appendChild(tr);
