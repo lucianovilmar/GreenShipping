@@ -2150,6 +2150,12 @@
 
     function limparFormularioMaritimo() {
       recriarItensIniciais();
+      window.activeEditingProcessId = null;
+      const refInput = document.querySelector('#maritimo-form [name="referenciaCliente"]');
+      if (refInput) {
+        refInput.readOnly = false;
+        refInput.style.background = '';
+      }
     }
 
 const fallbackValoresPadrao = {
@@ -4281,6 +4287,12 @@ const fallbackValoresPadrao = {
 
     function limparFormularioAereo() {
       recriarItensIniciais();
+      window.activeEditingProcessId = null;
+      const refInput = document.querySelector('#aereo-form [name="referenciaCliente"]');
+      if (refInput) {
+        refInput.readOnly = false;
+        refInput.style.background = '';
+      }
     }
 
     // Fechar modal ao clicar fora
@@ -4866,8 +4878,10 @@ const fallbackValoresPadrao = {
           }
 
           if (key === 'referenciaCliente') {
-            input.readOnly = true;
-            input.style.background = '#f1f5f9';
+            // Habilitar edição apenas se o status NÃO for sucesso (ou seja: registro_manual ou erro)
+            const naoEhSucesso = item.status !== 'sucesso';
+            input.readOnly = !naoEhSucesso;
+            input.style.background = naoEhSucesso ? '' : '#f1f5f9';
           }
         }
 
@@ -5148,6 +5162,20 @@ const fallbackValoresPadrao = {
       if (menu === 'cadastro') {
         btnCadastro.classList.add('active');
         containerCadastro.style.display = 'block';
+        
+        // Se não estiver editando nenhum processo, garante que a referenciaCliente esteja editável
+        if (!window.activeEditingProcessId) {
+          const maritimoRefInput = document.querySelector('#maritimo-form [name="referenciaCliente"]');
+          if (maritimoRefInput) {
+            maritimoRefInput.readOnly = false;
+            maritimoRefInput.style.background = '';
+          }
+          const aereoRefInput = document.querySelector('#aereo-form [name="referenciaCliente"]');
+          if (aereoRefInput) {
+            aereoRefInput.readOnly = false;
+            aereoRefInput.style.background = '';
+          }
+        }
       } else if (menu === 'historico') {
         btnHistorico.classList.add('active');
         containerHistorico.style.display = 'block';
