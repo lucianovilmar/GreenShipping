@@ -642,6 +642,58 @@
       color: white;
       box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
     }
+
+    /* Developer Section Styles */
+    .login-divider {
+      border: 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      margin: 20px 0;
+    }
+    .developer-section {
+      text-align: center;
+    }
+    .developer-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 12px;
+    }
+    .developer-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      border-radius: 9999px;
+      padding: 6px 18px;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.1);
+      text-decoration: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .developer-badge:hover {
+      border-color: rgba(56, 189, 248, 0.4);
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.2);
+    }
+    .developer-logo {
+      width: 22px;
+      height: 22px;
+      margin-right: 8px;
+      border-radius: 4px;
+      object-fit: contain;
+    }
+    .developer-text-lvs {
+      font-weight: 800;
+      font-size: 13px;
+      color: #818cf8;
+      margin-right: 4px;
+    }
+    .developer-text-rest {
+      font-weight: 600;
+      font-size: 13px;
+      color: #38bdf8;
+    }
   </style>
 </head>
 <body>
@@ -714,6 +766,17 @@
             <button type="submit" class="auth-btn">Redefinir Senha</button>
           </div>
         </form>
+      </div>
+
+      <hr class="login-divider">
+
+      <div class="developer-section">
+        <div class="developer-label">Desenvolvido por</div>
+        <a href="#" class="developer-badge" onclick="event.preventDefault();">
+          <img src="assets/logo_lvs_escudo.png" alt="LVS Logo" class="developer-logo" onerror="this.onerror=null;this.src='assets/placeholder.svg';">
+          <span class="developer-text-lvs">LVS</span>
+          <span class="developer-text-rest">Tech Solutions Ltda.</span>
+        </a>
       </div>
     </div>
   </div>
